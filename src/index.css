@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-skyBlue: #78C0E0;
+  --color-celestialBlue: #449DD1;
+  --color-persianBlue: #192BC2;
+  --color-navyBlue: #150578;
+  --color-federalBlue: #0E0E52;
+  --color-blackGray: #151517;
+  --color-darkGray: #2C2C2E;
+  /*bg-amber-50- cremowy taki*/
+}
+
+@layer utilities {
+  .animate-bg-pulse {
+    animation: bg-pulse 5s infinite;
+  }
+  
+  @keyframes bg-pulse {
+    0%, 100% {
+      background-color: rgb(14 165 233); /* sky-500 */
+    }
+    50% {
+      background-color: rgb(56 189 248); /* sky-400 - jaśniejszy odcień */
+    }
+  }
+}
+
+@utility container {
+  padding-inline: 10px;
+  margin-inline: auto;
+}
