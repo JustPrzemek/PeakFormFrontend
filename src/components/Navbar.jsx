@@ -7,29 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../services/authService";
 import { IoLogOut } from "react-icons/io5";
 import { CgGym } from 'react-icons/cg';
-import { useEffect, useState } from "react";
-import { getMyProfilePicture } from "../services/userProfileService";
+import { useUser } from '../context/UserContext';
 
 export default function Navbar() {
 
-    const [profilePicture, setProfilePicture] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-            const fetchProfilePicture = async () => {
-                try {
-                    const data = await getMyProfilePicture();
-                    setProfilePicture(data);
-                } catch (err) {
-                    setError(err);
-                } finally {
-                setLoading(false);
-            }
-            };
-            fetchProfilePicture();
-        }, []);
-
+    const { profilePictureUrl, loading } = useUser();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -41,7 +23,6 @@ export default function Navbar() {
     };
 
     if (loading) return <p>Loading profile picture...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
 
     return (
         <nav className="sticky top-0 w-full border border-b-1 z-50">
@@ -82,8 +63,8 @@ export default function Navbar() {
 
                             <li className="transition-transform duration-300 hover:scale-110">
                                 <img 
-                                    className="rounded-full w-6 w-ful cursor-pointer" 
-                                    src={profilePicture.profileImageUrl}
+                                    className="w-6 h-6 rounded-full object-cover cursor-pointer" 
+                                    src={profilePictureUrl}
                                     alt="User Profile"
                                     onClick={() => navigate("/profile")}
                                 />

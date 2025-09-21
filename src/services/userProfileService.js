@@ -29,3 +29,38 @@ export const getMyProfilePicture = async () => {
     }
 };
 
+export const getEditData = async () => {
+    try {
+        const response = await api.get("/userProfile/getEditData");
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || "Failed to fetch data for user";
+    }
+};
+
+export const updateUserData = async (userData) => {
+    try {
+        const response = await api.patch("/userProfile/updateProfileData", userData);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || "Failed to update user data";
+    }
+};
+
+export const uploadProfileImage = async (file) => {
+    // 1. Stwórz obiekt FormData
+    const formData = new FormData();
+    
+    // 2. Dodaj plik do FormData. Nazwa 'file' musi być taka sama
+    //    jak w adnotacji @RequestPart("file") w kontrolerze!
+    formData.append('file', file);
+
+    try {
+        // 3. Wyślij zapytanie POST z obiektem FormData.
+        //    Axios automatycznie ustawi poprawny nagłówek 'Content-Type'.
+        const response = await api.post("/userProfile/image", formData);
+        return response.data; // Endpoint zwraca nowy URL obrazu
+    } catch (error) {
+        throw error.response?.data?.message || "Failed to upload image";
+    }
+};

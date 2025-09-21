@@ -7,7 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import IconButton from './IconButton';
 
 function RegistrationForm() {
-    const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '', age: '' });
+    const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '', dateOfBirth: '' });
     const [errors, setErrors] = useState({});
     const [message, setMessage] = useState('');
     const [apiError, setApiError] = useState('');
@@ -32,8 +32,17 @@ function RegistrationForm() {
         if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password.";
         else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
 
-        if (!formData.age) newErrors.age = "Age is required.";
-        else if (formData.age <= 0) newErrors.age = "Please enter a valid age.";
+        if (!formData.dateOfBirth) {
+            newErrors.dateOfBirth = "Date of birth is required.";
+        } else {
+            const today = new Date();
+            const selectedDate = new Date(formData.dateOfBirth);
+            today.setHours(0, 0, 0, 0); 
+            
+            if (selectedDate >= today) {
+                newErrors.dateOfBirth = "Date of birth must be in the past.";
+            }
+        }
 
         return newErrors;
     };
@@ -134,7 +143,14 @@ function RegistrationForm() {
                 >
                     <RiLockPasswordLine />
                 </IconInput>
-                <IconInput placeholder="Age" type="number" name="age" value={formData.age} onChange={handleChange} error={errors.age}>
+                <IconInput 
+                    placeholder="Date of Birth" 
+                    type="date" 
+                    name="dateOfBirth" 
+                    value={formData.dateOfBirth} 
+                    onChange={handleChange} 
+                    error={errors.dateOfBirth}
+                >
                     <FaBirthdayCake />
                 </IconInput>
                 

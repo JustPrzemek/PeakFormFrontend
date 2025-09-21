@@ -1,5 +1,8 @@
+import { Link} from "react-router-dom";
 
 export default function ProfileHeader({ profile }) {
+
+
 
     
     return (
@@ -8,7 +11,7 @@ export default function ProfileHeader({ profile }) {
                 <img 
                     src={profile.profileImageUrl} 
                     alt="Profile Image" 
-                    className="rounded-full"
+                    className="w-[150px] h-[150px] rounded-full object-cover" 
                     width="150" />
             </div>
             <div className="p-3 text-gray-600 col-span-2">
@@ -16,10 +19,11 @@ export default function ProfileHeader({ profile }) {
                     <h1 className="inline-block text-3xl align-bottom block">
                         {profile.username}
                     </h1>
-                    <button className="bg-white ml-3 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded text-sm">
-                        Edit profile
-                    </button>
-
+                    <Link to='/profile/edit'>
+                        <button className="bg-white ml-3 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded text-sm cursor-pointer hover:bg-gray-100 transition-colors duration-200">
+                            Edit profile
+                        </button>
+                    </Link>
                 </div>
                 <div className="flex flex-row py-5 max-w-sm hidden lg:flex">
                     <div className="basis-1/3">
