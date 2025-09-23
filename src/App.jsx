@@ -5,17 +5,18 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import EmailConfirmedPage from './pages/EmailConfirmedPage';
 import MainLayout from "./pages/MainLayout";
-import UserProfilePage from "./pages/UserProfilePage";
 import Profile from './pages/ProfilePage';
 import ProfileEdit from './components/ProfileEdit';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedLayout from './layouts/ProtectedLayout';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
     return (
         <Router>
+            <Toaster position="top-center" reverseOrder={false} />
             <Routes>
-                <Route path="/" element={<AuthPage />} />
+                <Route path="/login" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/callback" element={<OAuth2RedirectHandler />} />
                 <Route path="/email-confirmed" element={<EmailConfirmedPage />} />
@@ -40,15 +41,15 @@ function App() {
                         <Route index element={<Navigate to="edit" replace/>}/>
                         <Route path='edit' element={<ProfileEdit/>}/>
                     </Route >
-
-                    <Route path="/profile"
+                    
+                    <Route path="/profile/:username"
                         element={
                             <MainLayout>
                                 <Profile />
                             </MainLayout>
-                            
                         }
                     />
+
                 </Route>
             </Routes>
         </Router>

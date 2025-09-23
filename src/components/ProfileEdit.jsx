@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import { getEditData, updateUserData } from "../services/userProfileService";
 import ImageUploadModal from "./ImageUploadModal";
-import { useUser } from '../context/UserContext'; 
+import { useUser } from '../context/UserContext';
+import toast from 'react-hot-toast';
 //import { useNavigate } from 'react-router-dom';
 
 export default function ProfileEdit() {
@@ -20,7 +21,7 @@ export default function ProfileEdit() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const { profilePictureUrl: globalProfilePictureUrl, updateProfilePicture } = useUser();
+    const { user, updateProfilePicture } = useUser();
 
     //const navigate = useNavigate();
 
@@ -73,19 +74,19 @@ export default function ProfileEdit() {
         try {
             // 2. Wysyłamy obiekt do backendu
             await updateUserData(updatedData);
-            
-            // 3. Po sukcesie - możesz coś zrobić
-            alert("Profile updated successfully!");
-            // navigate('/profile'); // np. przekieruj na stronę profilu
+            toast.success('Profile updated successfully!');
         } catch (err) {
-            setError(err.message || "An error occurred during update.");
+            const errorMessage = err.message || "An error occurred during update.";
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false); // Odblokuj przycisk
         }
     };
 
     const handleUploadSuccess = (newImageUrl) => {
-         updateProfilePicture(newImageUrl);
+        updateProfilePicture(newImageUrl);
+        toast.success('Profile picture updated!');
     };
     
     if (loading) return <p>Loading profile...</p>;
@@ -97,7 +98,7 @@ export default function ProfileEdit() {
                 <div className="w-1/3 p-3">
                     <div className="float-right mr-5">
                         <img 
-                            src={globalProfilePictureUrl} 
+                            src={user?.profileImageUrl} 
                             alt="Profile thumbnail" 
                             onClick={() => setIsModalOpen(true)}
                             className="w-10 h-10 rounded-full object-cover cursor-pointer" 

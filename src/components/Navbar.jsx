@@ -8,24 +8,76 @@ import { logoutUser } from "../services/authService";
 import { IoLogOut } from "react-icons/io5";
 import { CgGym } from 'react-icons/cg';
 import { useUser } from '../context/UserContext';
+import { useDebounce } from '../hooks/useDebounce';
+import { searchUsers } from '../services/userProfileService';
+import { useState, useEffect, useRef } from 'react';
+
 
 export default function Navbar() {
 
-    const { profilePictureUrl, loading } = useUser();
+    const { user, loading } = useUser(); 
     const navigate = useNavigate();
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [results, setResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const searchContainerRef = useRef(null);
+
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+                setDropdownVisible(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [searchContainerRef]);
+    
+    useEffect(() => {
+        if (debouncedSearchTerm) { // Jeśli jest jakiś tekst (po opóźnieniu)
+            setIsLoading(true);
+            setDropdownVisible(true);
+            searchUsers(debouncedSearchTerm)
+                .then(data => {
+                    setResults(data.content); // Pamiętaj, że wyniki są w polu `content`
+                })
+                .catch(error => {
+                    console.error(error);
+                    setResults([]);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            setResults([]); // Wyczyść wyniki, gdy input jest pusty
+            setDropdownVisible(false);
+        }
+    }, [debouncedSearchTerm]);
 
     const handleLogout = () => {
         const token = localStorage.getItem("refreshToken");
         if (token) logoutUser(token);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        navigate("/");
+        navigate("/login");
     };
 
-    if (loading) return <p>Loading profile picture...</p>;
+    const handleUserClick = (username) => {
+        setSearchTerm(''); // Wyczyść input
+        setResults([]); // Wyczyść wyniki
+        setDropdownVisible(false); // Ukryj dropdown
+        navigate(`/profile/${username}`); // Przejdź do profilu użytkownika
+    };
+
+    if (loading) return <p>Loading...</p>;
 
     return (
-        <nav className="sticky top-0 w-full border border-b-1 z-50">
+        <nav className="sticky top-0 w-full border border-b-1 z-50 bg-white">
             <div className="container max-w-5xl">
                 <div className="flex flex-row py-1 items-center">
                     <div 
@@ -37,11 +89,42 @@ export default function Navbar() {
                         <span className="font-bold">PeakForm</span>
                     </div>
 
-                    <div className="basis-1/3 relative hidden md:block">
-                        
+                    <div className="basis-1/3 relative hidden md:block" ref={searchContainerRef}>
                         <IoSearch icon="magnifying-glass" className="absolute left-3 top-3 text-gray-300"/>
-                        <input type="text" placeholder="Search..." className="p-2 bg-gray-100 rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"/>
-
+                        <input 
+                            type="text" 
+                            placeholder="Search..." 
+                            className="p-2 bg-gray-100 rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onFocus={() => searchTerm && setDropdownVisible(true)}
+                        />
+                        {isDropdownVisible && (
+                            <div className="absolute top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                {isLoading ? (
+                                    <div className="p-4 text-center text-gray-500">Loading...</div>
+                                ) : results.length > 0 ? (
+                                    <ul>
+                                        {results.map(user => (
+                                            <li 
+                                                key={user.id} 
+                                                className="flex items-center p-3 hover:bg-gray-100 cursor-pointer"
+                                                onClick={() => handleUserClick(user.username)}
+                                            >
+                                                <img 
+                                                    src={user.profileImageUrl || 'https://via.placeholder.com/40'}
+                                                    alt={user.username}
+                                                    className="w-10 h-10 rounded-full object-cover mr-3"
+                                                />
+                                                <span className="font-semibold">{user.username}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : searchTerm && (
+                                    <div className="p-4 text-center text-gray-500">No users found.</div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="basis-1/2 md:basis-1/3">
@@ -64,9 +147,9 @@ export default function Navbar() {
                             <li className="transition-transform duration-300 hover:scale-110">
                                 <img 
                                     className="w-6 h-6 rounded-full object-cover cursor-pointer" 
-                                    src={profilePictureUrl}
+                                    src={user.profileImageUrl}
                                     alt="User Profile"
-                                    onClick={() => navigate("/profile")}
+                                    onClick={() => navigate(`/profile/${user.username}`)}
                                 />
                             </li>
                         </ul>

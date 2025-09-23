@@ -2,17 +2,27 @@ import { IoIosImages } from "react-icons/io";
 import { MdOutlineQueryStats } from "react-icons/md";
 import { AiOutlineLike } from "react-icons/ai";
 import ProfilePost from "./ProfilePost";
+import PostModal from './PostModal';
 import { useEffect, useState, useRef, useCallback } from "react";
-import { getMyPosts } from "../services/postsService";
+import { getMyPosts, getUserPosts } from "../services/postsService";
 
-export default function ProfilePosts({ profile }) {
+export default function ProfilePosts({ profile, isOwnProfile}) {
     
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [selectedPostId, setSelectedPostId] = useState(null);
 
     const observer = useRef();
+
+    const handleOpenPostModal = (postId) => {
+        setSelectedPostId(postId);
+    };
+
+    const handleClosePostModal = () => {
+        setSelectedPostId(null);
+    };
 
     const lastPostRef = useCallback((node) => {
         if (loading) return;
@@ -28,24 +38,46 @@ export default function ProfilePosts({ profile }) {
     }, [loading, hasMore]);
 
     useEffect(() => {
+        setPosts([]);
+        setPage(0);
+        setHasMore(true);
+    }, [profile.username]);
+
+    useEffect(() => {
+        // Nie rób nic, jeśli nie ma już więcej postów do załadowania
+        if (!hasMore) return;
+
         const fetchPosts = async () => {
             setLoading(true);
             try {
-                const data = await getMyPosts(page, 6); // np. 6 na stronę
-                setPosts((prev) => [...prev, ...data.content]); // `content` zakładam, że masz w `PagedResponse`
-                setHasMore(!data.last); // `last` powinno być w `PagedResponse`
+                let data;
+                // Tutaj dzieje się magia!
+                if (isOwnProfile) {
+                    data = await getMyPosts(page, 6);
+                } else {
+                    data = await getUserPosts(profile.username, page, 6);
+                }
+                
+                setPosts((prev) => [...prev, ...data.content]);
+                setHasMore(!data.last);
             } catch (err) {
                 console.error(err);
+                // Warto też zatrzymać dalsze próby pobierania w razie błędu
+                setHasMore(false); 
             } finally {
                 setLoading(false);
             }
         };
 
         fetchPosts();
-    }, [page]);
+        // Zależności: Uruchom ponownie, gdy zmieni się strona LUB nazwa użytkownika
+    }, [page, profile.username, isOwnProfile, hasMore]);
 
     return (
         <>
+            {selectedPostId && (
+                <PostModal postId={selectedPostId} onClose={handleClosePostModal} />
+            )}
             <ul className="flex flex-row p-2 text-sm items-center justify-center border-t text-gray-400 h-16 lg:hidden">
 
                 <li className="flex-1 text-center">
@@ -83,15 +115,15 @@ export default function ProfilePosts({ profile }) {
             </div>
             <div className="grid grid-cols-3 gap-1 lg:gap-8">
                 {posts.map((post, index) => {
-                    if (index === posts.length - 1) {
-                        return (
-                            <div ref={lastPostRef} key={post.id}>
-                                <ProfilePost post={post} />
-                            </div>
-                        );
-                    } else {
-                        return <ProfilePost key={post.id} post={post} />;
-                    }
+                    const ref = index === posts.length - 1 ? lastPostRef : null;
+                    return (
+                        <div ref={ref} key={post.id}>
+                            <ProfilePost 
+                                post={post} 
+                                onOpenModal={handleOpenPostModal} 
+                            />
+                        </div>
+                    );
                 })}
                 {loading && <p className="col-span-3 text-center  text-gray-600">Loading...</p>}
                 {!hasMore && <p className="col-span-3 text-center  text-gray-600">No more posts</p>}

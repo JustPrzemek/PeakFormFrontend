@@ -2,7 +2,7 @@ import { IoMdHeartHalf } from "react-icons/io";
 import { FaComment } from "react-icons/fa";
 import React, {useState} from "react";
 
-export default function ProfilePost({post}) {
+export default function ProfilePost({post, onOpenModal }) {
     const [showOverlay, setShowOverlay] = useState(false);
 
     const renderMedia = () => {
@@ -34,18 +34,19 @@ export default function ProfilePost({post}) {
     };
 
     return (
-        <div className="relative overflow-hidden w-full pt-[100%] "
+        <div className="relative overflow-hidden w-full pt-[100%] cursor-pointer group"
         onMouseEnter={() => setShowOverlay(true)}
-        onMouseLeave={() => setShowOverlay(false)}>
-            <a href="#" className="">
+        onMouseLeave={() => setShowOverlay(false)}
+        onClick={() => onOpenModal(post.id)}>
                 <div className={`bg-gray-800 bg-opacity-60 h-full w-full absolute inset-0 z-10 flex items-center justify-center text-white ${showOverlay ? "" : "hidden"}`}>
                     <IoMdHeartHalf />
                     <span className="ml-2">{post.likesCount}</span>
                     <FaComment className="ml-8"/>
                     <span className="ml-2">{post.commentsCount}</span>
                 </div>
-            </a>
-            {renderMedia()}
+            <div className="absolute inset-0">
+                {renderMedia()}
+            </div>
         </div>
     );
 }

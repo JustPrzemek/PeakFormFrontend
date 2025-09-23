@@ -1,35 +1,47 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getMyProfilePicture } from '../services/userProfileService';// Upewnij się, że ścieżka jest poprawna
+// ✅ 1. Importujemy getMyProfile zamiast getMyProfilePicture
+import { getMyProfile } from '../services/userProfileService';
 
-// 1. Tworzymy Context
 const UserContext = createContext(null);
 
-// 2. Tworzymy "Providera" - komponent, który będzie dostarczał dane
 export function UserProvider({ children }) {
-    const [profilePictureUrl, setProfilePictureUrl] = useState(null);
+    // ✅ 2. Zamiast osobnych stanów, trzymamy cały obiekt użytkownika
+    const [user, setUser] = useState(null); 
     const [loading, setLoading] = useState(true);
 
-    // Ten useEffect pobierze zdjęcie tylko raz, gdy aplikacja startuje
     useEffect(() => {
-        const fetchPicture = async () => {
+        const fetchUser = async () => {
             try {
-                const data = await getMyProfilePicture();
-                setProfilePictureUrl(data.profileImageUrl);
+                // ✅ 3. Zmieniamy funkcję na getMyProfile, żeby pobrać wszystkie dane naraz
+                const data = await getMyProfile();
+                // ✅ 4. Ustawiamy w stanie cały obiekt użytkownika
+                setUser(data); 
             } catch (error) {
-                console.error("Failed to fetch profile picture for context:", error);
+                console.error("Failed to fetch user for context:", error);
+                // W przypadku błędu, np. wygaśnięcia tokena, user pozostanie null
+                setUser(null);
             } finally {
                 setLoading(false);
             }
         };
-        fetchPicture();
+        fetchUser();
     }, []);
 
-    // Funkcja do aktualizacji zdjęcia z dowolnego miejsca w aplikacji
-    const updateProfilePicture = (newUrl) => {
-        setProfilePictureUrl(newUrl);
+    // ✅ 5. Nowa, bardziej elastyczna funkcja do aktualizacji
+    // Przyda się np. po edycji profilu
+    const updateUser = (newUserData) => {
+        setUser(prevUser => ({ ...prevUser, ...newUserData }));
     };
 
-    const value = { profilePictureUrl, updateProfilePicture, loading };
+    // Funkcja do aktualizacji samego zdjęcia (nadal może być przydatna)
+    const updateProfilePicture = (newUrl) => {
+        if (user) {
+            setUser(prevUser => ({ ...prevUser, profileImageUrl: newUrl }));
+        }
+    };
+
+    // ✅ 6. Udostępniamy cały obiekt 'user' oraz funkcje do jego aktualizacji
+    const value = { user, updateUser, updateProfilePicture, loading };
 
     return (
         <UserContext.Provider value={value}>
@@ -38,7 +50,6 @@ export function UserProvider({ children }) {
     );
 }
 
-// 3. Tworzymy custom hooka dla łatwiejszego użycia contextu
 export function useUser() {
     return useContext(UserContext);
 }

@@ -64,3 +64,23 @@ export const uploadProfileImage = async (file) => {
         throw error.response?.data?.message || "Failed to upload image";
     }
 };
+
+export const searchUsers = async (query, size = 5) => {
+    // Jeśli zapytanie jest puste, nie wysyłamy requestu
+    if (!query.trim()) {
+        return { content: [] };
+    }
+
+    try {
+        const response = await api.get("/userProfile/search", {
+            params: { 
+                query,
+                size 
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Failed to search users:", error);
+        throw error.response?.data?.message || "Failed to search users";
+    }
+};
