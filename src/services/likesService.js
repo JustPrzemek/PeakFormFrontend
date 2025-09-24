@@ -11,7 +11,7 @@ export const addLikeToPost = async (postId) => {
 
 export const removeLikeFromPost = async (postId) => {
     try {
-        const response = await api.delete(`/likes/${postId}/like`);
+        const response = await api.delete(`/likes/${postId}/unlike`);
         return response.data; // Zwraca { totalLikes, isLikedByUser }
     } catch (error) {
         throw error.response?.data?.message || "Failed to remove like";

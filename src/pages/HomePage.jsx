@@ -72,18 +72,19 @@ function HomePage() {
         );
     };
 
-     const handleLikeUpdate = (postId, likeData) => {
+     const handleLikeUpdate = (postId, newLikeStatus) => {
 
         setPosts(currentPosts =>
             currentPosts.map(post => {
                 if (post.id === postId) {
-                    // Zwracamy zaktualizowany obiekt posta z nowymi danymi o polubieniach
-                    return {
-                        ...post,
-                        likesCount: likeData.totalLikes,
-                        isLikedByUser: likeData.likedByUser 
-                    };
-                }
+                const newLikesCount = post.likesCount + (newLikeStatus ? 1 : -1);
+                
+                return {
+                    ...post,
+                    likesCount: newLikesCount,
+                    likedByUser: newLikeStatus
+                };
+            }
                 return post; // Zwracamy posta bez zmian
             })
         );

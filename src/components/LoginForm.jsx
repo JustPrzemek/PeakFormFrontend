@@ -88,7 +88,7 @@ function LoginForm({ onForgotPassword }) {
             </form>
 
             <span className="block text-center opacity-70 mt-6 text-gray-800">or continue with</span>
-            <a href="http://localhost:8080/oauth2/authorization/google" className="w-full flex justify-center">
+            <a href="http://localhost:8080/oauth2/authorize/google" className="w-full flex justify-center">
                 <IconButton text="Google">
                     <FcGoogle />
                 </IconButton>

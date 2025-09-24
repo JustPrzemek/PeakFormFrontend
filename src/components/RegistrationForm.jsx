@@ -165,7 +165,7 @@ function RegistrationForm() {
                 <span className="block text-center opacity-70 mt-6 text-gray-800">or continue with</span>
             
             </form>
-                <a href="http://localhost:8080/oauth2/authorization/google" className="flex justify-center gap-x-5">
+                <a href="http://localhost:8080/oauth2/authorize/google" className="flex justify-center gap-x-5">
                     <IconButton text="Google">
                         <FcGoogle />
                     </IconButton>

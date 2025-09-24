@@ -1,32 +1,19 @@
-import { TfiCommentsSmiley } from "react-icons/tfi";
+import { LiaCommentSolid } from "react-icons/lia";
 import { addComment } from "../services/commentsService";
 import { useState } from 'react';
-import { FaRegHeart, FaHeart, FaRegComment } from 'react-icons/fa';
 import { addLikeToPost, removeLikeFromPost } from "../services/likesService";
+import { formatTimeAgo } from '../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
+import { AiFillLike, AiOutlineLike } from "react-icons/ai";
+import { FaRegComments } from "react-icons/fa6";
 
-const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
-
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " month ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
-};
+const CONTENT_TRUNCATE_LENGTH = 150;
 
 export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal}) {
     const [newCommentText, setNewCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showLikeAnimation, setShowLikeAnimation] = useState(false);
+    const [isContentExpanded, setIsContentExpanded] = useState(false);
     const navigate = useNavigate();
 
     if (!post) {
@@ -61,15 +48,15 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
     };
 
     const handleToggleLike = async () => {
+        const isCurrentlyLiked = post.likedByUser;
         try {
-            let response;
-            if (post.isLikedByUser) {
-                response = await removeLikeFromPost(post.id);
+            if (isCurrentlyLiked) {
+                const response = await removeLikeFromPost(post.id); // API zwróci { likedByUser: false }
+                onLikeUpdated(post.id, response.likedByUser); // Przekazujemy `false` do rodzica
             } else {
-                response = await addLikeToPost(post.id);
+                const response = await addLikeToPost(post.id); // API zwróci { likedByUser: true }
+                onLikeUpdated(post.id, response.likedByUser); // Przekazujemy `true` do rodzica
             }
-            // Wywołujemy funkcję od rodzica, aby zaktualizować stan globalny
-            onLikeUpdated(post.id, response);
         } catch (error) {
             console.error("Błąd podczas zmiany polubienia:", error);
             alert("Nie udało się zaktualizować polubienia.");
@@ -81,13 +68,24 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
         setTimeout(() => {
             setShowLikeAnimation(false);
         }, 1000);
-        if (!post.isLikedByUser) { // Lajkujemy tylko, jeśli post nie jest jeszcze polubiony
+        if (!post.likedByUser) { // Lajkujemy tylko, jeśli post nie jest jeszcze polubiony
             try {
                 const response = await addLikeToPost(post.id);
                 onLikeUpdated(post.id, response);
             } catch (error) {
                 console.error("Błąd podczas dodawania polubienia:", error);
             }
+        }
+    };
+
+    // Obsługa wysyłania komentarza klawiszem Enter
+    const handleKeyDown = (e) => {
+        // Sprawdzamy, czy naciśnięty klawisz to 'Enter'
+        if (e.key === 'Enter') {
+            // Zapobiegamy domyślnej akcji (np. przeładowaniu strony), jeśli input jest w formularzu
+            e.preventDefault();
+            // Wywołujemy istniejącą funkcję do wysyłania komentarza
+            handleSubmitComment();
         }
     };
 
@@ -113,6 +111,11 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
         navigate(`/profile/${post.username}`);
     };
 
+    const shouldTruncate = post && post.content.length > CONTENT_TRUNCATE_LENGTH;
+    const renderedContent = shouldTruncate && !isContentExpanded 
+        ? `${post.content.substring(0, CONTENT_TRUNCATE_LENGTH)}...`
+        : post?.content;
+
     return (
         <div className="border roudned-lg border-slate-200 mb-5 bg-white">
             <div className="p-3 flex flex-row">
@@ -129,15 +132,23 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 </div>
             </div>
             
-            <div className="px-3 text-sm pb-2">
-                <span className="font-medium"></span> {post.content}
+            <div className="px-3 text-sm pb-2 break-words">
+                <span>{renderedContent}</span>
+                    {shouldTruncate && (
+                        <button 
+                            onClick={() => setIsContentExpanded(!isContentExpanded)} 
+                            className="text-gray-500 text-sm ml-2 font-semibold cursor-pointer hover:underline"
+                        >
+                            {isContentExpanded ? 'hide' : 'more'}
+                        </button>
+                    )}
             </div>
 
             <div className="relative cursor-pointer" onDoubleClick={handleDoubleClickLike}>
                 {renderMedia()}
                 {showLikeAnimation && (
                     <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-                        <FaHeart className="text-white text-8xl drop-shadow-lg like-animation" />
+                        <AiFillLike className="text-white text-8xl drop-shadow-lg like-animation" />
                     </div>
                 )}
             </div>
@@ -145,14 +156,14 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
             <div className="p-3 flex flex-row text-2xl">
                 <div className="flex">
                     <button onClick={handleToggleLike} className="mr-3 hover:opacity-70 cursor-pointer">
-                        {post.isLikedByUser 
-                            ? <FaHeart className="text-red-500" /> 
-                            : <FaRegHeart />
+                        {post.likedByUser 
+                            ? <AiFillLike className="text-blue-500" /> 
+                            : <AiOutlineLike />
                         }
                     </button>
 
                     <button onClick={() => onOpenModal(post.id)} className="mr-3 hover:text-gray-500 cursor-pointer">
-                        <FaRegComment />
+                        <FaRegComments />
                     </button>
                 </div>
             </div>
@@ -160,7 +171,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
 
             
 
-           <div className="px-3 text-sm space-y-1 border-t border-slate-200 mt-2 pt-2">
+           <div className="px-3 text-sm space-y-1 border-t border-slate-200 mt-2 pt-2 break-words">
                 {post.commentsCount > 3 && (
                     <div onClick={() => onOpenModal(post.id)} className="text-gray-500 cursor-pointer hover:underline">
                         Zobacz wszystkie komentarze ({post.commentsCount})
@@ -180,7 +191,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
 
             <div className="p-3 flex flex-row border-t">
                 <div className="flex items-center text-2xl">
-                    <TfiCommentsSmiley />
+                    <LiaCommentSolid />
                 </div>
                 <div className="flex-1 pr-3 py-1">
                     <input 
@@ -190,7 +201,8 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                         onChange={(e) => setNewCommentText(e.target.value)}
                         value={newCommentText}
                         disabled={isSubmitting}
-                        maxLength="500"/>
+                        maxLength="500"
+                        onKeyDown={handleKeyDown}/>
                 </div>
                 <div className="flex items-center text-sm">
                     <button 

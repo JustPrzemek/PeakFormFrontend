@@ -38,7 +38,7 @@ function EmailConfirmedPage() {
           <div className="text-green-600 mt-6">
             <p className="mb-4">Twój adres e-mail został pomyślnie potwierdzony 🎉</p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/login')}
               className="px-6 py-2 bg-celestialBlue text-white rounded-lg shadow-md hover:bg-blue-600 transition"
             >
               Przejdź do PeakForm
