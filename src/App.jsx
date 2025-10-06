@@ -10,6 +10,11 @@ import ProfileEdit from './components/ProfileEdit';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import { Toaster } from 'react-hot-toast';
+import TrainingPage from './pages/TrainingPage';
+import ExercisesListPage from './pages/ExercisesListPage';
+import ExerciseDetailPage from './pages/ExerciseDetailPage';
+import TrainingPlansPage from './pages/TrainingPlansPage';
+import TrainingPlanDetailPage from './pages/TrainingPlanDetailPage';
 
 function App() {
     return (
@@ -50,6 +55,48 @@ function App() {
                         }
                     />
 
+                    <Route 
+                        path="/training" 
+                        element={
+                            <MainLayout>
+                                <TrainingPage />
+                            </MainLayout>
+                        } 
+                    />
+                    <Route 
+                        path="/training/exercises" 
+                        element={
+                            <MainLayout>
+                                <ExercisesListPage />
+                            </MainLayout>
+                        } 
+                    />
+                    <Route 
+                        path="/training/exercises/:id" 
+                        element={
+                            <MainLayout>
+                                <ExerciseDetailPage />
+                            </MainLayout>
+                        } 
+                    />
+                    
+                    <Route 
+                        path="/training/plans" 
+                        element={
+                            <MainLayout>
+                                <TrainingPlansPage />
+                            </MainLayout>
+                        } 
+                    />
+                    <Route 
+                        path="/training/plans/:planId" 
+                        element={
+                            <MainLayout>
+                                <TrainingPlanDetailPage />
+                            </MainLayout>
+                        } 
+                    />
+                    
                 </Route>
             </Routes>
         </Router>

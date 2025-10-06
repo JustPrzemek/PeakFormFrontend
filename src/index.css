@@ -9,6 +9,14 @@
   --color-blackGray: #151517;
   --color-darkGray: #2C2C2E;
   /*bg-amber-50- cremowy taki*/
+
+  --color-backgoudBlack: #1E1F22;
+  --color-surfaceDarkGray: #2B2D31;
+  --color-borderGrayHover: #72767D;
+  --color-bluePrimary: #3B82F6;
+  --color-whitePrimary: #F2F3F5;
+  --color-blueLight: #5FA4F9;
+  --color-blueHover: #2563EB;
 }
 
 @layer utilities {
@@ -60,4 +68,9 @@
 input,
 textarea {
   caret-color: auto;
+}
+
+
+.video-container {
+  aspect-ratio: 16 / 9;
 }

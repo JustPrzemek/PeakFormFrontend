@@ -96,11 +96,11 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="sticky top-0 w-full border border-b-1 z-50 bg-white">
+            <nav className="sticky top-0 w-full z-50 bg-surfaceDarkGray">
                 <div className="container max-w-5xl">
                     <div className="flex flex-row py-1 items-center">
                         <div 
-                            className="basis-1/2 flex items-center cursor-pointer transition-transform duration-300 hover:scale-110 md:basis-1/3"
+                            className="basis-1/2 text-whitePrimary flex items-center cursor-pointer transition-transform duration-300 hover:scale-110 md:basis-1/3"
                             onClick={() => navigate("/home")}
                             >
                                 
@@ -109,19 +109,19 @@ export default function Navbar() {
                         </div>
 
                         <div className="basis-1/3 relative hidden md:block" ref={searchContainerRef}>
-                            <IoSearch icon="magnifying-glass" className="absolute left-3 top-3 text-gray-300"/>
+                            <IoSearch icon="magnifying-glass" className="absolute left-3 top-3 text-borderGrayHover"/>
                             <input 
                                 type="text" 
                                 placeholder="Search..." 
-                                className="p-2 bg-gray-100 rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"
+                                className="p-2 bg-whitePrimary text-backgoudBlack rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onFocus={() => searchTerm && setDropdownVisible(true)}
                             />
                             {isDropdownVisible && (
-                                <div className="absolute top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                <div className="absolute top-full mt-2 w-80 bg-white border border-borderGrayHover rounded-lg shadow-lg max-h-80 overflow-y-auto">
                                     {isLoading ? (
-                                        <div className="p-4 text-center text-gray-500">Loading...</div>
+                                        <div className="p-4 text-center text-borderGrayHover">Loading...</div>
                                     ) : results.length > 0 ? (
                                         <ul>
                                             {results.map(user => (
@@ -140,7 +140,7 @@ export default function Navbar() {
                                             ))}
                                         </ul>
                                     ) : searchTerm && (
-                                        <div className="p-4 text-center text-gray-500">No users found.</div>
+                                        <div className="p-4 text-center text-borderGrayHover">No users found.</div>
                                     )}
                                 </div>
                             )}
@@ -149,25 +149,29 @@ export default function Navbar() {
                         <div className="basis-1/2 md:basis-1/3">
                             <ul className="flex flex-row space-x-4 p-2 text-2xl justify-end items-center">
                                 <li className="transition-transform duration-300 hover:scale-110 ">
-                                    <FaHome className="cursor-pointer" onClick={() => navigate("/home")}/>
+                                    <FaHome className="cursor-pointer text-whitePrimary" onClick={() => navigate("/home")}/>
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
                                     <FaPlusSquare 
-                                        className="cursor-pointer" 
+                                        className="cursor-pointer text-whitePrimary" 
                                         onClick={() => setIsModalOpen(true)}
                                     />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                <IoMdFitness className="cursor-pointer" />
+                                    <IoMdFitness 
+                                        className="cursor-pointer text-whitePrimary" 
+                                        onClick={() => navigate('/training')} 
+                                    />                            
                                 </li>
                         
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                    <MdNoMeals className="cursor-pointer" />
+                                    <MdNoMeals className="cursor-pointer text-whitePrimary" />
                                 </li>
+
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                    <IoLogOut className="cursor-pointer" onClick={handleLogout} />
+                                    <IoLogOut className="cursor-pointer text-blueHover" onClick={handleLogout} />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">

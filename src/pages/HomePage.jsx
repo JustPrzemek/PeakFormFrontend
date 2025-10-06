@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import { getMyFollowersPosts } from '../services/postsService';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PostModal from '../components/PostModal';
+import EmptyFeedPlaceholder from "../components/EmptyFeedPlaceholder";
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
@@ -89,37 +90,41 @@ function HomePage() {
             })
         );
     };
-
+    //TODO sugestie znajomych pokazywac
     return (
-        <div className="container pt-8 max-w-5xl">
-           {selectedPostId && (
-                <PostModal postId={selectedPostId} onClose={handleClosePostModal} />
-            )}
-            <main className="grid grid-cols-3">
-                <div className="md:px-12 lg:px-0 col-span-3 lg:col-span-2">
-                   HELLO 
-                    {posts.map((post, index) => {
-                        const isLastPost = posts.length === index + 1;
-                        return (
-                            <div ref={isLastPost ? lastPostElementRef : null} key={post.id}>
-                                <Post 
-                                    post={post} 
-                                    onCommentAdded={handleAddNewComment} 
-                                    onLikeUpdated={handleLikeUpdate}
-                                    onOpenModal={handleOpenPostModal}
-                                />
-                            </div>
-                        );
-                    })}
-                    {loading && <p className="text-center text-gray-500 my-4">Loading posts...</p>}
-                    {!hasMore && <p className="text-center text-gray-500 my-4">There is no more posts.</p>}
-                </div>
-                <div className="col-span-1 hidden lg:block">
-                    <div className="fixed p-5 w-80">
-                        <Footer />
+        <div className="bg-backgoudBlack min-h-screen">
+            <div className="container pt-8 max-w-5xl">
+            {selectedPostId && (
+                    <PostModal postId={selectedPostId} onClose={handleClosePostModal} />
+                )}
+                <main className="grid grid-cols-3">
+                    <div className="md:px-12 lg:px-0 col-span-3 lg:col-span-2">
+                    {!loading && posts.length === 0 && (
+                            <EmptyFeedPlaceholder />
+                        )}
+                        {posts.map((post, index) => {
+                            const isLastPost = posts.length === index + 1;
+                            return (
+                                <div ref={isLastPost ? lastPostElementRef : null} key={post.id}>
+                                    <Post 
+                                        post={post} 
+                                        onCommentAdded={handleAddNewComment} 
+                                        onLikeUpdated={handleLikeUpdate}
+                                        onOpenModal={handleOpenPostModal}
+                                    />
+                                </div>
+                            );
+                        })}
+                        {loading && <p className="text-center text-gray-500 my-4">Loading posts...</p>}
+                        {!hasMore && <p className="text-center text-gray-500 my-4">There is no more posts.</p>}
                     </div>
-                </div>
-            </main>
+                    <div className="col-span-1 hidden lg:block">
+                        <div className="fixed p-5 w-80">
+                            <Footer />
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 }

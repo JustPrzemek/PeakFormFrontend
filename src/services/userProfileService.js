@@ -84,3 +84,13 @@ export const searchUsers = async (query, size = 5) => {
         throw error.response?.data?.message || "Failed to search users";
     }
 };
+
+export const makeActivePlan = async (planId) => {
+    try {
+        const response = await api.post("/userProfile/me/active-plan", planId);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to update active plan: ", error);
+        throw error.response?.data?.message || "Failed to save active plan";
+    }
+}

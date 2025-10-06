@@ -117,7 +117,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
         : post?.content;
 
     return (
-        <div className="border roudned-lg border-slate-200 mb-5 bg-white">
+        <div className="border roudned-lg border-borderGrayHover mb-5 bg-surfaceDarkGray">
             <div className="p-3 flex flex-row">
                 <div className="flex-1">
                     <a>
