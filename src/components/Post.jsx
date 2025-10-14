@@ -6,8 +6,10 @@ import { formatTimeAgo } from '../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa6";
+import { FaHeart, FaRegHeart, FaRegComment, FaRegPaperPlane, FaRegBookmark, FaEllipsisH } from 'react-icons/fa';
 
-const CONTENT_TRUNCATE_LENGTH = 150;
+
+const CONTENT_TRUNCATE_LENGTH = 100;
 
 export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal}) {
     const [newCommentText, setNewCommentText] = useState('');
@@ -16,9 +18,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
     const [isContentExpanded, setIsContentExpanded] = useState(false);
     const navigate = useNavigate();
 
-    if (!post) {
-        return null;
-    }
+    if (!post) return null;
 
     const handleSubmitComment = async () => {
         if (!newCommentText.trim() || isSubmitting) {
@@ -88,16 +88,23 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
             handleSubmitComment();
         }
     };
-
+    
     const renderMedia = () => {
         if (!post.mediaUrl) return null;
 
         switch(post.mediaType) {
             case 'IMAGE':
-                return <img className="w-full" src={post.mediaUrl} alt={`Post by ${post.username}`} />;
+                return <img 
+                           className="w-full h-auto max-h-[80vh] object-contain mx-auto"
+                           src={post.mediaUrl} 
+                           alt={`Post by ${post.username}`} 
+                       />;
             case 'VIDEO':
                 return (
-                    <video controls className="w-full">
+                    <video 
+                        controls 
+                        className="w-full h-auto max-h-[80vh] mx-auto"
+                    >
                         <source src={post.mediaUrl} type="video/mp4" />
                         Twoja przeglądarka nie obsługuje tagu video.
                     </video>
@@ -111,40 +118,49 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
         navigate(`/profile/${post.username}`);
     };
 
-    const shouldTruncate = post && post.content.length > CONTENT_TRUNCATE_LENGTH;
+    const handleCommenterProfileClick = (commenter) => {
+        navigate(`/profile/${commenter}`);
+    }
+
+     const handleOpenModalClick = () => {
+        onOpenModal(post.id);
+    };
+
+     const shouldTruncate = post.content && post.content.length > CONTENT_TRUNCATE_LENGTH;
     const renderedContent = shouldTruncate && !isContentExpanded 
         ? `${post.content.substring(0, CONTENT_TRUNCATE_LENGTH)}...`
         : post?.content;
 
     return (
-        <div className="border roudned-lg border-borderGrayHover mb-5 bg-surfaceDarkGray">
-            <div className="p-3 flex flex-row">
-                <div className="flex-1">
-                    <a>
-                        <img className="rounded-full w-8 inline cursor-pointer transition-transform duration-300 hover:scale-110" 
-                            onClick={handleProfileClick} 
-                            src={post.profileImageUrl} 
-                            alt={`${post.username} profile`}/>
-                        <span className="font-medium text-sm ml-2 cursor-pointer hover:underline" onClick={handleProfileClick}>
-                            {post.username}
-                        </span>
-                    </a>
+        <div className="bg-surfaceDarkGray rounded-2xl border border-borderGrayHover/50 text-whitePrimary hover:-translate-y-1 transition-all duration-300">
+            {/* --- NAGŁÓWEK POSTA --- */}
+            <div className="flex items-center justify-between p-4 cursor-pointer" onClick={handleOpenModalClick}>
+                <div className="flex items-center gap-3 cursor-pointer" 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleProfileClick()}}>
+                    <img className="h-10 w-10 rounded-full object-cover" src={post.profileImageUrl} alt={`${post.username} profile`} />
+                    <div>
+                        <span className="font-bold text-sm hover:underline">{post.username}</span>
+                        <p className="text-xs text-borderGrayHover">{formatTimeAgo(post.createdAt)}</p>
+                    </div>
                 </div>
+                {/* <button className="text-borderGrayHover hover:text-whitePrimary"><FaEllipsisH /></button> */}
             </div>
-            
-            <div className="px-3 text-sm pb-2 break-words">
-                <span>{renderedContent}</span>
-                    {shouldTruncate && (
-                        <button 
-                            onClick={() => setIsContentExpanded(!isContentExpanded)} 
-                            className="text-gray-500 text-sm ml-2 font-semibold cursor-pointer hover:underline"
-                        >
-                            {isContentExpanded ? 'hide' : 'more'}
-                        </button>
-                    )}
-            </div>
-
-            <div className="relative cursor-pointer" onDoubleClick={handleDoubleClickLike}>
+            <div className="px-4 mb-4 text-sm leading-relaxed cursor-pointer" onClick={handleOpenModalClick}>
+                {renderedContent}
+                {shouldTruncate && (
+                            <button onClick={(e) => {
+                                e.stopPropagation();
+                                setIsContentExpanded(!isContentExpanded)
+                                }}
+                                className="text-borderGrayHover ml-1 font-semibold cursor-pointer">
+                                {isContentExpanded ? 'less' : 'more'}
+                            </button>
+                        )}
+            </div>            
+            {/* --- MEDIA (OBRAZ/WIDEO) --- */}
+            <div className="relative cursor-pointer max-h-[80vh] bg-black" onDoubleClick={handleDoubleClickLike} onClick={handleOpenModalClick} >
                 {renderMedia()}
                 {showLikeAnimation && (
                     <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
@@ -153,60 +169,62 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 )}
             </div>
 
-            <div className="p-3 flex flex-row text-2xl">
-                <div className="flex">
-                    <button onClick={handleToggleLike} className="mr-3 hover:opacity-70 cursor-pointer">
-                        {post.likedByUser 
-                            ? <AiFillLike className="text-blue-500" /> 
-                            : <AiOutlineLike />
-                        }
-                    </button>
+            <div className="p-4">
+                {/* --- PASEK AKCJI --- */}
+                <div className="flex justify-between items-center text-2xl text-whitePrimary">
+                    <div className="flex gap-4">
+                        <button onClick={handleToggleLike} className="hover:text-borderGrayHover transition-colors">
+                            {post.likedByUser ? <AiFillLike className="text-bluePrimary cursor-pointer" /> : <AiOutlineLike className="cursor-pointer"/>}
+                        </button>
+                        <button onClick={() => onOpenModal(post.id)} className="hover:text-borderGrayHover transition-colors">
+                            <FaRegComment className="cursor-pointer"/>
+                        </button>
+                        {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegPaperPlane /></button> Placeholder */}
+                    </div>
+                    {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegBookmark /></button> Placeholder */}
+                </div>
 
-                    <button onClick={() => onOpenModal(post.id)} className="mr-3 hover:text-gray-500 cursor-pointer">
-                        <FaRegComments />
-                    </button>
+                {/* --- INFORMACJE O POLUBIENIACH I OPIS --- */}
+                <div className="mt-3 text-sm">
+                    <p className="font-bold">{post.likesCount} likes</p>
+                    <div className="mt-1 break-words">
+                        <span className="font-bold cursor-pointer hover:underline" onClick={handleProfileClick}>{post.username}</span>
+                    </div>
+                </div>
+
+                {/* --- KOMENTARZE --- */}
+                <div className="mt-2 text-sm">
+                    {post.commentsCount > 2 && (
+                        <p onClick={() => onOpenModal(post.id)} className="text-borderGrayHover cursor-pointer hover:underline">
+                            View all {post.commentsCount} comments
+                        </p>
+                    )}
+                    <div className="space-y-0.5 mt-1">
+                        {post.comments && post.comments.slice(0, 2).map(comment => (
+                            <div key={comment.commentId}>
+                                <span className="font-bold cursor-pointer hover:underline" onClick={() => handleCommenterProfileClick(comment.username)}>{comment.username}</span>
+                                <span className="ml-2">{comment.content}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
-            <div className="font-medium text-sm px-3">{post.likesCount} likes</div>
 
-            
-
-           <div className="px-3 text-sm space-y-1 border-t border-slate-200 mt-2 pt-2 break-words">
-                {post.commentsCount > 3 && (
-                    <div onClick={() => onOpenModal(post.id)} className="text-gray-500 cursor-pointer hover:underline">
-                        Zobacz wszystkie komentarze ({post.commentsCount})
-                    </div>
-                )}
-           
-                {post.comments && post.comments.map(comment => (
-                    <div key={comment.commentId} className="break-word overflow-hidden">
-                        <span className="font-medium">{comment.username}</span> {comment.content}
-                    </div>
-                ))}
-            </div>
-
-            <div className="text-gray-500 uppercase p-3 text-xs tracking-wide mt-2">
-                {formatTimeAgo(post.createdAt)}
-            </div>
-
-            <div className="p-3 flex flex-row border-t">
-                <div className="flex items-center text-2xl">
-                    <LiaCommentSolid />
-                </div>
-                <div className="flex-1 pr-3 py-1">
+            {/* --- FORMULARZ DODAWANIA KOMENTARZA --- */}
+            <div className="border-t border-borderGrayHover/50 px-4 py-2">
+                <div className="flex items-center gap-2">
                     <input 
                         type="text" 
-                        className="w-full px-3 py-1 text-sm outline-0 bg-transparent"  
-                        placeholder="Add a comment ..." 
+                        className="w-full bg-transparent text-sm outline-none placeholder:text-borderGrayHover" 
+                        placeholder="Add a comment..." 
                         onChange={(e) => setNewCommentText(e.target.value)}
                         value={newCommentText}
                         disabled={isSubmitting}
                         maxLength="500"
-                        onKeyDown={handleKeyDown}/>
-                </div>
-                <div className="flex items-center text-sm">
+                        onKeyDown={handleKeyDown}
+                    />
                     <button 
-                        className="text-sky-500 font-medium cursor-pointer disabled:text-sky-200"
+                        className="text-bluePrimary font-bold text-sm cursor-pointer disabled:text-blue-900 disabled:cursor-not-allowed"
                         onClick={handleSubmitComment}
                         disabled={!newCommentText.trim() || isSubmitting}
                     >
@@ -215,5 +233,5 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 </div>
             </div>
         </div>
-    )
+    );
 }

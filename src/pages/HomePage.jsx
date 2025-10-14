@@ -1,61 +1,69 @@
 import Post from "../components/Post";
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Footer from "../components/Footer";
 import { getMyFollowersPosts } from '../services/postsService';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PostModal from '../components/PostModal';
 import EmptyFeedPlaceholder from "../components/EmptyFeedPlaceholder";
+import PostSkeleton from "../components/skeletons/PostSkeleton"; // <-- NOWY IMPORT
+import SuggestionsSidebar from "../components/SuggestionsSidebar"; 
+import { CgSpinner } from "react-icons/cg";
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
-
-    const [selectedPostId, setSelectedPostId] = useState(null);
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedPostId = searchParams.get('post');
     const observer = useRef();
 
-    const handleOpenPostModal = (postId) => {
-        setSelectedPostId(postId);
-    };
+    const handleOpenPostModal = (postId) => setSearchParams({ post: postId });
+    const handleClosePostModal = () => {navigate('.', { replace: true }); };
 
-    const handleClosePostModal = () => {
-        setSelectedPostId(null);
-    };
+    const fetchPosts = useCallback(async (currentPage) => {
+        // Ustawienie ładowania tylko jeśli ładujemy pierwszą stronę
+        if (currentPage === 0) setLoading(true);
+        try {
+            const response = await getMyFollowersPosts(currentPage, 5); // Zmniejszmy do 5 dla lepszego efektu infinite scroll
+            setPosts(prevPosts => {
+                // Unikaj duplikatów
+                const newPosts = response.content.filter(p1 => !prevPosts.some(p2 => p2.id === p1.id));
+                return [...prevPosts, ...newPosts];
+            });
+            setHasMore(!response.last);
+        } catch (error) {
+            console.error("Failed to fetch posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        // Resetuj posty przy odświeżeniu, aby uniknąć duplikatów
+        setPosts([]);
+        setPage(0);
+        setHasMore(true);
+        fetchPosts(0);
+    }, [fetchPosts]);
 
     const lastPostElementRef = useCallback(node => {
-        if (loading) return; // Jeśli już ładujemy, nic nie rób
-        if (observer.current) observer.current.disconnect(); // Rozłącz poprzedniego observera
-
+        if (loading) return;
+        if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
-            // Jeśli element jest widoczny i mamy jeszcze posty do załadowania
             if (entries[0].isIntersecting && hasMore) {
-                setPage(prevPage => prevPage + 1); // Zwiększ numer strony, co uruchomi useEffect do pobrania danych
+                setPage(prevPage => prevPage + 1);
             }
         });
-
-        if (node) observer.current.observe(node); // Zacznij obserwować nowy ostatni element
+        if (node) observer.current.observe(node);
     }, [loading, hasMore]);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            setLoading(true);
-            try {
-                const response = await getMyFollowersPosts(page, 10); // Pobieramy dane dla aktualnej strony
-                setPosts(prevPosts => {
-                    // Łączymy stare posty z nowymi
-                    return [...prevPosts, ...response.content];
-                });
-                setHasMore(!response.last); // Ustawiamy `hasMore` na podstawie odpowiedzi z API
-            } catch (error) {
-                console.error("Failed to fetch posts:", error);
-            }
-            setLoading(false);
-        };
-
-        if (hasMore) {
-           fetchPosts();
+        if (page > 0 && hasMore) {
+            fetchPosts(page);
         }
-    }, [page]);
+    }, [page, hasMore, fetchPosts]);
 
     const handleAddNewComment = (postId, newComment) => {
         setPosts(currentPosts => 
@@ -92,39 +100,59 @@ function HomePage() {
     };
     //TODO sugestie znajomych pokazywac
     return (
-        <div className="bg-backgoudBlack min-h-screen">
-            <div className="container pt-8 max-w-5xl">
-            {selectedPostId && (
+        <div className="bg-backgoudBlack min-h-screen flex flex-col">
+            <div className="container pt-8 max-w-5xl flex-grow">
+                {selectedPostId && (
                     <PostModal postId={selectedPostId} onClose={handleClosePostModal} />
                 )}
-                <main className="grid grid-cols-3">
-                    <div className="md:px-12 lg:px-0 col-span-3 lg:col-span-2">
-                    {!loading && posts.length === 0 && (
+
+                <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                    {/* --- LEWA KOLUMNA - FEED --- */}
+                    <div className="lg:col-span-2">
+                        {loading && posts.length === 0 ? (
+                            // Skeletony wyświetlane tylko przy pierwszym ładowaniu
+                            <div className="space-y-8">
+                                <PostSkeleton />
+                                <PostSkeleton />
+                            </div>
+                        ) : posts.length > 0 ? (
+                            <div className="space-y-8">
+                                {posts.map((post, index) => (
+                                    <div ref={posts.length === index + 1 ? lastPostElementRef : null} key={`${post.id}-${index}`}>
+                                        <Post 
+                                            post={post} 
+                                            onCommentAdded={handleAddNewComment} 
+                                            onLikeUpdated={handleLikeUpdate}
+                                            onOpenModal={handleOpenPostModal}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            // Pusty feed, jeśli nie ma postów i nie ładujemy
                             <EmptyFeedPlaceholder />
                         )}
-                        {posts.map((post, index) => {
-                            const isLastPost = posts.length === index + 1;
-                            return (
-                                <div ref={isLastPost ? lastPostElementRef : null} key={post.id}>
-                                    <Post 
-                                        post={post} 
-                                        onCommentAdded={handleAddNewComment} 
-                                        onLikeUpdated={handleLikeUpdate}
-                                        onOpenModal={handleOpenPostModal}
-                                    />
-                                </div>
-                            );
-                        })}
-                        {loading && <p className="text-center text-gray-500 my-4">Loading posts...</p>}
-                        {!hasMore && <p className="text-center text-gray-500 my-4">There is no more posts.</p>}
+
+                        {/* Wskaźnik doładowywania kolejnych postów */}
+                        {loading && posts.length > 0 && (
+                            <div className="flex justify-center my-8">
+                                <CgSpinner className="animate-spin text-bluePrimary text-4xl" />
+                            </div>
+                        )}
+
+                        {!hasMore && posts.length > 0 && (
+                            <p className="text-center text-borderGrayHover my-8">You've reached the end.</p>
+                        )}
                     </div>
-                    <div className="col-span-1 hidden lg:block">
-                        <div className="fixed p-5 w-80">
-                            <Footer />
-                        </div>
+
+                    <div className="hidden lg:block">
+                        <SuggestionsSidebar />
                     </div>
                 </main>
             </div>
+            
+            <Footer />
         </div>
     );
 }

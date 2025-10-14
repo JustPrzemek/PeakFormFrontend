@@ -14,6 +14,7 @@ import { FaPlusSquare, FaHome } from 'react-icons/fa';
 import CreatePostModal from './CreatePostModal';
 import { createPost } from '../services/postsService';
 import toast from 'react-hot-toast';
+import { MdPostAdd } from "react-icons/md";
 
 
 export default function Navbar() {
@@ -26,10 +27,26 @@ export default function Navbar() {
     const [isLoading, setIsLoading] = useState(false);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const searchContainerRef = useRef(null);
-
+    const [isScrolled, setIsScrolled] =useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 0) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -96,11 +113,11 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="sticky top-0 w-full z-50 bg-surfaceDarkGray">
+            <nav className={`sticky top-0 w-full z-50 bg-backgoudBlack transition-all duration-300 ${isScrolled ? 'border-b border-surfaceDarkGray' : 'border-b border-transparent'}`}>
                 <div className="container max-w-5xl">
                     <div className="flex flex-row py-1 items-center">
                         <div 
-                            className="basis-1/2 text-whitePrimary flex items-center cursor-pointer transition-transform duration-300 hover:scale-110 md:basis-1/3"
+                            className="basis-1/2 text-whitePrimary flex items-center cursor-pointer transition-transform duration-300 hover:scale-110 md:basis-1/3 hover:text-bluePrimary"
                             onClick={() => navigate("/home")}
                             >
                                 
@@ -110,10 +127,12 @@ export default function Navbar() {
 
                         <div className="basis-1/3 relative hidden md:block" ref={searchContainerRef}>
                             <IoSearch icon="magnifying-glass" className="absolute left-3 top-3 text-borderGrayHover"/>
+                            <label htmlFor="search-input" className="sr-only">Search users</label>
                             <input 
+                                id="search-input"
                                 type="text" 
-                                placeholder="Search..." 
-                                className="p-2 bg-whitePrimary text-backgoudBlack rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"
+                                placeholder="Search users..." 
+                                className="p-2 bg-surfaceDarkGray text-whitePrimary rounded-lg w-80 pl-10 align-middle focus:outline-0 placeholder:font-light"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onFocus={() => searchTerm && setDropdownVisible(true)}
@@ -149,29 +168,40 @@ export default function Navbar() {
                         <div className="basis-1/2 md:basis-1/3">
                             <ul className="flex flex-row space-x-4 p-2 text-2xl justify-end items-center">
                                 <li className="transition-transform duration-300 hover:scale-110 ">
-                                    <FaHome className="cursor-pointer text-whitePrimary" onClick={() => navigate("/home")}/>
+                                    <FaHome 
+                                        className="cursor-pointer text-whitePrimary hover:text-bluePrimary transition-colors duration-300" 
+                                        onClick={() => navigate("/home")}
+                                        aria-label="Go to homepage"
+                                    />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                    <FaPlusSquare 
-                                        className="cursor-pointer text-whitePrimary" 
+                                    <MdPostAdd 
+                                        className="cursor-pointer text-whitePrimary hover:text-bluePrimary transition-colors duration-300" 
                                         onClick={() => setIsModalOpen(true)}
+                                        aria-label="Add a post"
                                     />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
                                     <IoMdFitness 
-                                        className="cursor-pointer text-whitePrimary" 
+                                        className="cursor-pointer text-whitePrimary hover:text-bluePrimary transition-colors duration-300" 
                                         onClick={() => navigate('/training')} 
+                                        aria-label="Go to training page"
                                     />                            
                                 </li>
                         
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                    <MdNoMeals className="cursor-pointer text-whitePrimary" />
+                                    <MdNoMeals className="cursor-pointer text-whitePrimary hover:text-bluePrimary transition-colors duration-300"
+                                    aria-label="Go to meals page" />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
-                                    <IoLogOut className="cursor-pointer text-blueHover" onClick={handleLogout} />
+                                    <IoLogOut 
+                                        className="cursor-pointer text-whitePrimary hover:text-bluePrimary transition-colors duration-300" 
+                                        onClick={handleLogout}
+                                        aria-label="Logout"
+                                        />
                                 </li>
 
                                 <li className="transition-transform duration-300 hover:scale-110">
@@ -180,6 +210,7 @@ export default function Navbar() {
                                         src={user.profileImageUrl}
                                         alt="User Profile"
                                         onClick={() => navigate(`/profile/${user.username}`)}
+                                        aria-label="Go to profile page"
                                     />
                                 </li>
                             </ul>

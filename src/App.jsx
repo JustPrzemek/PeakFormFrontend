@@ -15,6 +15,10 @@ import ExercisesListPage from './pages/ExercisesListPage';
 import ExerciseDetailPage from './pages/ExerciseDetailPage';
 import TrainingPlansPage from './pages/TrainingPlansPage';
 import TrainingPlanDetailPage from './pages/TrainingPlanDetailPage';
+import SelectTrainingDay from './pages/SelectTrainingDay';
+import LiveTraining from './pages/LiveTraining';
+import TrainingHomePage from './pages/TrainingHomePage';
+import LogPastWorkoutPage from './pages/LogPastWorkoutPage';
 
 function App() {
     return (
@@ -96,6 +100,32 @@ function App() {
                             </MainLayout>
                         } 
                     />
+
+                    <Route 
+                        path="/training/start" 
+                        element={
+                            <MainLayout>
+                               <TrainingHomePage />
+                            </MainLayout>
+                    } 
+                    />
+
+                    <Route 
+                        path="/training/live/:day" 
+                        element={
+                            <MainLayout>
+                                <LiveTraining />
+                            </MainLayout>
+                        } 
+                    />
+
+                    <Route 
+                        path="/training/complete" 
+                        element={
+                        <MainLayout>
+                            <LogPastWorkoutPage/>
+                        </MainLayout>
+                    } />
                     
                 </Route>
             </Routes>
