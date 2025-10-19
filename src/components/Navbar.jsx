@@ -101,7 +101,6 @@ export default function Navbar() {
             const response = await createPost(postData);
             console.log('Post created:', response);
             toast.success('Post created successfully!');
-            navigate("/home")
         } catch (error) {
             console.error('Error creating post:', error);
             // Przekazujemy błąd dalej, aby modal mógł go wyświetlić

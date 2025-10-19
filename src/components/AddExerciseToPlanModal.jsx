@@ -1,6 +1,21 @@
 import { useState, useEffect } from 'react';
 import { getUserPlans, addExerciseToPlan, createCustomPlan } from '../services/workoutPlanService';
 import toast from 'react-hot-toast';
+import { CgSpinner } from "react-icons/cg";
+
+const getInitialFormData = (exerciseType) => {
+    const baseData = {
+        planId: '',
+        dayIdentifier: '',
+    };
+    if (exerciseType === 'STRENGTH') {
+        return { ...baseData, sets: 3, reps: 10, restTime: 60 };
+    }
+    if (exerciseType === 'CARDIO') {
+        return { ...baseData, durationMinutes: 30, distanceKm: 5.0 };
+    }
+    return baseData;
+};
 
 export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
     const [userPlans, setUserPlans] = useState([]);
@@ -8,23 +23,16 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showCreatePlan, setShowCreatePlan] = useState(false);
 
-    const [formData, setFormData] = useState({
-        planId: '',
-        dayIdentifier: '',
-        sets: 3,
-        reps: 10,
-        restTime: 60,
-    });
+    const [formData, setFormData] = useState(getInitialFormData(exercise?.type));
     
-    // Stan dla formularza tworzenia nowego planu
     const [newPlanData, setNewPlanData] = useState({ name: '', description: '' });
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && exercise) {
             // Reset stanu przy każdym otwarciu
             setIsLoading(true);
             setShowCreatePlan(false);
-            setFormData({ planId: '', dayIdentifier: '', sets: 3, reps: 10, restTime: 60 });
+            setFormData(getInitialFormData(exercise.type));
 
             const fetchUserPlans = async () => {
                 try {
@@ -46,7 +54,7 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
             };
             fetchUserPlans();
         }
-    }, [isOpen]);
+    }, [isOpen, exercise]);
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +76,8 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
         try {
             const createdPlan = await createCustomPlan({ ...newPlanData, setActive: false });
             toast.success(`Plan "${createdPlan.name}" has been created!`);
-            setUserPlans(prev => [...prev, { id: createdPlan.id, name: createdPlan.name }]);
+            const newPlans = [...userPlans, { id: createdPlan.id, name: createdPlan.name }];
+            setUserPlans(newPlans);         
             setFormData(prev => ({ ...prev, planId: createdPlan.id })); // Wybierz nowy plan
             setShowCreatePlan(false); // Wróć do formularza dodawania ćwiczenia
             setNewPlanData({ name: '', description: '' });
@@ -94,10 +103,18 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
         const requestDto = {
             exerciseId: exercise.id,
             dayIdentifier: formData.dayIdentifier,
-            sets: parseInt(formData.sets, 10),
-            reps: parseInt(formData.reps, 10),
-            restTime: parseInt(formData.restTime, 10),
         };
+        
+        if (exercise.type === 'STRENGTH') {
+            requestDto.sets = parseInt(formData.sets, 10);
+            requestDto.reps = parseInt(formData.reps, 10);
+            requestDto.restTime = parseInt(formData.restTime, 10);
+        } else if (exercise.type === 'CARDIO') {
+            requestDto.durationMinutes = parseInt(formData.durationMinutes, 10);
+            if (formData.distanceKm) { // Dystans może być opcjonalny
+                requestDto.distanceKm = parseFloat(formData.distanceKm);
+            }
+        }
 
         try {
             await addExerciseToPlan(formData.planId, requestDto);
@@ -130,60 +147,89 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
 
     if (!isOpen) return null;
 
+    const inputStyles = "mt-1 block w-full p-3 bg-backgoudBlack border border-borderGrayHover rounded-lg text-whitePrimary focus:outline-none focus:ring-2 focus:ring-bluePrimary transition";
+    const buttonStyles = "px-4 py-2 rounded-md cursor-pointer transition-colors";
+    const primaryButtonStyles = `${buttonStyles} bg-bluePrimary hover:bg-opacity-90 text-whitePrimary disabled:bg-opacity-50 disabled:cursor-not-allowed`;
+    const secondaryButtonStyles = `${buttonStyles} bg-borderGrayHover hover:bg-opacity-80 text-whitePrimary`;
+
     return (
-        <div className="fixed inset-0 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
-            <div className="bg-surfaceDarkGray rounded-lg shadow-xl p-8 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-2xl font-bold mb-4 text-whitePrimary">Add "{exercise.name}" to plan</h2>
+        <div className="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-surfaceDarkGray rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+                <h2 className="text-2xl font-bold mb-4 text-whitePrimary">Add "<span className="text-bluePrimary">{exercise.name}</span>" to plan</h2>
                 {isLoading ? (
-                    <p>Loading plans...</p>
+                    <div className="flex justify-center items-center h-40">
+                         <CgSpinner className="animate-spin text-bluePrimary text-4xl" />
+                    </div>
                 ) : showCreatePlan ? (
                     // Widok tworzenia planu
                     <div>
                         <p className="text-borderGrayHover mb-4">You don't have a plan yet. Create one first to continue.</p>
                         <form onSubmit={handleCreatePlan} className="space-y-4">
-                             <div>
+                            <div>
                                 <label htmlFor="newPlanName" className="block text-sm font-medium text-borderGrayHover">New plan name</label>
-                                <input type="text" id="newPlanName" name="name" value={newPlanData.name} onChange={handleNewPlanChange} className="mt-1 block w-full p-2 border text-whitePrimary focus:outline-none focus:ring-1 focus:ring-bluePrimary border-gray-300 rounded-md" required />
+                                <input type="text" id="newPlanName" name="name" value={newPlanData.name} onChange={handleNewPlanChange} className={inputStyles} required />
                             </div>
                             <div className="mt-6 flex justify-end space-x-3">
-                                <button type="button" onClick={onClose} className="px-4 py-2 bg-whitePrimary hover:bg-borderGrayHover rounded-md cursor-pointer">Cancel</button>
-                                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-green-500 hover:bg-green-700 text-white rounded-md disabled:bg-green-300 cursor-pointer">{isSubmitting ? 'Creating...' : 'Create and continue'}</button>
+                                <button type="button" onClick={onClose} className={secondaryButtonStyles}>Cancel</button>
+                                <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>{isSubmitting ? 'Creating...' : 'Create and continue'}</button>
                             </div>
                         </form>
                     </div>
                 ) : (
                     // Widok dodawania ćwiczenia
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label htmlFor="planId" className="block text-sm font-medium text-borderGrayHover">Choose a plan</label>
-                            <select id="planId" name="planId" value={formData.planId} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-whitePrimary cursor-pointer bg-transparent focus:outline-none focus:ring-1 focus:ring-bluePrimary focus:text-borderGrayHover">
+                            <select id="planId" name="planId" value={formData.planId} onChange={handleFormChange} className={inputStyles}>
                                 {userPlans.map(plan => (
-                                    <option key={plan.id} value={plan.id}>{plan.name}</option>
+                                    <option className="bg-surfaceDarkGray text-whitePrimary" key={plan.id} value={plan.id}>{plan.name}</option>
                                 ))}
                             </select>
-                            <button type="button" onClick={() => setShowCreatePlan(true)} className="text-sm text-bluePrimary hover:underline mt-1 cursor-pointer">Create new plan</button>
+                            <button type="button" onClick={() => setShowCreatePlan(true)} className="text-sm text-bluePrimary hover:underline mt-2 cursor-pointer">Or create a new plan</button>
                         </div>
                         <div>
-                            <label htmlFor="dayIdentifier" className="block text-sm font-medium text-borderGrayHover">Training Day (e.g. Push, Legs, A-Day)</label>
-                            <input type="text" id="dayIdentifier" name="dayIdentifier" value={formData.dayIdentifier} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary focus:outline-none focus:ring-1 focus:ring-bluePrimary rounded-md" required />
+                            <label htmlFor="dayIdentifier" className="block text-sm font-medium text-borderGrayHover">Training Day (e.g. Push, Legs, A)</label>
+                            <input type="text" id="dayIdentifier" name="dayIdentifier" value={formData.dayIdentifier} onChange={handleFormChange} className={inputStyles} required />
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label htmlFor="sets" className="block text-sm font-medium text-borderGrayHover">Sets</label>
-                                <input type="number" id="sets" name="sets" min="1" value={formData.sets} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary focus:outline-none focus:ring-1 focus:ring-bluePrimary rounded-md" />
+                        
+                        {/* KROK 2: Warunkowe renderowanie pól */}
+                        {exercise?.type === 'STRENGTH' && (
+                             <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label htmlFor="sets" className="block text-sm font-medium text-borderGrayHover">Sets</label>
+                                    <input type="number" id="sets" name="sets" min="1" value={formData.sets} onChange={handleFormChange} className={inputStyles} />
+                                </div>
+                                <div>
+                                    <label htmlFor="reps" className="block text-sm font-medium text-borderGrayHover">Reps</label>
+                                    <input type="number" id="reps" name="reps" min="1" value={formData.reps} onChange={handleFormChange} className={inputStyles} />
+                                </div>
+                                <div>
+                                    <label htmlFor="restTime" className="block text-sm font-medium text-borderGrayHover">Rest (s)</label>
+                                    <input type="number" id="restTime" name="restTime" min="0" step="5" value={formData.restTime} onChange={handleFormChange} className={inputStyles} />
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="reps" className="block text-sm font-medium text-borderGrayHover">Reps</label>
-                                <input type="number" id="reps" name="reps" min="1" value={formData.reps} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary focus:outline-none focus:ring-1 focus:ring-bluePrimary rounded-md" />
+                        )}
+
+                        {exercise?.type === 'CARDIO' && (
+                             <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="durationMinutes" className="block text-sm font-medium text-borderGrayHover">Duration (min)</label>
+                                    <input type="number" id="durationMinutes" name="durationMinutes" min="1" value={formData.durationMinutes} onChange={handleFormChange} className={inputStyles} />
+                                </div>
+                                <div>
+                                    <label htmlFor="distanceKm" className="block text-sm font-medium text-borderGrayHover">Distance (km)</label>
+                                    <input type="number" id="distanceKm" name="distanceKm" min="0" step="0.1" value={formData.distanceKm} onChange={handleFormChange} className={inputStyles} />
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="restTime" className="block text-sm font-medium text-borderGrayHover">Rest Time (s)</label>
-                                <input type="number" id="restTime" name="restTime" min="0" step="5" value={formData.restTime} onChange={handleFormChange} className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary focus:outline-none focus:ring-1 focus:ring-bluePrimary rounded-md" />
-                            </div>
-                        </div>
-                        <div className="mt-6 flex justify-end space-x-3">
-                            <button type="button" onClick={onClose} className="px-4 py-2 bg-whitePrimary hover:bg-borderGrayHover rounded-md cursor-pointer">Cancel</button>
-                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-bluePrimary hover:bg-blueHover text-whitePrimary rounded-md disabled:bg-blueLight cursor-pointer">{isSubmitting ? 'Adding...' : 'Add exercise'}</button>
+                        )}
+                        
+                        <div className="pt-4 flex justify-end space-x-3">
+                            <button type="button" onClick={onClose} className={secondaryButtonStyles}>Cancel</button>
+                            <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>
+                                {isSubmitting ? (
+                                    <span className="flex items-center"><CgSpinner className="animate-spin mr-2" /> Adding...</span>
+                                ) : 'Add exercise'}
+                            </button>
                         </div>
                     </form>
                 )}

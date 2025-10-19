@@ -14,27 +14,27 @@ function AuthPage() {
     };
 
     return (
-        <div className="flex justify-center items-center w-full min-h-screen bg-amber-50 p-4">
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl w-full max-w-screen-xl h-[700px] flex">
+        <div className="flex justify-center items-center w-full min-h-screen bg-backgoudBlack p-4">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl w-full max-w-screen-xl h-[700px] flex bg-surfaceDarkGray border border-borderGrayHover/30">
 
-                {/* Panel z formularzami (teraz z logiką przełączania) */}
+                {/* --- Panel z formularzami --- */}
                 <div 
                     className="absolute top-0 left-0 w-1/2 h-full transition-transform duration-700 ease-in-out"
                     style={{ transform: isLoginView ? 'translateX(0%)' : 'translateX(100%)' }}
                 >
+                    {/* Logika renderowania formularzy pozostaje bez zmian */}
                     {viewMode === 'login' && <LoginForm onForgotPassword={() => setViewMode('forgotPassword')} />}
                     {viewMode === 'register' && <RegistrationForm />}
                     {viewMode === 'forgotPassword' && <ForgotPasswordForm onBackToLogin={() => setViewMode('login')} />}
                 </div>
 
-                {/* Panel motywacyjny */}
+                {/* --- Panel motywacyjny --- */}
                 <div 
                     className="absolute top-0 right-0 w-1/2 h-full transition-transform duration-700 ease-in-out"
                     style={{ transform: isLoginView ? 'translateX(0%)' : 'translateX(-100%)' }}
                 >
                     <MotivationalPanel isLoginView={isLoginView} onToggle={toggleRegister} />
                 </div>
-
             </div>
         </div>
     );

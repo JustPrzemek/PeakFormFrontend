@@ -1,51 +1,59 @@
-import { IoMdHeartHalf } from "react-icons/io";
-import { FaComment } from "react-icons/fa";
-import React, {useState} from "react";
+import { FaHeart, FaComment } from 'react-icons/fa';
 
 export default function ProfilePost({post, onOpenModal }) {
-    const [showOverlay, setShowOverlay] = useState(false);
 
     const renderMedia = () => {
         if (!post.mediaUrl) {
-            // Możesz tu wyświetlić placeholder, jeśli post nie ma mediów
-            return <div className="bg-gray-200 w-full h-full"></div>;
+            return <div className="bg-surfaceDarkGray w-full h-full"></div>;
         }
 
-        // Zakładając, że Twoje DTO zwraca mediaType
+        const mediaClasses = "absolute inset-0 object-cover w-full h-full transition-transform duration-300 group-hover:scale-105";
+
         if (post.mediaType === 'VIDEO') {
             return (
                 <video
                     src={post.mediaUrl}
-                    className="absolute inset-0 object-cover w-full h-full"
+                    className={mediaClasses}
                     loop
                     muted
+                    autoPlay // Dodajemy autoplay, aby wideo odtwarzało się na miniaturce
+                    playsInline // Ważne dla urządzeń mobilnych
                 />
             );
         }
-
-        // Domyślnie renderuj obraz
+        
         return (
             <img
                 src={post.mediaUrl}
-                alt="Post"
-                className="absolute inset-0 object-cover w-full h-full"
+                alt="Post thumbnail"
+                className={mediaClasses}
             />
         );
     };
 
     return (
-        <div className="relative overflow-hidden w-full pt-[100%] cursor-pointer group"
-        onMouseEnter={() => setShowOverlay(true)}
-        onMouseLeave={() => setShowOverlay(false)}
-        onClick={() => onOpenModal(post.id)}>
-                <div className={`bg-gray-800 bg-opacity-60 h-full w-full absolute inset-0 z-10 flex items-center justify-center text-white ${showOverlay ? "" : "hidden"}`}>
-                    <IoMdHeartHalf />
-                    <span className="ml-2">{post.likesCount}</span>
-                    <FaComment className="ml-8"/>
-                    <span className="ml-2">{post.commentsCount}</span>
+        <div 
+            className="relative aspect-square overflow-hidden rounded-md cursor-pointer group bg-surfaceDarkGray"
+            onClick={() => onOpenModal(post.id)}
+        >
+            {/* Media (zdjęcie/wideo) - teraz z efektem hover */}
+            {renderMedia()}
+            
+            {/* Nowa nakładka z płynnym przejściem */}
+            <div className="absolute inset-0 z-10 flex items-center justify-center gap-8 bg-black/60 
+                           opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                
+                {/* Statystyka polubień */}
+                <div className="flex items-center gap-2 text-white font-bold text-lg">
+                    <FaHeart />
+                    <span>{post.likesCount}</span>
                 </div>
-            <div className="absolute inset-0">
-                {renderMedia()}
+
+                {/* Statystyka komentarzy */}
+                <div className="flex items-center gap-2 text-white font-bold text-lg">
+                    <FaComment />
+                    <span>{post.commentsCount}</span>
+                </div>
             </div>
         </div>
     );

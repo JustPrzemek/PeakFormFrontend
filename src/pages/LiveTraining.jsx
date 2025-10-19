@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getOrCreateSession, addExerciseLog, finishTrainingSession, deleteTrainingSession } from '../services/trainingService';
 import toast from 'react-hot-toast';
-import { FaPlay, FaCheck, FaInfoCircle, FaArrowRight, FaDumbbell, FaHeartbeat, FaClock, FaSignOutAlt, FaTimes, FaCheckCircle } from 'react-icons/fa';
+import { FaPlay, FaCheck, FaInfoCircle, FaArrowRight, FaDumbbell, FaHeartbeat, FaClock, FaSignOutAlt, FaTimes, FaCheckCircle, FaRunning } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 import ConfirmationModal from '../components/ConfirmationModal'
 
@@ -48,11 +48,11 @@ export default function LiveTraining() {
     const [completedLogs, setCompletedLogs] = useState([]);
     const [isExerciseFinished, setIsExerciseFinished] = useState(false);
     const [isAbandonModalOpen, setAbandonModalOpen] = useState(false);
-    
-    // NOWOŚĆ: Stan przechowujący podsumowanie ukończonych ćwiczeń
     const [completedExercisesSummary, setCompletedExercisesSummary] = useState([]);
-
     const [isLoading, setIsLoading] = useState(true);
+
+    const [strengthInputs, setStrengthInputs] = useState({ weight: '', reps: '' });
+    const [cardioInputs, setCardioInputs] = useState({ durationMinutes: '', distanceKm: '' });
 
     useEffect(() => {
         const initializeSession = async () => {
@@ -80,16 +80,12 @@ export default function LiveTraining() {
     }, [day, navigate]);
 
     const restoreTrainingState = (exercises, allLogs) => {
-        // Grupujemy wszystkie logi po ID ćwiczenia
         const logsByExerciseId = allLogs.reduce((acc, log) => {
-            if (!acc[log.exerciseId]) {
-                acc[log.exerciseId] = [];
-            }
+            if (!acc[log.exerciseId]) acc[log.exerciseId] = [];
             acc[log.exerciseId].push(log);
             return acc;
         }, {});
 
-        // Znajdujemy ostatnie ćwiczenie, które ma jakiekolwiek logi
         let restoredExerciseIndex = 0;
         for (let i = exercises.length - 1; i >= 0; i--) {
             if (logsByExerciseId[exercises[i].exerciseId]) {
@@ -99,96 +95,79 @@ export default function LiveTraining() {
         }
         
         const lastExercisePlan = exercises[restoredExerciseIndex];
-        const logsForLastExercise = logsByExerciseId[lastExercisePlan.exerciseId];
-        const lastSetNumber = logsForLastExercise[logsForLastExercise.length - 1].setNumber;
+        const logsForLastExercise = logsByExerciseId[lastExercisePlan.exerciseId] || [];
+        const lastLog = logsForLastExercise[logsForLastExercise.length - 1];
 
-        // Odtwarzamy podsumowanie ukończonych ćwiczeń (wszystkich przed ostatnim)
         const summary = [];
         for (let i = 0; i < restoredExerciseIndex; i++) {
              if (logsByExerciseId[exercises[i].exerciseId]) {
                 summary.push({ 
                     name: exercises[i].name, 
                     logs: logsByExerciseId[exercises[i].exerciseId],
-                    muscleGroup: exercises[i].muscleGroup
-                });            
+                    exerciseType: exercises[i].exerciseType
+                });             
             }
         }
         
-        // Ustawiamy stany komponentu
         setCompletedExercisesSummary(summary);
         setCurrentExerciseIndex(restoredExerciseIndex);
         setCompletedLogs(logsForLastExercise);
 
-        // Sprawdzamy, czy ostatnie ćwiczenie zostało w pełni ukończone
-        if (lastSetNumber >= lastExercisePlan.sets) {
-            setIsExerciseFinished(true); // Pokaż ekran "ukończono ćwiczenie"
-            setCurrentSet(lastExercisePlan.sets);
+        // Używamy `sets` dla STRENGTH i uznajemy, że cardio ma zawsze 1 "set"
+        const totalSets = lastExercisePlan.exerciseType === 'STRENGTH' ? lastExercisePlan.sets : 1;
+        const lastSetNumber = lastLog ? lastLog.setNumber : 0;
+        
+        if (lastSetNumber >= totalSets) {
+            setIsExerciseFinished(true);
+            setCurrentSet(totalSets);
         } else {
-            setCurrentSet(lastSetNumber + 1); // Ustaw następną serię
+            setCurrentSet(lastSetNumber + 1);
             setIsExerciseFinished(false);
         }
-    }; 
-
-     const handleSaveSet = async () => {
-        const currentExercise = session.exercises[currentExerciseIndex];
-        if (currentExercise.muscleGroup === 'CARDIO') {
-            handleSaveCardioSet();
-        } else {
-            handleSaveStrengthSet();
-        }
     };
 
-    const handleSaveStrengthSet = async () => {
-        const weightFloat = parseFloat(weight);
-        const repsInt = parseInt(reps);
-
-        if (!weight || !reps || weightFloat < 0 || weightFloat > 1000 || repsInt <= 0 || repsInt > 200) {
-            toast.error("Sprawdź wprowadzone dane (waga 0-1000, powt. 1-200).");
-            return;
-        }
-
+    const handleSaveSet = async () => {
         const currentExercise = session.exercises[currentExerciseIndex];
-        const logData = {
-            exerciseId: currentExercise.exerciseId,
-            setNumber: currentSet,
-            reps: repsInt,
-            weight: weightFloat,
-        };
+        let logData;
+
+        // ZMIANA: Budowanie obiektu logData w zależności od typu
+        if (currentExercise.exerciseType === 'STRENGTH') {
+            const weightFloat = parseFloat(strengthInputs.weight);
+            const repsInt = parseInt(strengthInputs.reps);
+
+            if (isNaN(weightFloat) || isNaN(repsInt) || weightFloat < 0 || repsInt <= 0) {
+                return toast.error("Wprowadź poprawne dane dla wagi i powtórzeń.");
+            }
+            logData = {
+                exerciseId: currentExercise.exerciseId,
+                setNumber: currentSet,
+                reps: repsInt,
+                weight: weightFloat,
+            };
+        } else { // CARDIO
+            const durationInt = parseInt(cardioInputs.durationMinutes);
+            const distanceFloat = parseFloat(cardioInputs.distanceKm);
+
+            if (isNaN(durationInt) || durationInt <= 0) {
+                return toast.error("Wprowadź poprawny czas trwania.");
+            }
+            logData = {
+                exerciseId: currentExercise.exerciseId,
+                setNumber: 1, // Cardio ma zawsze jeden "set"
+                durationMinutes: durationInt,
+                distanceKm: isNaN(distanceFloat) ? null : distanceFloat
+            };
+        }
         
-        await saveData(logData);
-    };
-
-    const handleSaveCardioSet = async () => {
-        const durationInt = parseInt(duration);
-
-        if (!duration || durationInt <= 0 || durationInt > 300) {
-            toast.error("Czas trwania musi być w zakresie 1 - 300 minut.");
-            return;
-        }
-
-        const currentExercise = session.exercises[currentExerciseIndex];
-        const logData = {
-            exerciseId: currentExercise.exerciseId,
-            setNumber: currentSet,
-            reps: durationInt, // Czas zapisujemy w polu 'reps'
-            weight: 0, // Wagę ustawiamy na 0
-        };
-
-        await saveData(logData);
-    };
-
-    const saveData = async (logData) => {
         try {
             const savedLog = await addExerciseLog(session.sessionId, logData);
             setCompletedLogs(prevLogs => [...prevLogs, savedLog]);
             
-            // Resetuj wszystkie inputy
-            setWeight('');
-            setReps('');
-            setDuration('');
+            setStrengthInputs({ weight: '', reps: '' });
+            setCardioInputs({ durationMinutes: '', distanceKm: '' });
 
-            const currentExercise = session.exercises[currentExerciseIndex];
-            if (currentSet >= currentExercise.sets) {
+            const totalSets = currentExercise.exerciseType === 'STRENGTH' ? currentExercise.sets : 1;
+            if (currentSet >= totalSets) {
                 setIsExerciseFinished(true);
             } else {
                 setCurrentSet(prev => prev + 1);
@@ -196,28 +175,25 @@ export default function LiveTraining() {
             }
         } catch (error) {
             toast.error("Nie udało się zapisać serii.");
-            console.log(error);
-
+            console.error(error);
         }
     };
 
-    // ZMIANA: Modyfikacja logiki przechodzenia do następnego ćwiczenia
     const handleNextExercise = () => {
-        // Zapisz podsumowanie ukończonego ćwiczenia PRZED przejściem do następnego
         const currentExercise = session.exercises[currentExerciseIndex];
         const newSummary = {
             name: currentExercise.name,
             logs: completedLogs,
-            muscleGroup: currentExercise.muscleGroup,
+            exerciseType: currentExercise.exerciseType,
         };
         setCompletedExercisesSummary(prevSummaries => [...prevSummaries, newSummary]);
 
-        // Przejdź do następnego ćwiczenia
         if (currentExerciseIndex + 1 < session.exercises.length) {
             setCurrentExerciseIndex(prev => prev + 1);
             setCurrentSet(1);
-            setCompletedLogs([]); // Reset logów dla BIEŻĄCEGO ćwiczenia
+            setCompletedLogs([]);
             setIsExerciseFinished(false);
+            setIsResting(false); // Upewnij się, że nie jesteśmy w trybie odpoczynku
         } else {
             handleFinishTraining();
         }
@@ -262,7 +238,7 @@ export default function LiveTraining() {
     }
     
     const currentExercise = session.exercises[currentExerciseIndex];
-    const isCardio = currentExercise.muscleGroup === 'CARDIO';
+    const isStrength = currentExercise.exerciseType === 'STRENGTH';
     const progressPercentage = ((currentExerciseIndex) / session.exercises.length) * 100;
 
     return (
@@ -305,7 +281,11 @@ export default function LiveTraining() {
                             <div className="text-center">
                                 <h2 className="text-3xl sm:text-4xl font-bold">{currentExercise.name}</h2>
                                 <p className="text-lg text-blue-400 mt-1">
-                                    Goal: {isCardio ? `${currentExercise.reps} minutes` : `${currentExercise.sets} sets x ${currentExercise.reps} reps`}
+                                    {/* ZMIANA: Dynamiczne wyświetlanie celu */}
+                                    Goal: {isStrength
+                                        ? `${currentExercise.sets} sets x ${currentExercise.reps} reps`
+                                        : `${currentExercise.durationMinutes} min` + (currentExercise.distanceKm ? ` / ${currentExercise.distanceKm} km` : '')
+                                    }
                                 </p>
                                 <Link to={`/training/exercises/${currentExercise.exerciseId}`} className="inline-flex items-center text-sm text-borderGrayHover hover:text-white mt-2">
                                     <FaInfoCircle className="mr-2" /> View Instructions
@@ -315,9 +295,13 @@ export default function LiveTraining() {
                             <div className="my-6 space-y-2">
                                 {completedLogs.map(log => (
                                     <div key={log.id} className="flex justify-between items-center bg-backgoudBlack p-3 rounded-lg text-sm animate-fade-in">
-                                        <span className="font-bold text-borderGrayHover">Set {log.setNumber}</span>
+                                        <span className="font-bold text-borderGrayHover">{isStrength ? `Set ${log.setNumber}` : `Activity`}</span>
                                         <span className="text-whitePrimary font-semibold">
-                                            {isCardio ? `${log.reps} minutes` : `${log.weight} kg x ${log.reps} reps`}
+                                            {/* ZMIANA: Dynamiczne wyświetlanie logu */}
+                                            {isStrength
+                                                ? `${log.weight} kg x ${log.reps} reps`
+                                                : `${log.durationMinutes} min` + (log.distanceKm ? ` / ${log.distanceKm} km` : '')
+                                            }
                                         </span>
                                         <FaCheck className="text-green-500"/>
                                     </div>
@@ -326,21 +310,23 @@ export default function LiveTraining() {
 
                             <div className="border-t-2 border-dashed border-borderGrayHover/20 pt-6">
                                 <h3 className="text-xl font-semibold mb-4 text-center">
-                                    Log Set <span className="text-bluePrimary">{currentSet}</span> / {currentExercise.sets}
+                                    {/* ZMIANA: Dynamiczny tytuł */}
+                                    {isStrength ? `Log Set ${currentSet} / ${currentExercise.sets}` : 'Log Your Activity'}
                                 </h3>
-                                {isCardio ? (
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <FaClock className="text-2xl text-gray-400"/>
-                                        <input type="number" placeholder="Duration (min)" value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
+                                {/* ZMIANA: Warunkowe wyświetlanie inputów */}
+                                {isStrength ? (
+                                    <div className="flex gap-4 mb-4">
+                                        <input type="number" placeholder="kg" value={strengthInputs.weight} onChange={(e) => setStrengthInputs(p => ({...p, weight: e.target.value}))} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
+                                        <input type="number" placeholder="reps" value={strengthInputs.reps} onChange={(e) => setStrengthInputs(p => ({...p, reps: e.target.value}))} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
                                     </div>
                                 ) : (
                                     <div className="flex gap-4 mb-4">
-                                        <input type="number" placeholder="kg" value={weight} onChange={(e) => setWeight(e.target.value)} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
-                                        <input type="number" placeholder="reps" value={reps} onChange={(e) => setReps(e.target.value)} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
+                                        <input type="number" placeholder="Duration (min)" value={cardioInputs.durationMinutes} onChange={(e) => setCardioInputs(p => ({...p, durationMinutes: e.target.value}))} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
+                                        <input type="number" step="0.1" placeholder="Distance (km)" value={cardioInputs.distanceKm} onChange={(e) => setCardioInputs(p => ({...p, distanceKm: e.target.value}))} className="w-full p-3 bg-backgoudBlack rounded-lg border border-borderGrayHover text-center text-lg focus:ring-2 focus:ring-bluePrimary" />
                                     </div>
                                 )}
                                 <button onClick={handleSaveSet} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg flex items-center justify-center text-lg transition-colors">
-                                    <FaCheck className="mr-2" /> {isCardio ? 'Log Activity' : 'Log Set'}
+                                    <FaCheck className="mr-2" /> {isStrength ? 'Log Set' : 'Log Activity'}
                                 </button>
                             </div>
                         </div>
@@ -350,16 +336,21 @@ export default function LiveTraining() {
                         <div className="mt-10 pt-6 border-t-2 border-dashed border-borderGrayHover">
                              <h3 className="text-xl font-bold mb-4 text-green-400">✅ Completed Exercises</h3>
                              <div className="space-y-3">
-                                 {completedExercisesSummary.map((summary, index) => (
-                                    <div key={index} className="bg-surfaceDarkGray p-4 rounded-lg text-left text-sm">
-                                         <h4 className="font-bold text-whitePrimary">{summary.name}</h4>
-                                         <p className="text-borderGrayHover">
-                                            {summary.logs.map(log => summary.muscleGroup === 'CARDIO' ? `${log.reps}min` : `(${log.weight}kg x ${log.reps})`).join(' ')}
-                                         </p>
+                                  {completedExercisesSummary.map((summary, index) => (
+                                     <div key={index} className="bg-surfaceDarkGray p-4 rounded-lg text-left text-sm">
+                                          <h4 className="font-bold text-whitePrimary">{summary.name}</h4>
+                                          <p className="text-borderGrayHover">
+                                            {/* ZMIANA: Poprawne wyświetlanie podsumowania */}
+                                            {summary.logs.map(log => 
+                                                summary.exerciseType === 'STRENGTH' 
+                                                    ? `(${log.weight}kg x ${log.reps})`
+                                                    : `(${log.durationMinutes}min` + (log.distanceKm ? ` / ${log.distanceKm}km` : '') + ')'
+                                            ).join(' ')}
+                                          </p>
                                      </div>
-                                 ))}
+                                  ))}
                              </div>
-                         </div>
+                        </div>
                      )}
                 </main>
             </div>

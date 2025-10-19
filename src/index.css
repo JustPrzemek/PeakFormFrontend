@@ -17,7 +17,7 @@ body {
   --color-blackGray: #151517;
   --color-darkGray: #2C2C2E;
   /*bg-amber-50- cremowy taki*/
-
+  --color-firstBlueLight: #449DD1;
   /* --color-backgoudBlack: #1E1F22; */
   --color-backgoudBlack: #0F0F0F;
   /* --color-surfaceDarkGray: #2B2D31; */
@@ -53,11 +53,11 @@ body {
 @keyframes like-pop {
   0% {
     transform: scale(0);
-    opacity: 0;
+    opacity: 0.8;
   }
   50% {
     transform: scale(1.2);
-    opacity: 0.9;
+    opacity: 1;
   }
   100% {
     transform: scale(1.5);

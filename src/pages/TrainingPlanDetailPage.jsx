@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getPlanDetails, removeExerciseFromPlan, updateExerciseInPlan } from '../services/workoutPlanService';
 import toast from 'react-hot-toast';
-import { FaArrowLeft, FaPencilAlt, FaTrash, FaSave, FaTimes, FaPlus, FaDumbbell, FaCheckCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaPencilAlt, FaTrash, FaSave, FaTimes, FaPlus, FaDumbbell, FaCheckCircle, FaHeartbeat, FaRunning } from 'react-icons/fa';
 import ConfirmationModal from '../components/ConfirmationModal';
 import Footer from "../components/Footer";
 import { GrPlan } from "react-icons/gr";
@@ -35,7 +35,12 @@ export default function TrainingPlanDetailPage() {
     const [loading, setLoading] = useState(true);
     const [activeDay, setActiveDay] = useState(null);
     const [editingExerciseId, setEditingExerciseId] = useState(null);
-    const [editingData, setEditingData] = useState({ sets: '', reps: '', restTime: '' });
+    
+    const [editingData, setEditingData] = useState({ 
+        sets: '', reps: '', restTime: '',
+        durationMinutes: '', distanceKm: '' 
+    });
+
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [exerciseToDelete, setExerciseToDelete] = useState(null);
 
@@ -66,15 +71,17 @@ export default function TrainingPlanDetailPage() {
     const handleStartEditing = (exercise) => {
         setEditingExerciseId(exercise.id);
         setEditingData({
-            sets: exercise.sets,
-            reps: exercise.reps,
-            restTime: exercise.restTime
+            sets: exercise.sets || '',
+            reps: exercise.reps || '',
+            restTime: exercise.restTime || '',
+            durationMinutes: exercise.durationMinutes || '',
+            distanceKm: exercise.distanceKm || ''
         });
     };
 
     const handleCancelEditing = () => {
         setEditingExerciseId(null);
-        setEditingData({ sets: '', reps: '', restTime: '' });
+        setEditingData({ sets: '', reps: '', restTime: '', durationMinutes: '', distanceKm: '' });
     };
 
     const handleEditingChange = (e) => {
@@ -84,16 +91,27 @@ export default function TrainingPlanDetailPage() {
 
     const handleUpdateConfirm = async () => {
         if (!editingExerciseId) return;
+
+        const exerciseToUpdate = plan.days[activeDay].find(ex => ex.id === editingExerciseId);
+        if (!exerciseToUpdate) return;
         
-        const updateDto = {
-            sets: parseInt(editingData.sets, 10),
-            reps: parseInt(editingData.reps, 10),
-            restTime: parseInt(editingData.restTime, 10)
-        };
+        let updateDto = {};
+        if (exerciseToUpdate.exerciseType === 'STRENGTH') {
+            updateDto = {
+                sets: parseInt(editingData.sets, 10),
+                reps: parseInt(editingData.reps, 10),
+                restTime: parseInt(editingData.restTime, 10)
+            };
+        } else if (exerciseToUpdate.exerciseType === 'CARDIO') {
+            updateDto = {
+                durationMinutes: parseInt(editingData.durationMinutes, 10),
+                distanceKm: parseFloat(editingData.distanceKm)
+            };
+        }
         
         try {
             const updatedPlan = await updateExerciseInPlan(planId, editingExerciseId, updateDto);
-            setPlan(updatedPlan); // API zwraca cały zaktualizowany plan, więc po prostu go ustawiamy
+            setPlan(updatedPlan);
             toast.success("Exercise updated successfully!");
             handleCancelEditing();
         } catch (error) {
@@ -151,7 +169,6 @@ export default function TrainingPlanDetailPage() {
     };
 
     if (loading) return <PlanDetailSkeleton />;
-
     if (!plan) return <div className="text-center mt-20 text-whitePrimary">Plan not found.</div>;
 
     const sortedDays = plan.days ? Object.keys(plan.days).sort() : [];
@@ -208,44 +225,70 @@ export default function TrainingPlanDetailPage() {
 
                         {/* --- NOWA TABELA Z ĆWICZENIAMI --- */}
                         <div className="overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                {/* Nagłówek tabeli */}
+                            <div className="min-w-[700px]"> {/* Lekko poszerzamy min-width */}
+                                {/* Dynamiczne nagłówki tabeli */}
                                 <div className="grid grid-cols-12 gap-4 px-4 py-2 text-xs font-bold text-borderGrayHover uppercase tracking-wider">
                                     <div className="col-span-5">Exercise</div>
-                                    <div className="col-span-2 text-center">Sets</div>
-                                    <div className="col-span-2 text-center">Reps</div>
-                                    <div className="col-span-2 text-center">Rest (s)</div>
-                                    <div className="col-span-1"></div>
+                                    <div className="col-span-6">Details</div>
+                                    <div className="col-span-1 text-right">Actions</div>
                                 </div>
                                 {/* Wiersze tabeli */}
                                 <div className="space-y-2">
                                 {activeDay && plan.days[activeDay]?.map((exercise) => (
                                     <div key={exercise.id} className="grid grid-cols-12 gap-4 items-center bg-backgoudBlack p-4 rounded-lg group">
-                                        {editingExerciseId === exercise.id ? (
-                                            <> {/* --- WIDOK EDYCJI --- */}
-                                                <div className="col-span-5 font-semibold text-bluePrimary">{exercise.exerciseName}</div>
-                                                <div className="col-span-2"><input type="number" name="sets" value={editingData.sets} onChange={handleEditingChange} className="w-full p-1 bg-borderGrayHover/20 rounded text-center" /></div>
-                                                <div className="col-span-2"><input type="number" name="reps" value={editingData.reps} onChange={handleEditingChange} className="w-full p-1 bg-borderGrayHover/20 rounded text-center" /></div>
-                                                <div className="col-span-2"><input type="number" name="restTime" value={editingData.restTime} onChange={handleEditingChange} className="w-full p-1 bg-borderGrayHover/20 rounded text-center" /></div>
-                                                <div className="col-span-1 flex items-center justify-end gap-3">
-                                                    <button onClick={handleUpdateConfirm} title="Save"><FaSave className="text-green-500 hover:text-green-400" /></button>
-                                                    <button onClick={handleCancelEditing} title="Cancel"><FaTimes className="text-gray-500 hover:text-white" /></button>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <> {/* --- WIDOK WYŚWIETLANIA --- */}
-                                                <div className="col-span-5 font-semibold text-bluePrimary hover:underline cursor-pointer" onClick={() => navigate(`/training/exercises/${exercise.exerciseId}`)}>
+                                    {editingExerciseId === exercise.id ? (
+                                        <> {/* --- WIDOK EDYCJI --- */}
+                                            <div className="col-span-5 font-semibold text-bluePrimary">{exercise.exerciseName}</div>
+                                            <div className="col-span-6">
+                                                {exercise.exerciseType === 'STRENGTH' ? (
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        <input type="number" name="sets" placeholder="Sets" value={editingData.sets} onChange={handleEditingChange} className="w-full p-2 bg-borderGrayHover/20 rounded text-center" />
+                                                        <input type="number" name="reps" placeholder="Reps" value={editingData.reps} onChange={handleEditingChange} className="w-full p-2 bg-borderGrayHover/20 rounded text-center" />
+                                                        <input type="number" name="restTime" placeholder="Rest (s)" value={editingData.restTime} onChange={handleEditingChange} className="w-full p-2 bg-borderGrayHover/20 rounded text-center" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <input type="number" name="durationMinutes" placeholder="Mins" value={editingData.durationMinutes} onChange={handleEditingChange} className="w-full p-2 bg-borderGrayHover/20 rounded text-center" />
+                                                        <input type="number" step="0.1" name="distanceKm" placeholder="KM" value={editingData.distanceKm} onChange={handleEditingChange} className="w-full p-2 bg-borderGrayHover/20 rounded text-center" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="col-span-1 flex items-center justify-end gap-3">
+                                                <button onClick={handleUpdateConfirm} title="Save"><FaSave className="text-green-500 hover:text-green-400" /></button>
+                                                <button onClick={handleCancelEditing} title="Cancel"><FaTimes className="text-gray-500 hover:text-white" /></button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <> {/* --- WIDOK WYŚWIETLANIA --- */}
+                                            <div className="col-span-5 font-semibold text-whitePrimary flex items-center gap-3">
+                                               {exercise.exerciseType === 'STRENGTH' ? 
+                                                    <FaDumbbell className="text-bluePrimary/50"/> :
+                                                    <FaRunning className="text-green-400/50"/>
+                                               }
+                                                <span className="hover:underline cursor-pointer" onClick={() => navigate(`/training/exercises/${exercise.exerciseId}`)}>
                                                     {exercise.exerciseName}
-                                                </div>
-                                                <div className="col-span-2 text-center text-borderGrayHover">{exercise.sets}</div>
-                                                <div className="col-span-2 text-center text-borderGrayHover">{exercise.reps}</div>
-                                                <div className="col-span-2 text-center text-borderGrayHover">{exercise.restTime}</div>
-                                                <div className="col-span-1 flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => handleStartEditing(exercise)} title="Edit"><FaPencilAlt className="text-borderGrayHover hover:text-white" /></button>
-                                                    <button onClick={() => handleOpenDeleteModal(exercise)} title="Delete"><FaTrash className="text-borderGrayHover hover:text-red-500" /></button>
-                                                </div>
-                                            </>
-                                        )}
+                                                </span>
+                                            </div>
+                                            <div className="col-span-6 text-center text-borderGrayHover flex items-center justify-start text-sm">
+                                                {exercise.exerciseType === 'STRENGTH' ? (
+                                                    <div className="flex gap-4">
+                                                        <span><span className="font-bold text-whitePrimary">{exercise.sets}</span> sets</span>
+                                                        <span><span className="font-bold text-whitePrimary">{exercise.reps}</span> reps</span>
+                                                        <span><span className="font-bold text-whitePrimary">{exercise.restTime}</span>s rest</span>
+                                                    </div>
+                                                ) : (
+                                                     <div className="flex gap-4">
+                                                        <span><span className="font-bold text-whitePrimary">{exercise.durationMinutes}</span> min</span>
+                                                        {exercise.distanceKm && <span><span className="font-bold text-whitePrimary">{exercise.distanceKm}</span> km</span>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="col-span-1 flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleStartEditing(exercise)} title="Edit"><FaPencilAlt className="text-borderGrayHover hover:text-white" /></button>
+                                                <button onClick={() => handleOpenDeleteModal(exercise)} title="Delete"><FaTrash className="text-borderGrayHover hover:text-red-500" /></button>
+                                            </div>
+                                        </>
+                                    )}
                                     </div>
                                 ))}
                                 </div>

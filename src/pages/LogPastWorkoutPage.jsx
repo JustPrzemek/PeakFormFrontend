@@ -102,19 +102,36 @@ export default function LogPastWorkoutPage() {
                 return (
                     <div className="animate-fade-in">
                         <h2 className="text-3xl font-bold text-center mb-8">Select a Plan</h2>
-                        {loading ? <CgSpinner className="mx-auto animate-spin text-4xl"/> : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {plans.map(plan => (
-                                    <div key={plan.id} onClick={() => selectPlan(plan)}
-                                         className="bg-surfaceDarkGray p-6 rounded-2xl cursor-pointer border border-transparent hover:border-bluePrimary hover:-translate-y-1 transition-all flex items-center gap-4">
-                                        <GrPlan className="text-2xl text-bluePrimary flex-shrink-0"/>
-                                        <div className="flex-grow">
-                                            <p className="font-bold text-lg">{plan.name}</p>
-                                            <p className="text-xs text-borderGrayHover capitalize">{plan.goal}</p>
+                        {loading ? <CgSpinner className="mx-auto animate-spin text-4xl" /> : (
+                            // --- POCZĄTEK ZMIAN ---
+                            // Sprawdzamy, czy tablica z planami ma jakieś elementy
+                            plans.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {plans.map(plan => (
+                                        <div key={plan.id} onClick={() => selectPlan(plan)}
+                                            className="bg-surfaceDarkGray p-6 rounded-2xl cursor-pointer border border-transparent hover:border-bluePrimary hover:-translate-y-1 transition-all flex items-center gap-4">
+                                            <GrPlan className="text-2xl text-bluePrimary flex-shrink-0" />
+                                            <div className="flex-grow">
+                                                <p className="font-bold text-lg">{plan.name}</p>
+                                                <p className="text-xs text-borderGrayHover capitalize">{plan.goal}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                // Jeśli tablica jest pusta, pokazujemy ten komunikat
+                                <div className="text-center py-8">
+                                    <p className="mb-4 text-lg text-borderGrayHover">Nie masz jeszcze żadnych planów treningowych.</p>
+                                    <p className="mb-6">Dodaj plan, aby móc rejestrować swoje treningi.</p>
+                                    <button
+                                        onClick={() => navigate('/training/plans')}
+                                        className="bg-bluePrimary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
+                                    >
+                                        Przejdź do tworzenia planu
+                                    </button>
+                                </div>
+                            )
+                            // --- KONIEC ZMIAN ---
                         )}
                     </div>
                 );
@@ -124,11 +141,11 @@ export default function LogPastWorkoutPage() {
                         <h2 className="text-3xl font-bold text-center mb-8">Select Day & Date</h2>
                         <div className="mb-8">
                             <label htmlFor="workout-date" className="font-semibold text-borderGrayHover mb-2 block">Workout Date</label>
-                            <input 
+                            <input
                                 id="workout-date"
-                                type="date" 
-                                value={workoutDate} 
-                                onChange={e => setWorkoutDate(e.target.value)} 
+                                type="date"
+                                value={workoutDate}
+                                onChange={e => setWorkoutDate(e.target.value)}
                                 className="w-full p-3 bg-backgoudBlack border border-borderGrayHover rounded-lg focus:ring-2 focus:ring-bluePrimary"
                                 style={{ colorScheme: 'dark' }}
                             />
@@ -138,8 +155,8 @@ export default function LogPastWorkoutPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {selectedPlan.days.map(day => (
                                     <div key={day} onClick={() => selectDay(day)}
-                                         className="bg-surfaceDarkGray p-6 rounded-2xl cursor-pointer border border-transparent hover:border-bluePrimary hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
-                                        <FaRegCalendarAlt className="text-2xl text-bluePrimary"/>
+                                        className="bg-surfaceDarkGray p-6 rounded-2xl cursor-pointer border border-transparent hover:border-bluePrimary hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
+                                        <FaRegCalendarAlt className="text-2xl text-bluePrimary" />
                                         <p className="font-bold text-lg capitalize">{day.toLowerCase()}</p>
                                     </div>
                                 ))}

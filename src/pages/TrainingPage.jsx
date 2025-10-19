@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { FaDumbbell, FaTasks, FaPlay, FaHistory } from 'react-icons/fa';
+import { FcStatistics } from "react-icons/fc";
+import { RiFolderHistoryLine } from "react-icons/ri";
 import Footer from "../components/Footer";
 
 export default function TrainingPage() {
@@ -29,6 +31,18 @@ export default function TrainingPage() {
             icon: <FaHistory size={40} />, 
             path: '/training/complete',
             imageUrl: 'https://res.cloudinary.com/doxznubde/image/upload/v1760309837/mahmoud-amer-i3-PEnqfSI8-unsplash_rscr5s.jpg'
+        },
+        { 
+            title: 'Workout sessions history', 
+            icon: <RiFolderHistoryLine size={40} />, 
+            path: '/training/history',
+            imageUrl: 'https://res.cloudinary.com/doxznubde/image/upload/v1760819121/pexels-alesiakozik-8154264_gnpjsw.jpg'
+        },
+        { 
+            title: 'Statistic', 
+            icon: <FcStatistics size={40} />, 
+            path: '/training/statistic',
+            imageUrl: 'https://res.cloudinary.com/doxznubde/image/upload/v1760818792/pexels-goumbik-669622_z1nzzs.jpg'
         },
     ];
 

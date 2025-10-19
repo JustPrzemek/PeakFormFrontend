@@ -17,8 +17,8 @@ const DayCardSkeleton = () => (
 // --- Komponent stanu "pustego" (bez zmian) ---
 const EmptyState = () => (
     <div className="text-center py-20 px-6 bg-surfaceDarkGray rounded-2xl border border-dashed border-borderGrayHover">
-        <h2 className="text-2xl font-bold text-whitePrimary">No Active Plan Found</h2>
-        <p className="text-borderGrayHover mt-2 mb-6 max-w-md mx-auto">You don't seem to have an active training plan. Please set a plan as active to begin your workout.</p>
+        <h2 className="text-2xl font-bold text-whitePrimary">No Active Plan Or Day Found</h2>
+        <p className="text-borderGrayHover mt-2 mb-6 max-w-md mx-auto">You don't seem to have an active training plan. Or you don't have exercise in your active plan. Please set a plan as active or add exercise to active plan to begin your workout.</p>
         <Link to="/training/plans" className="bg-bluePrimary text-whitePrimary font-bold py-3 px-6 rounded-lg hover:bg-blueHover transition-colors">
             Go to My Plans
         </Link>
@@ -79,7 +79,7 @@ export default function SelectTrainingDay() {
     };
 
     const handleGoBack = () => {
-        navigate(-1);
+        navigate(`/training`);
     }
 
     return (

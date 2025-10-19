@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { followsService } from '../services/followService';
-import { CgClose } from "react-icons/cg";
+import { CgClose, CgSpinner } from "react-icons/cg";
 
 // Custom hook do opóźnienia wykonania funkcji (dla wyszukiwania)
 const useDebounce = (value, delay) => {
@@ -73,22 +73,22 @@ export default function FollowsModal({ isOpen, onClose, modalType, username }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-gray bg-opacity-75 backdrop-blur z-50 flex justify-center items-center" onClick={onClose}>
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md h-[70vh] flex flex-col"  onClick={(e) => e.stopPropagation()}>
-                <header className="flex items-center justify-between p-4 border-b">
-                    <h2 className="text-lg font-bold capitalize">{modalType}</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+        <div className="fixed inset-0 bg-opacity-75 backdrop-blur-sm z-50 flex justify-center items-center" onClick={onClose}>
+            <div className="bg-surfaceDarkGray rounded-2xl shadow-xl w-full max-w-md h-[70vh] flex flex-col border border-borderGrayHover" onClick={e => e.stopPropagation()}>
+                <header className="flex items-center justify-between p-4 border-b border-borderGrayHover">
+                    <h2 className="text-lg font-bold capitalize text-whitePrimary">{modalType}</h2>
+                    <button onClick={onClose} className="text-borderGrayHover hover:text-white">
                         <CgClose size={24} />
                     </button>
                 </header>
                 
-                <div className="p-4 border-b">
+                <div className="p-4 border-b border-borderGrayHover">
                     <input
                         type="text"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 bg-backgoudBlack border border-borderGrayHover rounded-md focus:outline-none focus:ring-2 focus:ring-bluePrimary text-whitePrimary"
                     />
                 </div>
 
@@ -96,15 +96,15 @@ export default function FollowsModal({ isOpen, onClose, modalType, username }) {
                     {list.map((user, index) => {
                         const ref = index === list.length - 1 ? lastUserRef : null;
                         return (
-                            <li ref={ref} key={user.username} className="flex items-center">
-                                <Link to={`/profile/${user.username}`} onClick={onClose} className="flex items-center w-full hover:bg-gray-50 p-2 rounded-md">
+                            <li ref={ref} key={user.username}>
+                                <Link to={`/profile/${user.username}`} onClick={onClose} className="flex items-center w-full hover:bg-borderGrayHover/30 p-2 rounded-md">
                                     <img src={user.profileImageUrl} alt={user.username} className="w-10 h-10 rounded-full mr-4 object-cover" />
-                                    <span className="font-semibold">{user.username}</span>
+                                    <span className="font-semibold text-whitePrimary">{user.username}</span>
                                 </Link>
                             </li>
                         );
                     })}
-                    {loading && <p className="text-center text-gray-500">Loading...</p>}
+                    {loading && <div className="flex justify-center"><CgSpinner className="animate-spin text-bluePrimary"/></div>}
                     {!hasMore && list.length > 0 && <p className="text-center text-gray-500">No more users</p>}
                     {!loading && list.length === 0 && <p className="text-center text-gray-500">No users found</p>}
                 </ul>

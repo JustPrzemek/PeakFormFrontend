@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPostDetails } from '../services/postsService';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaHeart, FaRegHeart, FaRegComment, FaRegPaperPlane, FaRegBookmark } from 'react-icons/fa';
 import { addLikeToPost, removeLikeFromPost } from '../services/likesService';
 import { formatTimeAgo } from '../utils/dateFormatter';
 import { addComment } from "../services/commentsService";
 import { LiaCommentSolid } from "react-icons/lia";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa6";
+import PostModalSkeleton from './skeletons/PostModalSkeleton';
 
 const CONTENT_TRUNCATE_LENGTH = 150;
 
@@ -15,10 +16,11 @@ export default function PostModal({ postId, onClose }) {
     const [comments, setComments] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMoreComments, setHasMoreComments] = useState(true);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [newCommentText, setNewCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showLikeAnimation, setShowLikeAnimation] = useState(false);
 
     const [isContentExpanded, setIsContentExpanded] = useState(false);
 
@@ -116,6 +118,38 @@ export default function PostModal({ postId, onClose }) {
         }
     };
 
+    const handleDoubleClickLike = async () => {
+        // Pokaż animację i schowaj ją po 1 sekundzie
+        setShowLikeAnimation(true);
+        setTimeout(() => {
+            setShowLikeAnimation(false);
+        }, 1000);
+
+        // Jeśli post jest już polubiony, nie rób nic więcej
+        if (post.likedByUser) return;
+
+        // Jeśli post nie jest polubiony, wywołaj logikę dodawania polubienia
+        // (możemy skopiować i uprościć logikę z handleToggleLike)
+        setPost(prevPost => ({
+            ...prevPost,
+            likedByUser: true,
+            likesCount: prevPost.likesCount + 1
+        }));
+
+        try {
+            await addLikeToPost(post.postId);
+        } catch (error) {
+            console.error("Błąd podczas dodawania polubienia:", error);
+            // W razie błędu cofnij optymistyczną aktualizację
+            setPost(prevPost => ({
+                ...prevPost,
+                likedByUser: false,
+                likesCount: prevPost.likesCount - 1
+            }));
+            alert("Nie udało się dodać polubienia.");
+        }
+    };
+
     const renderMedia = () => {
         if (!post?.mediaUrl) return null;
 
@@ -157,119 +191,115 @@ export default function PostModal({ postId, onClose }) {
 
     return (
         <div 
-            className="fixed inset-0 bg-gray bg-opacity-75 backdrop-blur-sm z-50 flex justify-center items-center cursor-pointer"
+            className="fixed inset-0 bg-opacity-75 backdrop-blur-sm z-50 flex justify-center items-center animate-fade-in"
             onClick={onClose}
         >
-            <div 
-                className="bg-white rounded-lg w-full max-w-6xl h-[90vh] flex overflow-hidden relative cursor-auto"
-                onClick={(e) => e.stopPropagation()} // Zapobiega zamykaniu po kliknięciu w modal
-            >
-                <button onClick={onClose} className="absolute top-2 right-2 text-white z-10 text-2xl">
-                    <FaTimes />
-                </button>
+            <button onClick={onClose} className="absolute top-4 right-4 text-white z-50 text-2xl hover:opacity-75 transition-opacity">
+                <FaTimes />
+            </button>
 
-                {loading && !post && <p className="text-center w-full p-10">Loading...</p>}
-                {error && <p className="text-center w-full p-10 text-red-500">{error}</p>}
+            {loading && !post ? (
+                <PostModalSkeleton />
+            ) : error ? (
+                <div className="text-center p-10 text-red-500 bg-surfaceDarkGray rounded-2xl">{error}</div>
+            ) : post && (
+                <div 
+                    className="bg-surfaceDarkGray rounded-2xl w-full max-w-6xl h-[90vh] flex flex-col lg:flex-row overflow-hidden relative cursor-auto"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Lewa strona - Media (dostosowana responsywnie) */}
+                    <div className="w-full lg:w-3/5 bg-black flex items-center justify-center h-1/2 lg:h-full flex-shrink-0 relative"
+                        onDoubleClick={handleDoubleClickLike}>
+                        {renderMedia()}
+                        {showLikeAnimation && (
+                        <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+                            <FaHeart className="text-white text-8xl drop-shadow-lg like-animation" />
+                        </div>
+                    )}
+                    </div>
 
-                {post && (
-                    <>
-                        {/* Lewa strona - Obrazek */}
-                        <div className="w-1/2 bg-black flex items-center justify-center">
-                            {renderMedia()}
+                    {/* Prawa strona - Info i komentarze (dostosowana responsywnie) */}
+                    <div className="w-full lg:w-2/5 flex flex-col h-1/2 lg:h-full bg-surfaceDarkGray text-whitePrimary">
+                        {/* Header */}
+                        <div className="p-4 flex items-center border-b border-borderGrayHover flex-shrink-0">
+                            <img src={post.userProfileImageUrl} className="w-10 h-10 rounded-full mr-3" alt={post.username}/>
+                            <span className="font-bold">{post.username}</span>
                         </div>
 
-                        {/* Prawa strona - Info i komentarze */}
-                        <div className="w-1/2 flex flex-col h-full">
-                            {/* Header */}
-                            <div className="p-4 flex items-center border-b">
-                                <img src={post.userProfileImageUrl} className="w-8 h-8 rounded-full mr-3" alt={post.username}/>
-                                <span className="font-bold">{post.username}</span>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                {/* Opis posta */}
-                                <div className="break-words">
+                        {/* Główna, przewijalna treść */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {/* Opis posta */}
+                            <div className="flex items-start">
+                                <div className="flex-1 min-w-0 break-words text-sm">
                                     <span className="font-bold mr-2">{post.username}</span>
                                     <span>{renderedContent}</span>
                                     {shouldTruncate && (
-                                        <button 
-                                            onClick={() => setIsContentExpanded(!isContentExpanded)} 
-                                            className="text-gray-500 text-sm ml-2 font-semibold cursor-pointer hover:underline"
-                                        >
-                                            {isContentExpanded ? 'hide' : 'more'}
+                                        <button onClick={() => setIsContentExpanded(!isContentExpanded)} className="text-borderGrayHover text-sm ml-1 font-semibold">
+                                            {isContentExpanded ? 'less' : 'more'}
                                         </button>
                                     )}
                                 </div>
-                                
-                                {/* Lista komentarzy */}
-                                {comments.map(comment => (
-                                    <div key={comment.commentId} className="flex items-start">
-                                        <img src={comment.profileImageUrl} className="w-8 h-8 rounded-full mr-3" alt={comment.username}/>
-                                        {/* ZMIANA 3: Upewnienie się, że klasa `break-words` jest na kontenerze komentarza */}
-                                        <div className="flex-1 min-w-0 break-words">
-                                            <span className="font-bold mr-2">{comment.username}</span>
-                                            <span>{comment.content}</span>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {hasMoreComments && (
-                                    <button onClick={fetchMoreComments} disabled={loading} className="text-blue-500 hover:underline">
-                                        {loading ? 'Ładowanie...' : 'Wczytaj więcej komentarzy'}
-                                    </button>
-                                )}
                             </div>
-
-                            {/* Stopka - akcje i dodawanie komentarza */}
-                            <div className="p-4 border-t">
-                                <div className="flex flex-row text-2xl mb-2">
-                                    <button onClick={handleToggleLike} className="mr-3 hover:opacity-70 cursor-pointer">
-                                        {post.likedByUser 
-                                            ? <AiFillLike className="text-blue-500" /> 
-                                            : <AiOutlineLike />
-                                        }
-                                    </button>
-                                    <button className="mr-3 hover:text-gray-500 cursor-pointer">
-                                        <FaRegComments />
-                                    </button>
-                                </div>
-                                
-                                <div className="font-bold text-sm">{post.likesCount} likes</div>
-                                <div className="text-gray-500 uppercase text-xs mt-1">
-                                    {formatTimeAgo(post.createdAt)} 
-                                </div>
-                            </div>
-                            <div className="mt-2 border-t">
-                                   <div className="p-3 flex flex-row ">
-                                        <div className="flex items-center text-2xl">
-                                            <LiaCommentSolid />
-                                        </div>
-                                        <div className="flex-1 pr-3 py-1">
-                                            <input 
-                                                type="text" 
-                                                className="w-full px-3 py-1 text-sm outline-0 bg-transparent"  
-                                                placeholder="Add a comment ..." 
-                                                onChange={(e) => setNewCommentText(e.target.value)}
-                                                value={newCommentText}
-                                                disabled={isSubmitting}
-                                                maxLength="500"
-                                                onKeyDown={handleKeyDown} />
-                                        </div>
-                                        <div className="flex items-center text-sm">
-                                            <button 
-                                                className="text-sky-500 font-medium cursor-pointer disabled:text-sky-200"
-                                                onClick={handleSubmitComment}
-                                                disabled={!newCommentText.trim() || isSubmitting}
-                                            >
-                                                Post
-                                            </button>
-                                        </div>
+                            
+                            {/* Lista komentarzy */}
+                            {comments.map(comment => (
+                                <div key={comment.commentId} className="flex items-start">
+                                    <img src={comment.profileImageUrl} className="w-8 h-8 rounded-full mr-3" alt={comment.username}/>
+                                    <div className="flex-1 min-w-0 break-words text-sm">
+                                        <span className="font-bold mr-2">{comment.username}</span>
+                                        <span>{comment.content}</span>
+                                        <p className="text-xs text-borderGrayHover mt-0.5">{formatTimeAgo(comment.createdAt)}</p>
                                     </div>
                                 </div>
+                            ))}
+
+                            {hasMoreComments && (
+                                <button onClick={fetchMoreComments} disabled={loading} className="text-sm text-borderGrayHover hover:underline">
+                                    {loading ? 'Loading...' : 'Load more comments'}
+                                </button>
+                            )}
                         </div>
-                    </>
-                )}
-            </div>
+
+                        {/* Stopka - akcje i dodawanie komentarza */}
+                        <div className="p-4 border-t border-borderGrayHover mt-auto flex-shrink-0">
+                            <div className="flex justify-between items-center text-2xl mb-2">
+                                <div className="flex gap-4">
+                                    <button onClick={handleToggleLike} className="hover:text-borderGrayHover transition-colors">
+                                        {post.likedByUser ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+                                    </button>
+                                    {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegComment /></button> */}
+                                    {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegPaperPlane /></button> */}
+                                </div>
+                                {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegBookmark /></button> */}
+                            </div>
+                            
+                            <div className="font-bold text-sm">{post.likesCount} likes</div>
+                            <div className="text-borderGrayHover uppercase text-xs mt-1">{formatTimeAgo(post.createdAt)}</div>
+                            
+                            <div className="mt-2 pt-2 border-t border-borderGrayHover/50">
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="text" 
+                                        className="w-full bg-transparent text-sm outline-none placeholder:text-borderGrayHover" 
+                                        placeholder="Add a comment..." 
+                                        onChange={(e) => setNewCommentText(e.target.value)}
+                                        value={newCommentText}
+                                        disabled={isSubmitting}
+                                        onKeyDown={handleKeyDown}
+                                    />
+                                    <button 
+                                        className="text-bluePrimary font-bold text-sm disabled:text-blue-900"
+                                        onClick={handleSubmitComment}
+                                        disabled={!newCommentText.trim() || isSubmitting}
+                                    >
+                                        Post
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

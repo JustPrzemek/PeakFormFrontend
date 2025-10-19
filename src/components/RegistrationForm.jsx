@@ -99,18 +99,18 @@ function RegistrationForm() {
     
     if (message) {
         return (
-            <div className="w-full h-full bg-amber-50 flex flex-col justify-center items-center px-12 text-center">
-                <h2 className="text-2xl font-semibold text-green-600">✅ Success!</h2>
+            <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center items-center px-12 text-center">
+                <h2 className="text-2xl font-semibold text-green-400">✅ Success!</h2>
                 <p className="mt-4 text-lg">{message}</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full h-full bg-amber-50 flex flex-col justify-center px-12 md:px-24">
-            <h1 className="text-3xl font-semibold mt-6 opacity-80 text-neutral-900">Create an Account</h1>
+        <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center px-12 md:px-24">
+            <h1 className="text-3xl font-bold">Create an Account</h1>
             
-            {apiError && <p className="text-red-500 mt-4 text-center bg-red-100 p-2 rounded-md">{apiError}</p>}
+            {apiError && <p className="text-red-400 mt-4 text-center bg-red-500/10 p-2 rounded-md">{apiError}</p>}
 
             <form onSubmit={handleSubmit} noValidate>
                 <IconInput placeholder="Email" type="email" name="email" value={formData.email} onChange={handleChange} error={errors.email}>
@@ -155,21 +155,19 @@ function RegistrationForm() {
                 </IconInput>
                 
                 <button 
-                type="submit" 
-                disabled={loading}
-                className={`bg-celestialBlue w-full py-4 rounded-lg mt-5 text-white text-xl cursor-pointer hover:opacity-90 active:scale-95 transition-all 
-                ${loading ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:opacity-90 active:scale-95"}`}>
-                    {loading ? "Loading..." : "Register"}
+                    type="submit" 
+                    disabled={loading}
+                    className="bg-bluePrimary w-full py-3 rounded-lg mt-5 text-white text-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blueHover active:scale-95"
+                >
+                    {loading ? "Registering..." : "Register"}
                 </button>
-
-                <span className="block text-center opacity-70 mt-6 text-gray-800">or continue with</span>
-            
             </form>
-                <a href="http://localhost:8080/oauth2/authorize/google" className="flex justify-center gap-x-5">
-                    <IconButton text="Google">
-                        <FcGoogle />
-                    </IconButton>
-                </a>
+                <span className="block text-center text-sm text-borderGrayHover mt-6">or continue with</span>
+            <a href="http://localhost:8080/oauth2/authorize/google" className="flex justify-center">
+                <IconButton text="Google">
+                    <FcGoogle />
+                </IconButton>
+            </a>
         </div>
     );
 }

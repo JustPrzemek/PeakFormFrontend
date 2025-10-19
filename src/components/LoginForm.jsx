@@ -46,10 +46,10 @@ function LoginForm({ onForgotPassword }) {
     };
 
     return (
-        <div className="w-full h-full bg-amber-50 flex flex-col justify-center px-12 md:px-24">
-            <h1 className="text-3xl font-semibold mt-6 opacity-80 text-neutral-900">Log in to your Account</h1>
+        <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center px-12 md:px-24">
+            <h1 className="text-3xl font-bold">Log in to your Account</h1>
             
-            {apiError && <p className="text-red-500 mt-4 text-center bg-red-100 p-2 rounded-md">{apiError}</p>}
+            {apiError && <p className="text-red-400 mt-4 text-center bg-red-500/10 p-2 rounded-md">{apiError}</p>}
 
             <form onSubmit={handleSubmit} noValidate>
                 <IconInput 
@@ -77,17 +77,17 @@ function LoginForm({ onForgotPassword }) {
                 </IconInput>
 
                 <div className="flex justify-end items-center mt-3">
-                    <button type="button" onClick={onForgotPassword} className="text-celestialBlue hover:underline">
+                    <button type="button" onClick={onForgotPassword} className="text-sm text-bluePrimary hover:underline">
                         Forgot Password?
                     </button>
                 </div>
 
-                <button type="submit" className="bg-celestialBlue w-full py-4 rounded-lg mt-5 text-amber-50 text-xl cursor-pointer hover:opacity-90 active:scale-95 transition-all">
+                <button type="submit" className="bg-bluePrimary w-full py-3 rounded-lg mt-5 text-white text-lg font-bold cursor-pointer hover:bg-blueHover active:scale-95 transition-all">
                     Login
                 </button>
             </form>
 
-            <span className="block text-center opacity-70 mt-6 text-gray-800">or continue with</span>
+            <span className="block text-center text-sm text-borderGrayHover mt-6">or continue with</span>
             <a href="http://localhost:8080/oauth2/authorize/google" className="w-full flex justify-center">
                 <IconButton text="Google">
                     <FcGoogle />

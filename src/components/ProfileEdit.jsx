@@ -3,7 +3,16 @@ import { getEditData, updateUserData } from "../services/userProfileService";
 import ImageUploadModal from "./ImageUploadModal";
 import { useUser } from '../context/UserContext';
 import toast from 'react-hot-toast';
+import ProfileEditSkeleton from "../components/skeletons/ProfileEditSkeleton";
+import {CgSpinner} from "react-icons/cg";
 //import { useNavigate } from 'react-router-dom';
+
+const FormField = ({ label, children }) => (
+    <div>
+        <label className="block text-sm font-medium text-borderGrayHover mb-2">{label}</label>
+        {children}
+    </div>
+);
 
 export default function ProfileEdit() {
      const [username, setUsername] = useState('');
@@ -89,202 +98,103 @@ export default function ProfileEdit() {
         toast.success('Profile picture updated!');
     };
     
-    if (loading) return <p>Loading profile...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
+    if (loading) return <ProfileEditSkeleton />;
+    if (error) return <p className="text-red-500 text-center mt-10">Error: {error}</p>;
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="flex flex-row">
-                <div className="w-1/3 p-3">
-                    <div className="float-right mr-5">
+        <div className="bg-backgoudBlack text-whitePrimary min-h-screen pb-24"> {/* Dodany padding na dole dla belki */}
+            <form onSubmit={handleSubmit}>
+                <div className="container max-w-3xl mx-auto py-12 px-4">
+                    <h1 className="text-3xl font-bold mb-10">Edit Profile</h1>
+
+                    {/* Zmiana zdjęcia */}
+                    <div className="flex items-center gap-5 mb-10">
                         <img 
                             src={user?.profileImageUrl} 
                             alt="Profile thumbnail" 
-                            onClick={() => setIsModalOpen(true)}
-                            className="w-10 h-10 rounded-full object-cover cursor-pointer" 
+                            className="w-16 h-16 rounded-full object-cover" 
                         />
+                        <div>
+                            <p className="font-bold text-lg">{user?.username}</p>
+                            <button 
+                                type="button"
+                                onClick={() => setIsModalOpen(true)}
+                                className="text-sm text-bluePrimary font-bold hover:underline"
+                            >
+                                Change profile photo
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <h1 className="text-2xl">{username}</h1>
-                    <button 
-                        type="button"
-                        onClick={() => setIsModalOpen(true)}
-                        className="text-sm text-sky-500 font-bold hover:underline"
-                    >
-                        Change Profile Photo
-                    </button>
-                </div>
-            </div>
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Username
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                <input 
-                    type="text" 
-                    className="border p-1 px-3 w-full" 
-                    placeholder="Username" 
-                    value={username} 
-                    onChange={(e) => setUsername(e.target.value)}/></div>
-            </div>
 
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Bio Title
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                <input 
-                    type="text" 
-                    className="border p-1 px-3 w-full" 
-                    placeholder="Bio Title" 
-                    value={bioTitle} 
-                    onChange={(e) => setBioTitle(e.target.value)}/></div>
-            </div>
+                    {/* --- SEKCJA 1: INFORMACJE PUBLICZNE --- */}
+                    <section className="space-y-6">
+                        <h2 className="text-xl font-semibold border-b border-borderGrayHover pb-2">Public Information</h2>
+                        <FormField label="Username">
+                            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        </FormField>
+                        <FormField label="Bio Title">
+                            <input type="text" placeholder="e.g. Fitness Enthusiast | Lifter" value={bioTitle} onChange={(e) => setBioTitle(e.target.value)} />
+                        </FormField>
+                        <FormField label="Profile Bio">
+                            <textarea rows="4" placeholder="Tell everyone a little about yourself" value={profileBio} onChange={(e) => setProfileBio(e.target.value)} />
+                        </FormField>
+                    </section>
 
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Profile Bio
-                    </label>
+                    {/* --- SEKCJA 2: DANE FITNESS --- */}
+                    <section className="mt-10 space-y-6">
+                        <h2 className="text-xl font-semibold border-b border-borderGrayHover pb-2">Fitness & Personal Details</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField label="Weight (kg)">
+                                <input type="number" step="0.1" placeholder="e.g. 85.5" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                            </FormField>
+                            <FormField label="Height (cm)">
+                                <input type="number" placeholder="e.g. 180" value={height} onChange={(e) => setHeight(e.target.value)} />
+                            </FormField>
+                            <FormField label="Primary Goal">
+                                <select value={goal} onChange={(e) => setGoal(e.target.value)}>
+                                    <option value="">Select Goal</option>
+                                    <option value="reduction">Reduction</option>
+                                    <option value="bulk">Bulk</option>
+                                    <option value="maintenance">Maintenance</option>
+                                </select>
+                            </FormField>
+                             <FormField label="Location">
+                                <input type="text" placeholder="e.g. New York, USA" value={location} onChange={(e) => setLocation(e.target.value)}/>
+                            </FormField>
+                            <FormField label="Gender">
+                                <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                                    <option value="">Select Gender</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="MALE">Male</option>
+                                </select>
+                            </FormField>
+                            <FormField label="Date of Birth">
+                                <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} max={new Date().toISOString().split('T')[0]} />
+                            </FormField>
+                        </div>
+                    </section>
                 </div>
-                <div className="w-2/3 pr-10">
-                <textarea
-                    className="border p-1 px-3 w-full"
-                    rows="5"
-                    value={profileBio} 
-                    onChange={(e) => setProfileBio(e.target.value)}/></div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Location
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                <input 
-                    type="text" 
-                    className="border p-1 px-3 w-full" 
-                    placeholder="Location" 
-                    value={location} 
-                    onChange={(e) => setLocation(e.target.value)}/></div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Gender
-                    </label>
-                </div>
-                 <div className="w-2/3 pr-10">
-                    <select 
-                        id="gender"
-                        className="border p-1 px-3 w-full" 
-                        value={gender} 
-                        onChange={(e) => setGender(e.target.value)}>
-                        <option value="">Select Gender</option>
-                        <option value="FEMALE">FEMALE</option>
-                        <option value="MALE">MALE</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Date of Birth
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                    <input 
-                        type="date" 
-                        id="dateOfBirth"
-                        className="border p-1 px-3 w-full" 
-                        value={dateOfBirth} 
-                        onChange={(e) => setDateOfBirth(e.target.value)}
-                        max={new Date().toISOString().split('T')[0]}
-                    />
-                </div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Weight
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                <input 
-                    type="number" 
-                    step="0.01"
-                    id="weight"
-                    className="border p-1 px-3 w-full" 
-                    placeholder="Weight (kg)" 
-                    value={weight} 
-                    onChange={(e) => setWeight(e.target.value)}
-                    min="0"
-                />
-                </div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Height
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                <input 
-                    type="number" 
-                    step="0.01"
-                    id="height"
-                    className="border p-1 px-3 w-full" 
-                    placeholder="Height (cm)" 
-                    value={height} 
-                    onChange={(e) => setHeight(e.target.value)}
-                    min="0"
-                />
-                </div>
-            </div>
-
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                    <label htmlFor="" className="m-0 p-0 align-baseline font-bold flex align-center">
-                        Goal
-                    </label>
-                </div>
-                <div className="w-2/3 pr-10">
-                    <select 
-                        id="goal"
-                        className="border p-1 px-3 w-full" 
-                        value={goal} 
-                        onChange={(e) => setGoal(e.target.value)}>
-                        <option value="">Select Goal</option>
-                        <option value="reduction">reduction</option>
-                        <option value="bulk">bulk</option>
-                        <option value="maintenance">maintenance</option>
-                    </select>
-                </div>
-            </div>
-            <div className="flex flex-row mt-5 items-center">
-                <div className="w-1/3 flex flex-row place-content-end align-center pr-8">
-                </div>
-                <div className="w-2/3 pr-10">
-                    <button className="bg-sky-500 text-white font-semibold py-1 px-2 rounded text-sm disabled:opacity-50 cursor-pointer hover:bg-sky-700 transition-colors duration-200" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Submitting...' : 'Submit'}
-                    </button>
-                </div>
-            </div>
+                
+                {/* --- NOWA, PŁYWAJĄCA BELKA ZAPISU --- */}
+                <footer className="fixed bottom-0 left-0 right-0 bg-surfaceDarkGray border-t border-borderGrayHover z-10">
+                    <div className="container max-w-3xl mx-auto p-4 flex justify-end items-center">
+                        {error && <p className="text-red-400 text-sm mr-4">{error}</p>}
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting} 
+                            className="bg-bluePrimary text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors hover:bg-blueHover"
+                        >
+                            {isSubmitting ? <CgSpinner className="animate-spin"/> : null}
+                            {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </footer>
+            </form>
             <ImageUploadModal 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onUploadSuccess={handleUploadSuccess}
             />
-        </form>
-    )
+        </div>
+    );
 }

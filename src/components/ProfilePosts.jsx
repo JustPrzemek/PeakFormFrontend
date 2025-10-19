@@ -5,9 +5,10 @@ import ProfilePost from "./ProfilePost";
 import PostModal from './PostModal';
 import { useEffect, useState, useRef, useCallback } from "react";
 import { getMyPosts, getUserPosts } from "../services/postsService";
+import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
 
 export default function ProfilePosts({ profile, isOwnProfile}) {
-    
+    const [activeTab, setActiveTab] = useState('posts');
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -73,60 +74,77 @@ export default function ProfilePosts({ profile, isOwnProfile}) {
         // Zależności: Uruchom ponownie, gdy zmieni się strona LUB nazwa użytkownika
     }, [page, profile.username, isOwnProfile, hasMore]);
 
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'posts':
+                return (
+                    <div className="grid grid-cols-3 gap-1 md:gap-4">
+                        {/* Tutaj wklej swoją logikę mapowania postów i infinite scroll */}
+                        {/* Przykład: */}
+                        {posts.map((post, index) => (
+                             <div ref={posts.length === index + 1 ? lastPostRef : null} key={post.id}>
+                                <ProfilePost post={post} onOpenModal={handleOpenPostModal} />
+                             </div>
+                        ))}
+                        {loading && <p className="col-span-3 text-center text-borderGrayHover">Loading...</p>}
+                    </div>
+                );
+            case 'stats':
+                return (
+                    <div className="text-center py-16 text-borderGrayHover">
+                        <IoStatsChart className="mx-auto text-5xl mb-4" />
+                        <h3 className="font-bold text-xl text-whitePrimary">Activity Stats</h3>
+                        <p>This feature is coming soon!</p>
+                    </div>
+                );
+            case 'liked':
+                 return (
+                    <div className="text-center py-16 text-borderGrayHover">
+                        <IoHeartOutline className="mx-auto text-5xl mb-4" />
+                        <h3 className="font-bold text-xl text-whitePrimary">Liked Posts</h3>
+                        <p>This feature is coming soon!</p>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <>
-            {selectedPostId && (
-                <PostModal postId={selectedPostId} onClose={handleClosePostModal} />
-            )}
-            <ul className="flex flex-row p-2 text-sm items-center justify-center border-t text-gray-400 h-16 lg:hidden">
+            {/* Modal do postów (bez zmian) */}
+            {selectedPostId && <PostModal postId={selectedPostId} onClose={handleClosePostModal} />}
 
-                <li className="flex-1 text-center">
-                    <strong className="text-black block">{profile.postsCount}</strong> Posts
-                </li>
-
-                <li className="flex-1 text-center">
-                    <strong className="text-black block">{profile.followersCount}</strong> Followers
-                </li>
-
-                <li className="flex-1 text-center">
-                    <strong className="text-black block">{profile.followingCount}</strong> Following
-                </li>
-                
-            </ul>
-            <div className="flex flex-row text-2xl items-center justify-center border-t uppercase text-gray-400 tracking-widest h-16 lg:text-xs">
-                <a href="" className="text-black border-t border-black flex justify-center items-center h-full mr-16 cursor-pointer">
-
-                    <IoIosImages />
-                    <span className="hidden ml-2 lg:inline-block">Posts</span>
-                </a>
-
-                <a href="" className="flex justify-center items-center h-full mr-16 cursor-pointer">
-
-                    <AiOutlineLike />
-                    <span className="hidden ml-2 lg:inline-block">Liked</span>
-                </a>
-
-                <a href="" className="flex justify-center items-center h-full mr-16 cursor-pointer">
-
-                    <MdOutlineQueryStats />
-                    <span className="hidden ml-2 lg:inline-block">Stats</span>
-                </a>
-
+            {/* Zakładki (Tabs) */}
+            <div className="border-t border-borderGrayHover flex justify-center gap-12">
+                <button 
+                    onClick={() => setActiveTab('posts')}
+                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
+                        activeTab === 'posts' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
+                    }`}
+                >
+                    <IoGrid /> POSTS
+                </button>
+                <button 
+                    onClick={() => setActiveTab('stats')}
+                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
+                        activeTab === 'stats' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
+                    }`}
+                >
+                    <IoStatsChart /> ACTIVITY
+                </button>
+                <button 
+                    onClick={() => setActiveTab('liked')}
+                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
+                        activeTab === 'liked' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
+                    }`}
+                >
+                    <IoHeartOutline /> LIKED
+                </button>
             </div>
-            <div className="grid grid-cols-3 gap-1 lg:gap-8">
-                {posts.map((post, index) => {
-                    const ref = index === posts.length - 1 ? lastPostRef : null;
-                    return (
-                        <div ref={ref} key={post.id}>
-                            <ProfilePost 
-                                post={post} 
-                                onOpenModal={handleOpenPostModal} 
-                            />
-                        </div>
-                    );
-                })}
-                {loading && <p className="col-span-3 text-center  text-gray-600">Loading...</p>}
-                {!hasMore && <p className="col-span-3 text-center  text-gray-600">No more posts</p>}
+            
+            <div className="mt-4">
+                {renderContent()}
             </div>
         </>
     );

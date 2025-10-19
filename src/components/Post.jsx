@@ -147,7 +147,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 </div>
                 {/* <button className="text-borderGrayHover hover:text-whitePrimary"><FaEllipsisH /></button> */}
             </div>
-            <div className="px-4 mb-4 text-sm leading-relaxed cursor-pointer" onClick={handleOpenModalClick}>
+            <div className="px-4 mb-4 text-sm leading-relaxed cursor-pointer break-words" onClick={handleOpenModalClick}>
                 {renderedContent}
                 {shouldTruncate && (
                             <button onClick={(e) => {
@@ -201,7 +201,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                     )}
                     <div className="space-y-0.5 mt-1">
                         {post.comments && post.comments.slice(0, 2).map(comment => (
-                            <div key={comment.commentId}>
+                            <div key={comment.commentId} className="break-words">
                                 <span className="font-bold cursor-pointer hover:underline" onClick={() => handleCommenterProfileClick(comment.username)}>{comment.username}</span>
                                 <span className="ml-2">{comment.content}</span>
                             </div>

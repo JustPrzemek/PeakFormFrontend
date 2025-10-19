@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'; // WAŻNE: Importuj style biblioteki
 import { uploadProfileImage } from '../services/userProfileService';
+import { FaTimes, FaUpload, FaCamera } from 'react-icons/fa';
+import { CgSpinner } from 'react-icons/cg';
 
 // Funkcja pomocnicza z dokumentacji biblioteki
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
@@ -30,6 +32,17 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }) {
             setError('');
         }
     };
+
+    useEffect(() => {
+        if (!isOpen) {
+            // Dajemy małe opóźnienie, aby animacja zamknięcia się zakończyła
+            setTimeout(() => {
+                setPreviewUrl('');
+                setError('');
+                setCrop(undefined);
+            }, 300);
+        }
+    }, [isOpen]);
 
     function onImageLoad(e) {
         if (aspect) {
@@ -91,39 +104,76 @@ export default function ImageUploadModal({ isOpen, onClose, onUploadSuccess }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-4">Crop Your Photo</h2>
-                <input type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer hover:underline focus:outline-none"/>
-                
-                {previewUrl && (
-                    <div className="mt-4 flex justify-center">
-                        <ReactCrop
-                            crop={crop}
-                            onChange={(_, percentCrop) => setCrop(percentCrop)}
-                            onComplete={(c) => setCompletedCrop(c)}
-                            aspect={aspect}
-                            circularCrop // To daje "kółeczko"!
-                        >
-                            <img
-                                ref={imgRef}
-                                alt="Crop me"
-                                src={previewUrl}
-                                onLoad={onImageLoad}
-                                style={{ maxHeight: '70vh' }}
-                            />
-                        </ReactCrop>
-                    </div>
-                )}
-                
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-                
-                <div className="flex justify-end gap-4 mt-6">
-                    <button onClick={onClose} className="bg-sky-500 text-white font-semibold py-1 px-2 rounded text-sm disabled:opacity-50 cursor-pointer hover:bg-sky-700 transition-colors duration-200">Cancel</button>
-                    <button onClick={handleSubmit} disabled={isUploading} className="bg-sky-500 text-white font-semibold py-1 px-2 rounded text-sm disabled:opacity-50 cursor-pointer hover:bg-sky-700 transition-colors duration-200">
-                        {isUploading ? 'Uploading...' : 'Save & Upload'}
+        <div className="fixed inset-0 bg-opacity-75 backdrop-blur-sm z-50 flex justify-center items-center animate-fade-in" onClick={onClose}>
+            <div className="bg-surfaceDarkGray rounded-2xl shadow-xl w-full max-w-lg flex flex-col border border-borderGrayHover" onClick={e => e.stopPropagation()}>
+                <header className="flex items-center justify-between p-4 border-b border-borderGrayHover">
+                    <h2 className="text-lg font-bold text-whitePrimary">Change Profile Photo</h2>
+                    <button onClick={onClose} className="text-borderGrayHover hover:text-white">
+                        <FaTimes size={20} />
                     </button>
+                </header>
+
+                <div className="p-6">
+                    {/* --- POPRAWKA: Input jest teraz zawsze w DOM, ale ukryty --- */}
+                    <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleFileChange} />
+
+                    {!previewUrl ? (
+                        // Widok początkowy - duży przycisk do uploadu
+                        <label 
+                            htmlFor="file-upload" 
+                            className="relative cursor-pointer bg-backgoudBlack border-2 border-dashed border-borderGrayHover rounded-lg flex flex-col items-center justify-center p-12 hover:border-bluePrimary transition-colors"
+                        >
+                            <FaUpload className="text-4xl text-borderGrayHover mb-3"/>
+                            <span className="font-semibold text-whitePrimary">Click to upload an image</span>
+                            <p className="text-xs text-borderGrayHover">PNG, JPG, GIF up to 10MB</p>
+                        </label>
+                    ) : (
+                        // Widok kadrowania
+                        <div className="flex justify-center">
+                            <ReactCrop
+                                crop={crop}
+                                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                                onComplete={(c) => setCompletedCrop(c)}
+                                aspect={aspect}
+                                circularCrop
+                            >
+                                <img
+                                    ref={imgRef}
+                                    alt="Crop me"
+                                    src={previewUrl}
+                                    onLoad={onImageLoad}
+                                    style={{ maxHeight: '60vh' }}
+                                />
+                            </ReactCrop>
+                        </div>
+                    )}
+                    {error && <p className="text-red-400 text-sm mt-2 text-center">{error}</p>}
                 </div>
+                
+                <footer className="p-4 border-t border-borderGrayHover flex justify-between items-center mt-auto">
+                    {/* --- NOWOŚĆ: Przycisk do zmiany zdjęcia --- */}
+                    <div>
+                        {previewUrl && (
+                             <label 
+                                htmlFor="file-upload"
+                                className="bg-transparent border border-borderGrayHover text-whitePrimary font-bold py-2 px-4 rounded-lg flex items-center gap-2 text-sm hover:bg-borderGrayHover transition-colors cursor-pointer"
+                            >
+                                <FaCamera /> Change
+                            </label>
+                        )}
+                    </div>
+
+                    {/* Przyciski akcji */}
+                    <div className="flex gap-3">
+                        <button onClick={onClose} className="bg-borderGrayHover/50 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-borderGrayHover transition-colors">
+                            Cancel
+                        </button>
+                        <button onClick={handleSubmit} disabled={isUploading || !previewUrl} className="bg-bluePrimary text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors hover:bg-blueHover">
+                            {isUploading ? <CgSpinner className="animate-spin"/> : null}
+                            {isUploading ? 'Uploading...' : 'Save & Upload'}
+                        </button>
+                    </div>
+                </footer>
             </div>
         </div>
     );

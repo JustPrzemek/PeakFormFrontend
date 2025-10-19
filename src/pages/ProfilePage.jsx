@@ -7,20 +7,16 @@ import { useParams } from "react-router-dom";
 import { useUser } from '../context/UserContext';
 import { followUser, unfollowUser } from "../services/followService";
 import FollowsModal from '../components/FollowsModal';
+import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 
 export default function Profile() {
     const { username: usernameFromParams } = useParams(); 
     const { user: currentUser } = useUser();
-
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const isOwnProfile = !usernameFromParams || usernameFromParams === currentUser.username;
-
+    const isOwnProfile = !usernameFromParams || usernameFromParams === currentUser?.username;
     const [modalState, setModalState] = useState({ isOpen: false, type: null });
-    const openModal = (type) => setModalState({ isOpen: true, type: type });
-    const closeModal = () => setModalState({ isOpen: false, type: null });
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -72,29 +68,33 @@ export default function Profile() {
         }
     };
 
-    if (loading) return <p>Loading profile...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
-    if (!profile) return <p>No profile data</p>;
+    if (loading) return <ProfilePageSkeleton />;
+    if (error) return <p className="text-red-500 text-center mt-10">Error: {error}</p>;
+    if (!profile) return <p className="text-center mt-10 text-whitePrimary">Profile not found.</p>;
 
     return (
-        <>
-            <div className="container pt-8 max-w-5xl">
-                <main className="bg-slate-50">
+        <div className="bg-backgoudBlack min-h-screen flex flex-col">
+            <div className="container pt-8 max-w-5xl flex-grow">
+                <main>
                     <ProfileHeader 
                         profile={profile} 
                         isOwnProfile={isOwnProfile} 
                         onFollowToggle={handleFollowToggle} 
-                        onOpenModal={openModal}/>
-                    <ProfilePosts profile={profile} isOwnProfile={isOwnProfile}/>
+                        onOpenModal={(type) => setModalState({ isOpen: true, type })}
+                    />
+                    <ProfilePosts 
+                        profile={profile} 
+                        isOwnProfile={isOwnProfile}
+                    />
                 </main>
-                <Footer />
             </div>
+            <Footer />
             <FollowsModal 
                 isOpen={modalState.isOpen}
-                onClose={closeModal}
+                onClose={() => setModalState({ isOpen: false, type: null })}
                 modalType={modalState.type}
                 username={profile.username}
             />
-        </>
+        </div>
     );
 }

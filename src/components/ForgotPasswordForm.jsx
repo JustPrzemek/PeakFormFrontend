@@ -40,10 +40,10 @@ function ForgotPasswordForm({ onBackToLogin }) {
     // Jeśli wiadomość została wysłana, pokazujemy tylko ją
     if (message) {
         return (
-            <div className="w-full h-full bg-amber-50 flex flex-col justify-center items-center px-12 text-center">
-                <h2 className="text-2xl font-semibold text-green-600">📧 Check your email!</h2>
+            <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center items-center px-12 text-center">
+                <h2 className="text-2xl font-semibold text-green-400">📧 Check your email!</h2>
                 <p className="mt-4 text-lg">{message}</p>
-                <button onClick={onBackToLogin} className="mt-6 text-celestialBlue font-semibold">
+                <button onClick={onBackToLogin} className="mt-6 text-bluePrimary font-semibold">
                     &larr; Back to Login
                 </button>
             </div>
@@ -51,11 +51,11 @@ function ForgotPasswordForm({ onBackToLogin }) {
     }
 
     return (
-        <div className="w-full h-full bg-amber-50 flex flex-col justify-center px-12 md:px-24">
-            <h1 className="text-3xl font-semibold opacity-80 text-neutral-900">Reset Password</h1>
-            <p className="text-gray-600 mt-2">Enter your email address and we'll send you a link to reset your password.</p>
+        <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center px-12 md:px-24">
+            <h1 className="text-3xl font-bold">Reset Password</h1>
+            <p className="text-borderGrayHover mt-2">Enter your email and we'll send you a reset link.</p>
             
-            {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+            {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
 
             <form onSubmit={handleSubmit}>
                 <IconInput placeholder="Email" type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)}>
@@ -65,14 +65,14 @@ function ForgotPasswordForm({ onBackToLogin }) {
                 <button 
                     type="submit" 
                     disabled={loading}
-                    className={`bg-celestialBlue w-full py-4 rounded-lg mt-5 text-white text-xl transition-all
-                                ${loading ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:opacity-90 active:scale-95"}`}>
-                        {loading ? "Sending..." : "Send Reset Link"}
+                    className="bg-bluePrimary w-full py-3 rounded-lg mt-5 text-white text-lg font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blueHover active:scale-95"
+                >
+                    {loading ? "Sending..." : "Send Reset Link"}
                 </button>
             </form>
 
             <div className="text-center mt-6">
-                 <button onClick={onBackToLogin} className="text-celestialBlue font-semibold cursor-pointer hover:underline">
+                 <button onClick={onBackToLogin} className="text-bluePrimary font-semibold cursor-pointer hover:underline">
                     &larr; Back to Login
                 </button>
             </div>

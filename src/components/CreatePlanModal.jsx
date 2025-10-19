@@ -2,15 +2,47 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createCustomPlan } from '../services/workoutPlanService'; // Upewnij się, że ścieżka jest poprawna
 import toast from 'react-hot-toast';
+import { FaTimes } from 'react-icons/fa';
+import { CgSpinner } from 'react-icons/cg';
+import { GrPlan } from 'react-icons/gr';
+
+const ToggleSwitch = ({ checked, onChange }) => (
+    <button
+        type="button"
+        className={`${
+            checked ? 'bg-bluePrimary' : 'bg-borderGrayHover/50'
+        } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-bluePrimary focus:ring-offset-2 focus:ring-offset-surfaceDarkGray`}
+        role="switch"
+        aria-checked={checked}
+        onClick={onChange}
+    >
+        <span
+            aria-hidden="true"
+            className={`${
+                checked ? 'translate-x-5' : 'translate-x-0'
+            } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+        />
+    </button>
+);
 
 export default function CreatePlanModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        setActive: false,
+        setActive: true,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                name: '',
+                description: '',
+                setActive: true,
+            });
+        }
+    }, [isOpen]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -65,50 +97,59 @@ export default function CreatePlanModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-surfaceDarkGray rounded-lg shadow-xl p-8 w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-whitePrimary">Create Your Own Training Plan</h2>
+        <div className="fixed inset-0 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
+            <div className="bg-surfaceDarkGray rounded-2xl shadow-xl p-8 w-full max-w-md border border-borderGrayHover" onClick={e => e.stopPropagation()}>
+                <header className="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-whitePrimary flex items-center gap-3"><GrPlan /> Create a New Plan</h2>
+                        <p className="text-sm text-borderGrayHover mt-1">Give your new plan a name and you're ready to go.</p>
+                    </div>
+                    <button onClick={onClose} className="text-borderGrayHover hover:text-white transition-colors">
+                        <FaTimes size={20} />
+                    </button>
+                </header>
+                
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-6">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-borderGrayHover">Plan name</label>
+                            <label htmlFor="name" className="block text-sm font-medium text-borderGrayHover mb-2">Plan name</label>
                             <input 
                                 type="text"
                                 id="name" 
                                 name="name" 
                                 value={formData.name} 
                                 onChange={handleChange} 
-                                className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary rounded-md shadow-sm"
+                                className="w-full p-3 bg-backgoudBlack border border-borderGrayHover text-white rounded-lg focus:ring-2 focus:ring-bluePrimary"
                                 required
                             />
                         </div>
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-borderGrayHover">Short description (optional)</label>
+                            <label htmlFor="description" className="block text-sm font-medium text-borderGrayHover mb-2">Description (optional)</label>
                             <textarea
                                 id="description"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows="3"
-                                className="mt-1 block w-full p-2 border border-gray-300 text-whitePrimary rounded-md shadow-sm"
+                                className="w-full p-3 bg-backgoudBlack border border-borderGrayHover text-white rounded-lg focus:ring-2 focus:ring-bluePrimary"
                             ></textarea>
                         </div>
-                        <div className="flex items-center">
-                            <input 
-                                id="setActive" 
-                                name="setActive" 
-                                type="checkbox" 
+                        <div className="flex items-center justify-between">
+                            <label htmlFor="setActive" className="block text-sm font-medium text-borderGrayHover">Set as your active plan</label>
+                            <ToggleSwitch 
                                 checked={formData.setActive} 
-                                onChange={handleChange} 
-                                className="h-4 w-4 text-bluePrimary border-borderGrayHover rounded"
+                                onChange={() => setFormData(prev => ({ ...prev, setActive: !prev.setActive }))}
                             />
-                            <label htmlFor="setActive" className="ml-2 block text-sm text-borderGrayHover">Set as active plan</label>
                         </div>
                     </div>
+                    
                     <div className="mt-8 flex justify-end space-x-4">
-                        <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
-                        <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-green-300">
-                            {isSubmitting ? 'Creating...' : 'Create'}
+                        <button type="button" onClick={onClose} className="bg-borderGrayHover/50 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-borderGrayHover transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" disabled={isSubmitting} className="bg-bluePrimary text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 disabled:opacity-50 transition-colors hover:bg-blueHover">
+                            {isSubmitting ? <CgSpinner className="animate-spin"/> : null}
+                            {isSubmitting ? 'Creating...' : 'Create Plan'}
                         </button>
                     </div>
                 </form>
