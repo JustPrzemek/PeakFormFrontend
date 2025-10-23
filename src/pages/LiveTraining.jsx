@@ -41,9 +41,6 @@ export default function LiveTraining() {
     const [session, setSession] = useState(null);
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
     const [currentSet, setCurrentSet] = useState(1);
-    const [weight, setWeight] = useState('');
-    const [reps, setReps] = useState('');
-    const [duration, setDuration] = useState(''); 
     const [isResting, setIsResting] = useState(false);
     const [completedLogs, setCompletedLogs] = useState([]);
     const [isExerciseFinished, setIsExerciseFinished] = useState(false);
@@ -203,7 +200,7 @@ export default function LiveTraining() {
         try {
             await finishTrainingSession(session.sessionId);
             toast.success("Trening zakończony! Dobra robota!", { duration: 4000 });
-            navigate('/history');
+            navigate('/training/history');
         } catch (error) {
             toast.error("Błąd podczas kończenia treningu.");
             console.log(error);

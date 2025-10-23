@@ -120,3 +120,66 @@ export const logPastWorkout = async (bulkLogData) => {
         throw error.response?.data?.message || "Nie udało się zapisać treningu.";
     }
 };
+/**
+ * Pobiera ostatnią sesję treningową użytkownika wraz z logami.
+ * @returns {Promise<SpecificSessionWithLogsDto>}
+ */
+export const getLastSessionWithLogs = async () => {
+    try {
+        const response = await api.get('/trainings/sessions/LastWithLogs');
+        return response.data; // Zwraca SpecificSessionWithLogsDto
+    } catch (error) {
+        // Jeśli nie ma ostatniej sesji (404), zwróć null zamiast rzucać błędem
+        if (error.response?.status === 404) {
+            return null;
+        }
+        throw error.response?.data?.message || "Nie udało się pobrać ostatniej sesji.";
+    }
+};
+
+/**
+ * Pobiera wszystkie sesje treningowe (stronicowane).
+ * @param {object} params - Obiekt zawierający { page, size, sort, searchParameter }
+ */
+export const getAllTrainingSessions = async ({ page = 0, size = 10, sort = 'endTime,desc', searchParameter = '' }) => {
+    try {
+        const response = await api.get('/trainings/sessions/allSessions', {
+            params: {
+                page,
+                size,
+                sort,
+                searchParameter
+            }
+        });
+        return response.data; // Zwraca PagedResponse<AllTrainingSessionsDto>
+    } catch (error) {
+        throw error.response?.data?.message || "Nie udało się pobrać historii sesji.";
+    }
+};
+
+/**
+ * Pobiera konkretną sesję użytkownika z logami.
+ * @param {number} sessionId - ID sesji.
+ */
+export const getSpecificSessionForUser = async (sessionId) => {
+    try {
+        const response = await api.get(`/trainings/sessions/specificSessionForUser/${sessionId}`);
+        return response.data; // Zwraca SpecificSessionWithLogsDto
+    } catch (error) {
+        throw error.response?.data?.message || "Nie udało się pobrać szczegółów sesji.";
+    }
+};
+
+/**
+ * Aktualizuje sesję treningową (notatki i logi).
+ * @param {number} sessionId - ID sesji do aktualizacji.
+ * @param {object} updateDto - Obiekt zgodny z UpdateSessionRequestDto.
+ */
+export const updateTrainingSession = async (sessionId, updateDto) => {
+    try {
+        const response = await api.patch(`/trainings/sessions/${sessionId}`, updateDto);
+        return response.data; // Zwraca SpecificSessionWithLogsDto
+    } catch (error) {
+        throw error.response?.data?.message || "Nie udało się zaktualizować sesji.";
+    }
+};

@@ -19,6 +19,8 @@ import SelectTrainingDay from './pages/SelectTrainingDay';
 import LiveTraining from './pages/LiveTraining';
 import TrainingHomePage from './pages/TrainingHomePage';
 import LogPastWorkoutPage from './pages/LogPastWorkoutPage';
+import WorkoutHistoryPage from './pages/WorkoutHistoryPage';
+import SessionDetailPage from './pages/SessionDetailPage';
 
 function App() {
     return (
@@ -120,13 +122,29 @@ function App() {
                     />
 
                     <Route 
+                        path="/training/history" 
+                        element={
+                            <MainLayout>
+                                <WorkoutHistoryPage />
+                            </MainLayout>
+                        } 
+                    />
+                    <Route 
+                        path="/training/history/:sessionId" 
+                        element={
+                            <MainLayout>
+                                <SessionDetailPage />
+                            </MainLayout>
+                        } 
+                    />
+
+                    <Route 
                         path="/training/complete" 
                         element={
                         <MainLayout>
                             <LogPastWorkoutPage/>
                         </MainLayout>
                     } />
-                    
                 </Route>
             </Routes>
         </Router>

@@ -49,13 +49,16 @@ const Stepper = ({ currentStep }) => {
     );
 };
 
+const now = new Date();
+now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+const localDateTime = now.toISOString().slice(0, 16);
 
 export default function LogPastWorkoutPage() {
     const [step, setStep] = useState(1);
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedDay, setSelectedDay] = useState(null);
-    const [workoutDate, setWorkoutDate] = useState(new Date().toISOString().split('T')[0]);
+    const [workoutDate, setWorkoutDate] = useState(localDateTime);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -71,7 +74,7 @@ export default function LogPastWorkoutPage() {
         try {
             await logPastWorkout(payload);
             toast.success("Trening został pomyślnie zapisany!");
-            navigate('/history');
+            navigate('/training/history');
         } catch (error) {
             toast.error(error.toString());
         }
@@ -143,7 +146,7 @@ export default function LogPastWorkoutPage() {
                             <label htmlFor="workout-date" className="font-semibold text-borderGrayHover mb-2 block">Workout Date</label>
                             <input
                                 id="workout-date"
-                                type="date"
+                                type="datetime-local"
                                 value={workoutDate}
                                 onChange={e => setWorkoutDate(e.target.value)}
                                 className="w-full p-3 bg-backgoudBlack border border-borderGrayHover rounded-lg focus:ring-2 focus:ring-bluePrimary"

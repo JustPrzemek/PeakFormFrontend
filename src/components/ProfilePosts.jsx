@@ -1,14 +1,10 @@
-import { IoIosImages } from "react-icons/io";
-import { MdOutlineQueryStats } from "react-icons/md";
-import { AiOutlineLike } from "react-icons/ai";
 import ProfilePost from "./ProfilePost";
 import PostModal from './PostModal';
 import { useEffect, useState, useRef, useCallback } from "react";
 import { getMyPosts, getUserPosts } from "../services/postsService";
 import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
 
-export default function ProfilePosts({ profile, isOwnProfile}) {
-    const [activeTab, setActiveTab] = useState('posts');
+export default function ProfilePosts({ profile, isOwnProfile, activeTab}) {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -115,35 +111,10 @@ export default function ProfilePosts({ profile, isOwnProfile}) {
             {/* Modal do postów (bez zmian) */}
             {selectedPostId && <PostModal postId={selectedPostId} onClose={handleClosePostModal} />}
 
-            {/* Zakładki (Tabs) */}
-            <div className="border-t border-borderGrayHover flex justify-center gap-12">
-                <button 
-                    onClick={() => setActiveTab('posts')}
-                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
-                        activeTab === 'posts' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
-                    }`}
-                >
-                    <IoGrid /> POSTS
-                </button>
-                <button 
-                    onClick={() => setActiveTab('stats')}
-                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
-                        activeTab === 'stats' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
-                    }`}
-                >
-                    <IoStatsChart /> ACTIVITY
-                </button>
-                <button 
-                    onClick={() => setActiveTab('liked')}
-                    className={`flex items-center gap-2 py-3 text-sm font-semibold border-t-2 transition-colors ${
-                        activeTab === 'liked' ? 'text-whitePrimary border-whitePrimary' : 'text-borderGrayHover border-transparent hover:text-white'
-                    }`}
-                >
-                    <IoHeartOutline /> LIKED
-                </button>
-            </div>
+            {/* 5. USUWAMY CAŁY DIV Z ZAKŁADKAMI (ten z border-t) */}
             
-            <div className="mt-4">
+            {/* 6. Zostawiamy tylko kontener na treść. Usuwamy 'mt-4' */}
+            <div>
                 {renderContent()}
             </div>
         </>

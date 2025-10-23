@@ -8,6 +8,7 @@ import { useUser } from '../context/UserContext';
 import { followUser, unfollowUser } from "../services/followService";
 import FollowsModal from '../components/FollowsModal';
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
+import ProfileTabs from "../components/ProfileTabs";
 
 export default function Profile() {
     const { username: usernameFromParams } = useParams(); 
@@ -17,6 +18,7 @@ export default function Profile() {
     const [error, setError] = useState(null);
     const isOwnProfile = !usernameFromParams || usernameFromParams === currentUser?.username;
     const [modalState, setModalState] = useState({ isOpen: false, type: null });
+    const [activeTab, setActiveTab] = useState('posts');
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -31,6 +33,7 @@ export default function Profile() {
                     data = await getUserProfile(usernameFromParams);
                 }
                 setProfile(data);
+                setActiveTab('posts');
             } catch (err) {
                 setError(err.toString());
             } finally {
@@ -74,18 +77,29 @@ export default function Profile() {
 
     return (
         <div className="bg-backgoudBlack min-h-screen flex flex-col">
-            <div className="container pt-8 max-w-5xl flex-grow">
-                <main>
-                    <ProfileHeader 
-                        profile={profile} 
-                        isOwnProfile={isOwnProfile} 
-                        onFollowToggle={handleFollowToggle} 
-                        onOpenModal={(type) => setModalState({ isOpen: true, type })}
-                    />
-                    <ProfilePosts 
-                        profile={profile} 
-                        isOwnProfile={isOwnProfile}
-                    />
+            <div className="container pt-8 max-w-6xl flex-grow">
+                <main className="flex flex-col md:flex-row gap-8">
+                    
+                    <div className="w-full md:w-1/4 h-fit md:sticky md:top-18 order-2 md:order-1">
+                        <ProfileTabs 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab} 
+                        />
+                    </div>
+                    <div className="w-full md:w-3/4 order-1 md:order-2">
+                        <ProfileHeader 
+                            profile={profile} 
+                            isOwnProfile={isOwnProfile} 
+                            onFollowToggle={handleFollowToggle} 
+                            onOpenModal={(type) => setModalState({ isOpen: true, type })}
+                        />
+                        <ProfilePosts 
+                            profile={profile} 
+                            isOwnProfile={isOwnProfile}
+                            activeTab={activeTab} // <--- Przekazujemy stan w dół
+                        />
+                    </div>
+
                 </main>
             </div>
             <Footer />
