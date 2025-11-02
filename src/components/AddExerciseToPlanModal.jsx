@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getUserPlans, addExerciseToPlan, createCustomPlan } from '../services/workoutPlanService';
 import toast from 'react-hot-toast';
 import { CgSpinner } from "react-icons/cg";
+import { FaChevronDown } from 'react-icons/fa';
 
 const getInitialFormData = (exerciseType) => {
     const baseData = {
@@ -27,6 +28,21 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
     
     const [newPlanData, setNewPlanData] = useState({ name: '', description: '' });
 
+    const allDayIdentifiers = useMemo(() => {
+        if (!userPlans || userPlans.length === 0) {
+            return [];
+        }
+        // Używamy Set, aby automatycznie obsłużyć duplikaty
+        const daySet = new Set();
+        userPlans.forEach(plan => {
+            if (plan.days) {
+                plan.days.forEach(day => daySet.add(day));
+            }
+        });
+        // Zwracamy posortowaną tablicę
+        return Array.from(daySet).sort();
+    }, [userPlans]);
+
     useEffect(() => {
         if (isOpen && exercise) {
             // Reset stanu przy każdym otwarciu
@@ -36,8 +52,22 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
 
             const fetchUserPlans = async () => {
                 try {
-                    const plans = await getUserPlans();
+                    // --- POCZĄTEK ZMIANY ---
+                    // Tworzymy parametry, aby pobrać "wszystkie" plany (duży rozmiar strony, brak filtrów)
+                    const params = {
+                        page: 0,
+                        size: 200, // Wystarczająco dużo dla modala
+                        sort: { field: 'createdAt', direction: 'desc' },
+                        // Pomiń 'name', 'goal', 'isActive', aby były 'null' (bez filtrowania)
+                    };
+                    
+                    // Wywołujemy zaktualizowaną funkcję getUserPlans
+                    const pageData = await getUserPlans(params);
+                    const plans = pageData.content; // Wyciągamy tablicę 'content' z obiektu Page
+                    // --- KONIEC ZMIANY ---
+
                     setUserPlans(plans);
+                    
                     if (plans.length > 0) {
                         // Automatycznie wybierz pierwszy plan
                         setFormData(prev => ({ ...prev, planId: plans[0].id }));
@@ -76,8 +106,19 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
         try {
             const createdPlan = await createCustomPlan({ ...newPlanData, setActive: false });
             toast.success(`Plan "${createdPlan.name}" has been created!`);
-            const newPlans = [...userPlans, { id: createdPlan.id, name: createdPlan.name }];
-            setUserPlans(newPlans);         
+            
+            // Tworzymy DTO podsumowania, aby pasowało do reszty danych
+            const newPlanSummary = {
+                id: createdPlan.id,
+                name: createdPlan.name,
+                goal: createdPlan.goal,
+                days: [], // Nowy plan nie ma dni
+                active: createdPlan.active 
+            };
+            
+            const newPlans = [...userPlans, newPlanSummary];
+            setUserPlans(newPlans);
+            
             setFormData(prev => ({ ...prev, planId: createdPlan.id })); // Wybierz nowy plan
             setShowCreatePlan(false); // Wróć do formularza dodawania ćwiczenia
             setNewPlanData({ name: '', description: '' });
@@ -147,7 +188,7 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
 
     if (!isOpen) return null;
 
-    const inputStyles = "mt-1 block w-full p-3 bg-backgoudBlack border border-borderGrayHover rounded-lg text-whitePrimary focus:outline-none focus:ring-2 focus:ring-bluePrimary transition";
+    const inputStyles = "appearance-none mt-1 block w-full p-3 pr-10 bg-backgoudBlack border border-borderGrayHover rounded-lg text-whitePrimary focus:outline-none focus:ring-2 focus:ring-bluePrimary transition";
     const buttonStyles = "px-4 py-2 rounded-md cursor-pointer transition-colors";
     const primaryButtonStyles = `${buttonStyles} bg-bluePrimary hover:bg-opacity-90 text-whitePrimary disabled:bg-opacity-50 disabled:cursor-not-allowed`;
     const secondaryButtonStyles = `${buttonStyles} bg-borderGrayHover hover:bg-opacity-80 text-whitePrimary`;
@@ -180,19 +221,40 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
                             <label htmlFor="planId" className="block text-sm font-medium text-borderGrayHover">Choose a plan</label>
-                            <select id="planId" name="planId" value={formData.planId} onChange={handleFormChange} className={inputStyles}>
-                                {userPlans.map(plan => (
-                                    <option className="bg-surfaceDarkGray text-whitePrimary" key={plan.id} value={plan.id}>{plan.name}</option>
-                                ))}
-                            </select>
+                            <div className="relative"> {/* <-- Opakowanie dla ikony */}
+                                <select id="planId" name="planId" value={formData.planId} onChange={handleFormChange} className={inputStyles}>
+                                    {userPlans.map(plan => (
+                                        <option className="bg-surfaceDarkGray text-whitePrimary" key={plan.id} value={plan.id}>{plan.name}</option>
+                                    ))}
+                                </select>
+                                {/* Ta ikona pojawi się nad polem <select> */}
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <FaChevronDown className="text-borderGrayHover" size={14} />
+                                </div>
+                            </div>
                             <button type="button" onClick={() => setShowCreatePlan(true)} className="text-sm text-bluePrimary hover:underline mt-2 cursor-pointer">Or create a new plan</button>
                         </div>
                         <div>
                             <label htmlFor="dayIdentifier" className="block text-sm font-medium text-borderGrayHover">Training Day (e.g. Push, Legs, A)</label>
-                            <input type="text" id="dayIdentifier" name="dayIdentifier" value={formData.dayIdentifier} onChange={handleFormChange} className={inputStyles} required />
+                            <input 
+                                type="text" 
+                                id="dayIdentifier" 
+                                name="dayIdentifier" 
+                                value={formData.dayIdentifier} 
+                                onChange={handleFormChange} 
+                                className={inputStyles} 
+                                required 
+                                list="day-suggestions"
+                                autoComplete="off"
+                            />
+                    
+                            <datalist id="day-suggestions">
+                                {allDayIdentifiers.map(day => (
+                                    <option key={day} value={day} />
+                                ))}
+                            </datalist>
                         </div>
                         
-                        {/* KROK 2: Warunkowe renderowanie pól */}
                         {exercise?.type === 'STRENGTH' && (
                              <div className="grid grid-cols-3 gap-4">
                                 <div>

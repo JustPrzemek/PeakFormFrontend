@@ -9,7 +9,7 @@ import AddExerciseToPlanModal from '../components/AddExerciseToPlanModal';
 import ExerciseSkeleton from '../components/skeletons/ExerciseSkeleton';
 
 // --- Stałe zdefiniowane poza komponentem dla lepszej wydajności ---
-const muscleGroups = ["CHEST", "BACK", "LEGS", "SHOULDERS", "BICEPS", "TRICEPS", "ABS"];
+const muscleGroups = ["Chest", "Back", "Legs", "Shoulders", "Biceps", "Triceps", "Abs", "Full Body", "Cardio"];
 const difficultyConfig = {
     BEGINNER: { bg: 'bg-green-500/20', text: 'text-green-400' },
     INTERMEDIATE: { bg: 'bg-yellow-500/20', text: 'text-yellow-400' },

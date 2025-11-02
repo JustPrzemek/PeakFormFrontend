@@ -3,6 +3,7 @@ import PostModal from './PostModal';
 import { useEffect, useState, useRef, useCallback } from "react";
 import { getMyPosts, getUserPosts } from "../services/postsService";
 import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
+import ProfileStatsCharts from './ProfileStatsCharts';
 
 export default function ProfilePosts({ profile, isOwnProfile, activeTab}) {
     const [posts, setPosts] = useState([]);
@@ -86,13 +87,14 @@ export default function ProfilePosts({ profile, isOwnProfile, activeTab}) {
                     </div>
                 );
             case 'stats':
-                return (
-                    <div className="text-center py-16 text-borderGrayHover">
-                        <IoStatsChart className="mx-auto text-5xl mb-4" />
-                        <h3 className="font-bold text-xl text-whitePrimary">Activity Stats</h3>
-                        <p>This feature is coming soon!</p>
-                    </div>
-                );
+                // return (
+                //     <div className="text-center py-16 text-borderGrayHover">
+                //         <IoStatsChart className="mx-auto text-5xl mb-4" />
+                //         <h3 className="font-bold text-xl text-whitePrimary">Activity Stats</h3>
+                //         <p>This feature is coming soon!</p>
+                //     </div>
+                // );
+                return <ProfileStatsCharts />;
             case 'liked':
                  return (
                     <div className="text-center py-16 text-borderGrayHover">

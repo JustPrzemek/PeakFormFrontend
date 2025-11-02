@@ -21,6 +21,7 @@ import TrainingHomePage from './pages/TrainingHomePage';
 import LogPastWorkoutPage from './pages/LogPastWorkoutPage';
 import WorkoutHistoryPage from './pages/WorkoutHistoryPage';
 import SessionDetailPage from './pages/SessionDetailPage';
+import StatisticsPage from './pages/StatisticsPage';
 
 function App() {
     return (
@@ -143,6 +144,14 @@ function App() {
                         element={
                         <MainLayout>
                             <LogPastWorkoutPage/>
+                        </MainLayout>
+                    } />
+
+                    <Route 
+                        path="/training/statistic" 
+                        element={
+                        <MainLayout>
+                            <StatisticsPage/>
                         </MainLayout>
                     } />
                 </Route>

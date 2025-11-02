@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getExerciseById } from '../services/exerciseService';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import Footer from '../components/Footer';
 import { FaArrowLeft } from 'react-icons/fa';
+import AddExerciseToPlanModal from '../components/AddExerciseToPlanModal';
 
 const ExerciseDetailSkeleton = () => (
     <div className="container mx-auto p-4 sm:p-8 animate-pulse">
@@ -34,6 +35,7 @@ export default function ExerciseDetailPage() {
     const { id } = useParams();
     const [exercise, setExercise] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isAddModalOpen, setAddModalOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,6 +49,10 @@ export default function ExerciseDetailPage() {
     const handleGoBack = () => {
         navigate(-1);
     }
+
+    const handleOpenAddModal = () => {
+        setAddModalOpen(true);
+    };
 
     if (loading) return <ExerciseDetailSkeleton />;
     if (!exercise) return <p className="text-center mt-10 text-whitePrimary">Exercise not found.</p>;
@@ -112,7 +118,10 @@ export default function ExerciseDetailPage() {
                             </div>
                             
                             {/* --- ZMIANA 3: Przycisk wypchnięty na dół prawej kolumny --- */}
-                            <button className="mt-auto w-full bg-bluePrimary hover:bg-blueHover text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300">
+                            <button 
+                                className="mt-auto w-full bg-bluePrimary hover:bg-blueHover text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300"
+                                onClick={handleOpenAddModal}
+                            >
                                 <FaPlus />
                                 Add to Plan
                             </button>
@@ -120,6 +129,14 @@ export default function ExerciseDetailPage() {
                     </div>
                 </div>
             </main>
+            
+            {exercise && (
+                <AddExerciseToPlanModal
+                    isOpen={isAddModalOpen}
+                    onClose={() => setAddModalOpen(false)}
+                    exercise={exercise}
+                />
+            )}
             
             <Footer/>
         </div>

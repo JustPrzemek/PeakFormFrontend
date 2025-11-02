@@ -25,14 +25,23 @@ const ToggleSwitch = ({ checked, onChange }) => (
     </button>
 );
 
+const goalOptions = [
+    { value: 'maintenance', label: 'Utrzymanie wagi' },
+    { value: 'bulk', label: 'Budowanie masy (Masa)' },
+    { value: 'reduction', label: 'Redukcja tkanki (Redukcja)' },
+];
+
 export default function CreatePlanModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         setActive: true,
+        goal: 'maintenance',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+    const DESCRIPTION_MAX_LENGTH = 1000;
+    const NAME_MAX_LENGTH = 25;
 
     useEffect(() => {
         if (isOpen) {
@@ -40,12 +49,19 @@ export default function CreatePlanModal({ isOpen, onClose }) {
                 name: '',
                 description: '',
                 setActive: true,
+                goal: 'maintenance',
             });
         }
     }, [isOpen]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        if (name === 'name' && value.length > NAME_MAX_LENGTH) {
+            return;
+        }
+        if (name === 'description' && value.length > DESCRIPTION_MAX_LENGTH) {
+            return;
+        }
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
@@ -112,7 +128,16 @@ export default function CreatePlanModal({ isOpen, onClose }) {
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-6">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-borderGrayHover mb-2">Plan name</label>
+                            <div className="flex justify-between items-center mb-2">
+                                <label htmlFor="name" className="block text-sm font-medium text-borderGrayHover">Plan name</label>
+                                <span className={`text-sm ${
+                                    formData.name.length >= NAME_MAX_LENGTH 
+                                        ? 'text-red-400' 
+                                        : 'text-borderGrayHover'
+                                }`}>
+                                    {formData.name.length} / {NAME_MAX_LENGTH}
+                                </span>
+                            </div>                            
                             <input 
                                 type="text"
                                 id="name" 
@@ -121,10 +146,20 @@ export default function CreatePlanModal({ isOpen, onClose }) {
                                 onChange={handleChange} 
                                 className="w-full p-3 bg-backgoudBlack border border-borderGrayHover text-white rounded-lg focus:ring-2 focus:ring-bluePrimary"
                                 required
+                                maxLength={NAME_MAX_LENGTH}
                             />
                         </div>
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-borderGrayHover mb-2">Description (optional)</label>
+                           <div className="flex justify-between items-center mb-2">
+                                <label htmlFor="description" className="block text-sm font-medium text-borderGrayHover">Description (optional)</label>
+                                <span className={`text-sm ${
+                                    formData.description.length >= DESCRIPTION_MAX_LENGTH 
+                                        ? 'text-red-400' 
+                                        : 'text-borderGrayHover'
+                                }`}>
+                                    {formData.description.length} / {DESCRIPTION_MAX_LENGTH}
+                                </span>
+                            </div>                      
                             <textarea
                                 id="description"
                                 name="description"
@@ -132,8 +167,32 @@ export default function CreatePlanModal({ isOpen, onClose }) {
                                 onChange={handleChange}
                                 rows="3"
                                 className="w-full p-3 bg-backgoudBlack border border-borderGrayHover text-white rounded-lg focus:ring-2 focus:ring-bluePrimary"
+                                maxLength={DESCRIPTION_MAX_LENGTH}
                             ></textarea>
                         </div>
+
+                        <div>
+                            <label htmlFor="goal" className="block text-sm font-medium text-borderGrayHover mb-2">Plan Goal</label>
+                            <select
+                                id="goal"
+                                name="goal"
+                                value={formData.goal}
+                                onChange={handleChange}
+                                className="w-full p-3 bg-backgoudBlack border border-borderGrayHover text-white rounded-lg focus:ring-2 focus:ring-bluePrimary"
+                            >
+                                {goalOptions.map(option => (
+                                    <option 
+                                        key={option.value} 
+                                        value={option.value}
+                                        // Opcje są trudne do stylowania, ale możemy spróbować
+                                        className="bg-surfaceDarkGray text-white" 
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        
                         <div className="flex items-center justify-between">
                             <label htmlFor="setActive" className="block text-sm font-medium text-borderGrayHover">Set as your active plan</label>
                             <ToggleSwitch 

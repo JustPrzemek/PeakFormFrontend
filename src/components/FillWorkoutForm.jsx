@@ -4,7 +4,7 @@ import { getExercisesForPlanDay } from '../services/trainingService';
 import { FaDumbbell, FaCheckCircle, FaChevronDown, FaCopy, FaRunning } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 
-const FillWorkoutForm = ({ plan, day, date, onSave }) => {
+const FillWorkoutForm = ({ plan, day, dateStart, dateEnd, onSave }) => {
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({});
@@ -89,7 +89,8 @@ const FillWorkoutForm = ({ plan, day, date, onSave }) => {
         const payload = {
             planId: plan.id,
             dayIdentifier: day,
-            workoutDate: date,
+            workoutDateStart: dateStart,
+            workoutDateEnd: dateEnd,
             notes: notes,
             exercises: payloadExercises,
         };
@@ -114,7 +115,7 @@ const FillWorkoutForm = ({ plan, day, date, onSave }) => {
         <div className="animate-fade-in">
             <header className="text-center mb-8">
                 <h2 className="text-3xl font-bold">Log Workout</h2>
-                <p className="text-borderGrayHover">{plan.name} - <span className="capitalize">{day.toLowerCase()}</span> on <span className="text-bluePrimary font-semibold">{date}</span></p>
+                <p className="text-borderGrayHover">{plan.name} - <span className="capitalize">{day.toLowerCase()}</span> on <span className="text-bluePrimary font-semibold">{dateStart}</span></p>
             </header>
             
             <div className="space-y-4">

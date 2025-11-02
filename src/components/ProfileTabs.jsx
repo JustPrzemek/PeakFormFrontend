@@ -2,7 +2,7 @@ import React from 'react';
 // Poprawiłem importy ikon, aby pasowały do kodu (brakowało 5)
 import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
 
-export default function ProfileTabs({ activeTab, setActiveTab }) {
+export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
     const getButtonClass = (tabName) => {
         return `flex items-center gap-3 p-3 w-full text-left rounded-lg transition-colors ${
             activeTab === tabName
@@ -12,7 +12,6 @@ export default function ProfileTabs({ activeTab, setActiveTab }) {
     };
 
     return (
-        // Kontener na zakładki, stylizowany jak header
         <div className="flex flex-col bg-surfaceDarkGray rounded-2xl p-6 gap-2"> 
             <button 
                 onClick={() => setActiveTab('posts')}
@@ -22,13 +21,16 @@ export default function ProfileTabs({ activeTab, setActiveTab }) {
                 <span>POSTS</span>
             </button>
             
-            <button 
-                onClick={() => setActiveTab('stats')}
-                className={getButtonClass('stats')}
-            >
-                <IoStatsChart size={20} /> 
-                <span>ACTIVITY</span>
-            </button>
+            {/* 2. Owijamy przycisk "ACTIVITY" warunkiem */}
+            {isOwnProfile && (
+                <button 
+                    onClick={() => setActiveTab('stats')}
+                    className={getButtonClass('stats')}
+                >
+                    <IoStatsChart size={20} /> 
+                    <span>ACTIVITY</span>
+                </button>
+            )}
             
             <button 
                 onClick={() => setActiveTab('liked')}

@@ -9,6 +9,7 @@ import { followUser, unfollowUser } from "../services/followService";
 import FollowsModal from '../components/FollowsModal';
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
 import ProfileTabs from "../components/ProfileTabs";
+import ProfileStatisticPanel from "../components/ProfileStatisticPanel";
 
 export default function Profile() {
     const { username: usernameFromParams } = useParams(); 
@@ -80,11 +81,16 @@ export default function Profile() {
             <div className="container pt-8 max-w-6xl flex-grow">
                 <main className="flex flex-col md:flex-row gap-8">
                     
-                    <div className="w-full md:w-1/4 h-fit md:sticky md:top-18 order-2 md:order-1">
+                    <div className="w-full md:w-1/4 h-fit md:sticky md:top-18 order-2 md:order-1 flex flex-col gap-6">
                         <ProfileTabs 
                             activeTab={activeTab} 
                             setActiveTab={setActiveTab} 
+                            isOwnProfile={isOwnProfile} // <-- 3. Przekazujemy isOwnProfile
                         />
+                        
+                        {/* 4. Warunkowo renderujemy nowy panel statystyk */}
+                        {isOwnProfile && <ProfileStatisticPanel />}
+
                     </div>
                     <div className="w-full md:w-3/4 order-1 md:order-2">
                         <ProfileHeader 
