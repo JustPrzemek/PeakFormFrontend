@@ -11,6 +11,7 @@ import { CgSpinner } from 'react-icons/cg';
 import SessionDetailHeader from '../components/session/SessionDetailHeader';
 import SessionNotesEditor from '../components/session/SessionNotesEditor';
 import ExerciseLogGroup from '../components/session/ExerciseLogGroup';
+import SessionDetailPageSkeleton from '../components/skeletons/SessionDetailPageSkeleton'; // <-- Dostosuj ścieżkę!
 
 export default function SessionDetailPage() {
     const { sessionId } = useParams();
@@ -106,7 +107,7 @@ export default function SessionDetailPage() {
     };
 
     if (loading) {
-        return <CgSpinner className="mx-auto my-40 animate-spin text-5xl text-bluePrimary" />;
+        return <SessionDetailPageSkeleton />;    
     }
 
     if (!session) {

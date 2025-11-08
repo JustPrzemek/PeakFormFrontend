@@ -13,6 +13,9 @@ import { useDebounce } from 'use-debounce';
 import LastSessionCard from '../components/history/LastSessionCard';
 import AllSessionTile from '../components/history/AllSessionTile';
 import SessionFilterBar from '../components/history/SessionFilterBar';
+import LastSessionCardSkeleton from '../components/skeletons/LastSessionCardSkeleton';
+import AllSessionTileSkeleton from '../components/skeletons/AllSessionTileSkeleton';
+
 
 export default function WorkoutHistoryPage() {
     const navigate = useNavigate();
@@ -101,7 +104,7 @@ export default function WorkoutHistoryPage() {
                 <section className="mb-12">
                     <h2 className="text-2xl font-semibold mb-4 text-whitePrimary">Ostatnia Sesja</h2>
                     {loadingLast ? (
-                        <CgSpinner className="mx-auto animate-spin text-4xl text-bluePrimary" />
+                        <LastSessionCardSkeleton />
                     ) : (
                         <LastSessionCard session={lastSession} onSessionClick={handleSessionClick} />
                     )}
@@ -119,27 +122,36 @@ export default function WorkoutHistoryPage() {
                     />
 
                     {/* Lista z Lazy Loadingiem */}
-                    <InfiniteScroll
-                        dataLength={sessions.length}
-                        next={() => loadSessions(false)}
-                        hasMore={hasMore}
-                        loader={<CgSpinner className="mx-auto my-4 animate-spin text-3xl text-bluePrimary" />}
-                        endMessage={
-                            <p className="text-center text-borderGrayHover mt-6">
-                                To już wszystkie sesje.
-                            </p>
-                        }
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    >
-                        {sessions.map(session => (
-                            <AllSessionTile key={session.sessionId} session={session} onSessionClick={handleSessionClick} />
-                        ))}
-                    </InfiniteScroll>
-                     
-                    {!loadingAll && sessions.length === 0 && !hasMore && (
-                         <div className="text-center py-10 text-borderGrayHover">
-                            Nie znaleziono żadnych sesji pasujących do filtrów.
-                         </div>
+                    {loadingAll && sessions.length === 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Renderuj 6 skeleciaków dla zapełnienia */}
+                            {[...Array(6)].map((_, i) => <AllSessionTileSkeleton key={i} />)}
+                        </div>
+                    ) : sessions.length > 0 ? (
+                        /* 2. Pokaż listę, jeśli mamy jakiekolwiek sesje */
+                        <InfiniteScroll
+                            dataLength={sessions.length}
+                            next={() => loadSessions(false)}
+                            hasMore={hasMore}
+                            loader={<CgSpinner className="mx-auto my-4 animate-spin text-3xl text-bluePrimary" />}
+                            endMessage={
+                                <p className="text-center text-borderGrayHover mt-6">
+                                    To już wszystkie sesje.
+                                </p>
+                            }
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        >
+                            {sessions.map(session => (
+                                <AllSessionTile key={session.sessionId} session={session} onSessionClick={handleSessionClick} />
+                            ))}
+                        </InfiniteScroll>
+                    ) : (
+                         /* 3. Pokaż "Nie znaleziono", jeśli nie ładujemy I lista jest pusta */
+                         !loadingAll && sessions.length === 0 && (
+                             <div className="text-center py-10 text-borderGrayHover">
+                                 Nie znaleziono żadnych sesji pasujących do filtrów.
+                             </div>
+                         )
                     )}
                 </section>
             </div>

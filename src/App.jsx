@@ -22,6 +22,7 @@ import LogPastWorkoutPage from './pages/LogPastWorkoutPage';
 import WorkoutHistoryPage from './pages/WorkoutHistoryPage';
 import SessionDetailPage from './pages/SessionDetailPage';
 import StatisticsPage from './pages/StatisticsPage';
+import PeakFormPage from './pages/PeakFormPage'
 
 function App() {
     return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/callback" element={<OAuth2RedirectHandler />} />
                 <Route path="/email-confirmed" element={<EmailConfirmedPage />} />
+                <Route path="/peakform" element={<PeakFormPage/>} />
                 <Route element={<ProtectedLayout />}>
                     <Route
                         path="/home"

@@ -115,7 +115,7 @@ export default function SelectTrainingDay() {
                             <div
                                 key={day.key}
                                 onClick={() => handleDaySelect(day.key)}
-                                className="bg-surfaceDarkGray p-8 rounded-2xl text-center cursor-pointer 
+                                className="bg-surfaceDarkGray p-8 rounded-2xl text-center cursor-pointer truncate
                                            border border-transparent hover:border-bluePrimary hover:-translate-y-2 
                                            transition-all duration-300 shadow-lg hover:shadow-bluePrimary/10 group"
                             >

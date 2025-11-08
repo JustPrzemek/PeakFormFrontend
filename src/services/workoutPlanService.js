@@ -151,3 +151,13 @@ export const updatePlanDetails = async (planId, updateData) => {
         throw error.response?.data?.message || "Błąd podczas zmiany danyuch planu.";
     }
 };
+
+
+export const createBasicPlan = async () => {
+    try {
+        const response = await api.post(`/workout-plans/generateBasic`);
+        return response.data;
+    } catch (error)  {
+        throw error.response?.data?.message || "Bład podczas generowania basic planu.";
+    }
+}

@@ -10,19 +10,21 @@ import { makeActivePlan } from '../services/userProfileService';
 import { CgSpinner } from 'react-icons/cg';
 
 const PlanDetailSkeleton = () => (
-    <div className="container mx-auto p-4 sm:p-8 animate-pulse">
-        <div className="h-10 w-10 bg-surfaceDarkGray rounded-lg mb-8"></div>
-        <div className="h-10 bg-surfaceDarkGray rounded w-1/2 mb-2"></div>
-        <div className="h-4 bg-surfaceDarkGray rounded w-3/4 mb-10"></div>
-        <div className="bg-surfaceDarkGray rounded-2xl p-6">
-            <div className="flex gap-2 mb-6">
-                <div className="h-8 w-24 bg-borderGrayHover/30 rounded-full"></div>
-                <div className="h-8 w-24 bg-borderGrayHover/30 rounded-full"></div>
-            </div>
-            <div className="space-y-3">
-                <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
-                <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
-                <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
+    <div className="bg-backgoudBlack min-h-screen">
+        <div className=" mx-auto p-4 sm:p-8 animate-pulse">
+            <div className="h-10 w-10 bg-surfaceDarkGray rounded-lg mb-8"></div>
+            <div className="h-10 bg-surfaceDarkGray rounded w-1/2 mb-2"></div>
+            <div className="h-4 bg-surfaceDarkGray rounded w-3/4 mb-10"></div>
+            <div className="bg-surfaceDarkGray rounded-2xl p-6">
+                <div className="flex gap-2 mb-6">
+                    <div className="h-8 w-24 bg-borderGrayHover/30 rounded-full"></div>
+                    <div className="h-8 w-24 bg-borderGrayHover/30 rounded-full"></div>
+                </div>
+                <div className="space-y-3">
+                    <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
+                    <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
+                    <div className="h-12 w-full bg-borderGrayHover/30 rounded-lg"></div>
+                </div>
             </div>
         </div>
     </div>

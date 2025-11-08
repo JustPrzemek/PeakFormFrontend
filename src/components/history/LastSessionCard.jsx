@@ -19,7 +19,7 @@ export default function LastSessionCard({ session, onSessionClick }) {
         >
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-bluePrimary">{session.planName} - {session.dayIdentifier}</h3>
-                <span className="text-sm text-borderGrayHover">{formatDate(session.startTime)}</span>
+                <span className="text-sm text-borderGrayHover">{formatDate(session.startTime)} - {formatDate(session.endTime)}</span>
             </div>
             <p className="text-sm text-borderGrayHover mb-4">{session.notes || "Brak notatek."}</p>
             
