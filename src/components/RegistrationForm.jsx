@@ -6,6 +6,8 @@ import { registerUser } from '../services/authService';
 import { FcGoogle } from "react-icons/fc";
 import IconButton from './IconButton';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function RegistrationForm() {
     const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '', dateOfBirth: '' });
     const [errors, setErrors] = useState({});
@@ -163,7 +165,7 @@ function RegistrationForm() {
                 </button>
             </form>
                 <span className="block text-center text-sm text-borderGrayHover mt-6">or continue with</span>
-            <a href="http://localhost:8080/oauth2/authorize/google" className="flex justify-center">
+            <a href={`${API_URL}/oauth2/authorize/google`} className="flex justify-center">
                 <IconButton text="Google">
                     <FcGoogle />
                 </IconButton>

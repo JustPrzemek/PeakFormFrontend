@@ -1,8 +1,9 @@
 import axios from "axios";
 import toast from 'react-hot-toast';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
-    baseURL: "http://localhost:8080/api",
+    baseURL: `${API_URL}/api`,
 });
 
 // Dodanie access tokena do nagłówków
@@ -34,7 +35,7 @@ api.interceptors.response.use(
                     return Promise.reject(error);
                 }
 
-                const res = await axios.post("http://localhost:8080/api/auth/refresh", {
+                const res = await axios.post(`${API_URL}/api/auth/refresh`, {
                     refreshToken,
                 });
 

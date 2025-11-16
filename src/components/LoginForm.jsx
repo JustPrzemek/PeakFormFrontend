@@ -7,6 +7,8 @@ import IconInput from './IconInput';
 import IconButton from './IconButton';
 import { loginUser } from '../services/authService';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function LoginForm({ onForgotPassword }) {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -88,7 +90,7 @@ function LoginForm({ onForgotPassword }) {
             </form>
 
             <span className="block text-center text-sm text-borderGrayHover mt-6">or continue with</span>
-            <a href="http://localhost:8080/oauth2/authorize/google" className="w-full flex justify-center">
+            <a href={`${API_URL}/oauth2/authorize/google`} className="w-full flex justify-center">
                 <IconButton text="Google">
                     <FcGoogle />
                 </IconButton>
