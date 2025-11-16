@@ -1,7 +1,7 @@
 import ProfilePost from "./ProfilePost";
-import PostModal from './PostModal';
+import PostModal from '../PostModal';
 import { useEffect, useState, useRef, useCallback } from "react";
-import { getMyPosts, getUserPosts } from "../services/postsService";
+import { getMyPosts, getUserPosts } from "../../services/postsService";
 import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
 import ProfileStatsCharts from './ProfileStatsCharts';
 

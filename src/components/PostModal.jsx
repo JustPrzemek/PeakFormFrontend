@@ -5,9 +5,9 @@ import { addLikeToPost, removeLikeFromPost } from '../services/likesService';
 import { formatTimeAgo } from '../utils/dateFormatter';
 import { addComment } from "../services/commentsService";
 import { LiaCommentSolid } from "react-icons/lia";
-import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa6";
 import PostModalSkeleton from './skeletons/PostModalSkeleton';
+import { LuBicepsFlexed } from "react-icons/lu";
 
 const CONTENT_TRUNCATE_LENGTH = 150;
 
@@ -213,7 +213,7 @@ export default function PostModal({ postId, onClose }) {
                         {renderMedia()}
                         {showLikeAnimation && (
                         <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-                            <FaHeart className="text-white text-8xl drop-shadow-lg like-animation" />
+                            <LuBicepsFlexed className="text-white text-8xl drop-shadow-lg like-animation" />
                         </div>
                     )}
                     </div>
@@ -265,7 +265,7 @@ export default function PostModal({ postId, onClose }) {
                             <div className="flex justify-between items-center text-2xl mb-2">
                                 <div className="flex gap-4">
                                     <button onClick={handleToggleLike} className="hover:text-borderGrayHover transition-colors">
-                                        {post.likedByUser ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+                                        {post.likedByUser ? <LuBicepsFlexed className="text-blue-500" /> : <LuBicepsFlexed />}
                                     </button>
                                     {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegComment /></button> */}
                                     {/* <button className="hover:text-borderGrayHover transition-colors"><FaRegPaperPlane /></button> */}

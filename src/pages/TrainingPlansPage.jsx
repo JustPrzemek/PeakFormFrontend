@@ -3,10 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FaArrowLeft, FaPlus, FaTrash, FaCheckCircle, FaMagic, FaPen } from 'react-icons/fa'; // Dodane ikony
 import { getUserPlans, deletePlan } from '../services/workoutPlanService';
 import toast from 'react-hot-toast';
-import GeneratePlanModal from '../components/GeneratePlanModal';
-import AiGeneratePlanModal from '../components/AiGeneratePlanModal';
-import ConfirmationModal from '../components/ConfirmationModal';
-import CreatePlanModal from '../components/CreatePlanModal';
+import GeneratePlanModal from '../components/modals/GeneratePlanModal';
+import AiGeneratePlanModal from '../components/modals/AiGeneratePlanModal';
+import ConfirmationModal from '../components/modals/ConfirmationModal';
+import CreatePlanModal from '../components/modals/CreatePlanModal';
 import Footer from "../components/Footer";
 import { GrPlan } from "react-icons/gr";
 import { CgSpinner } from 'react-icons/cg'; // Dla skeletona

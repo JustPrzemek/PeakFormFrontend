@@ -5,7 +5,7 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import Footer from '../components/Footer';
 import { FaArrowLeft } from 'react-icons/fa';
-import AddExerciseToPlanModal from '../components/AddExerciseToPlanModal';
+import AddExerciseToPlanModal from '../components/modals/AddExerciseToPlanModal';
 
 const ExerciseDetailSkeleton = () => (
     <div className="container mx-auto p-4 sm:p-8 animate-pulse">

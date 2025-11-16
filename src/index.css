@@ -84,3 +84,45 @@ textarea {
 .video-container {
   aspect-ratio: 16 / 9;
 }
+
+/* ========== CUSTOM SCROLLBAR STYLES ========== */
+/* Stylizacja scrollbara dla całej aplikacji */
+
+/* Dla przeglądarek opartych na WebKit (Chrome, Safari, Edge) */
+* {
+  scrollbar-width: thin; /* Dla Firefox - cienki scrollbar */
+  scrollbar-color: var(--color-borderGrayHover) var(--color-backgoudBlack); /* Firefox: thumb background */
+}
+
+*::-webkit-scrollbar {
+  width: 8px; /* Szerokość scrollbara */
+  height: 8px; /* Wysokość scrollbara (dla poziomego scrollowania) */
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--color-backgoudBlack); /* Tło scrollbara */
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-borderGrayHover); /* Kolor "kciuka" scrollbara */
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bluePrimary); /* Kolor przy najechaniu */
+}
+
+/* Opcjonalnie: ukryj scrollbar, ale zachowaj funkcjonalność scrollowania */
+/* Odkomentuj poniższe, jeśli chcesz całkowicie ukryć scrollbar */
+/*
+*{
+  scrollbar-width: none; /* Firefox */
+  /* -ms-overflow-style: none; IE i Edge */
+/* } */
+
+/* 
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+/* } */ 

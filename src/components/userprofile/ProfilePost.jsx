@@ -1,4 +1,5 @@
 import { FaHeart, FaComment } from 'react-icons/fa';
+import { LuBicepsFlexed } from "react-icons/lu";
 
 export default function ProfilePost({post, onOpenModal }) {
 
@@ -45,7 +46,7 @@ export default function ProfilePost({post, onOpenModal }) {
                 
                 {/* Statystyka polubień */}
                 <div className="flex items-center gap-2 text-white font-bold text-lg">
-                    <FaHeart />
+                    <LuBicepsFlexed />
                     <span>{post.likesCount}</span>
                 </div>
 

@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getPlanDetails, removeExerciseFromPlan, updateExerciseInPlan, updatePlanDetails } from '../services/workoutPlanService';
 import toast from 'react-hot-toast';
 import { FaArrowLeft, FaPencilAlt, FaTrash, FaSave, FaTimes, FaPlus, FaDumbbell, FaCheckCircle, FaHeartbeat, FaRunning } from 'react-icons/fa';
-import ConfirmationModal from '../components/ConfirmationModal';
+import ConfirmationModal from '../components/modals/ConfirmationModal';
 import Footer from "../components/Footer";
 import { GrPlan } from "react-icons/gr";
 import { makeActivePlan } from '../services/userProfileService';

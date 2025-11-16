@@ -4,7 +4,7 @@ import { getOrCreateSession, addExerciseLog, finishTrainingSession, deleteTraini
 import toast from 'react-hot-toast';
 import { FaPlay, FaCheck, FaInfoCircle, FaArrowRight, FaDumbbell, FaHeartbeat, FaClock, FaSignOutAlt, FaTimes, FaCheckCircle, FaRunning, FaForward, FaTasks  } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
-import ConfirmationModal from '../components/ConfirmationModal';
+import ConfirmationModal from '../components/modals/ConfirmationModal';
 
 const RestTimer = ({ duration, onFinish, exerciseName }) => {
     const [secondsLeft, setSecondsLeft] = useState(duration);

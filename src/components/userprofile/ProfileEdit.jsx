@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
-import { getEditData, updateUserData } from "../services/userProfileService";
-import ImageUploadModal from "./ImageUploadModal";
-import { useUser } from '../context/UserContext';
+import { getEditData, updateUserData } from "../../services/userProfileService";
+import ImageUploadModal from "../modals/ImageUploadModal";
+import { useUser } from '../../context/UserContext';
 import toast from 'react-hot-toast';
-import ProfileEditSkeleton from "../components/skeletons/ProfileEditSkeleton";
+import ProfileEditSkeleton from "../skeletons/ProfileEditSkeleton";
 import {CgSpinner} from "react-icons/cg";
 //import { useNavigate } from 'react-router-dom';
 

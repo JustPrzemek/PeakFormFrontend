@@ -7,10 +7,10 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { FaDumbbell, FaClock, FaWeightHanging, FaListOl, FaRunning } from 'react-icons/fa';
 
 // Import serwisu API
-import { getKpiSummary } from '../services/statisticsService';
+import { getKpiSummary } from '../../services/statisticsService';
 
 // Import komponentu
-import KpiCard from './statistics/KpiCard'; // Upewnij się, że ścieżka jest poprawna
+import KpiCard from '../statistics/KpiCard'; // Upewnij się, że ścieżka jest poprawna
 
 // Funkcje pomocnicze skopiowane ze StatisticsPage
 const formatDuration = (seconds) => {

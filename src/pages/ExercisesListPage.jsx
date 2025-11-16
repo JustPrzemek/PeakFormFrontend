@@ -5,7 +5,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { FaPlus, FaArrowLeft } from 'react-icons/fa';
 import { CgSpinner } from "react-icons/cg";
 import Footer from '../components/Footer';
-import AddExerciseToPlanModal from '../components/AddExerciseToPlanModal';
+import AddExerciseToPlanModal from '../components/modals/AddExerciseToPlanModal';
 import ExerciseSkeleton from '../components/skeletons/ExerciseSkeleton';
 
 // --- Stałe zdefiniowane poza komponentem dla lepszej wydajności ---

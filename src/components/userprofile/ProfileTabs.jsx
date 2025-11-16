@@ -1,6 +1,7 @@
 import React from 'react';
 // Poprawiłem importy ikon, aby pasowały do kodu (brakowało 5)
 import { IoGrid, IoHeartOutline, IoStatsChart } from "react-icons/io5";
+import { LuBicepsFlexed } from "react-icons/lu";
 
 export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
     const getButtonClass = (tabName) => {
@@ -36,7 +37,7 @@ export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
                 onClick={() => setActiveTab('liked')}
                 className={getButtonClass('liked')}
             >
-                <IoHeartOutline size={20} /> 
+                <LuBicepsFlexed size={20} /> 
                 <span>LIKED</span>
             </button>
         </div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getActiveSession, deleteTrainingSession } from '../services/trainingService';
 import toast from 'react-hot-toast';
 import SelectTrainingDay from './SelectTrainingDay';
-import ConfirmationModal from '../components/ConfirmationModal'; // Zaimportuj swój modal
+import ConfirmationModal from '../components/modals/ConfirmationModal';
 import { CgSpinner } from 'react-icons/cg';
 import { FaHourglassHalf, FaPlayCircle, FaTrash } from 'react-icons/fa';
 

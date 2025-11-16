@@ -6,7 +6,7 @@ import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import EmailConfirmedPage from './pages/EmailConfirmedPage';
 import MainLayout from "./pages/MainLayout";
 import Profile from './pages/ProfilePage';
-import ProfileEdit from './components/ProfileEdit';
+import ProfileEdit from './components/userprofile/ProfileEdit';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import { Toaster } from 'react-hot-toast';
@@ -23,6 +23,11 @@ import WorkoutHistoryPage from './pages/WorkoutHistoryPage';
 import SessionDetailPage from './pages/SessionDetailPage';
 import StatisticsPage from './pages/StatisticsPage';
 import PeakFormPage from './pages/PeakFormPage'
+import NutritionDashboardPage from './pages/NutritionDashboardPage';
+import NutritionStatsPage from './pages/NutritionStatsPage';
+import AboutPage from './pages/AboutPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 
 function App() {
     return (
@@ -34,6 +39,11 @@ function App() {
                 <Route path="/auth/callback" element={<OAuth2RedirectHandler />} />
                 <Route path="/email-confirmed" element={<EmailConfirmedPage />} />
                 <Route path="/peakform" element={<PeakFormPage/>} />
+                
+                {/* Publiczne strony - dostępne bez logowania */}
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
                 <Route element={<ProtectedLayout />}>
                     <Route
                         path="/home"
@@ -154,6 +164,22 @@ function App() {
                         element={
                         <MainLayout>
                             <StatisticsPage/>
+                        </MainLayout>
+                    } />
+
+                    <Route 
+                        path="/nutrition" 
+                        element={
+                        <MainLayout>
+                            <NutritionDashboardPage />
+                        </MainLayout>
+                    } />
+
+                    <Route 
+                        path="/nutrition/stats" 
+                        element={
+                        <MainLayout>
+                            <NutritionStatsPage />
                         </MainLayout>
                     } />
                 </Route>

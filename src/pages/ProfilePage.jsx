@@ -1,15 +1,15 @@
-import ProfileHeader from "../components/ProfileHeader";
-import ProfilePosts from "../components/ProfilePosts";
+import ProfileHeader from "../components/userprofile/ProfileHeader";
+import ProfilePosts from "../components/userprofile/ProfilePosts";
 import React, {useEffect, useState} from "react";
 import { getMyProfile, getUserProfile } from "../services/userProfileService";
 import Footer from "../components/Footer";
 import { useParams } from "react-router-dom";
 import { useUser } from '../context/UserContext';
 import { followUser, unfollowUser } from "../services/followService";
-import FollowsModal from '../components/FollowsModal';
+import FollowsModal from '../components/modals/FollowsModal';
 import ProfilePageSkeleton from "../components/skeletons/ProfilePageSkeleton";
-import ProfileTabs from "../components/ProfileTabs";
-import ProfileStatisticPanel from "../components/ProfileStatisticPanel";
+import ProfileTabs from "../components/userprofile/ProfileTabs";
+import ProfileStatisticPanel from "../components/userprofile/ProfileStatisticPanel";
 
 export default function Profile() {
     const { username: usernameFromParams } = useParams(); 

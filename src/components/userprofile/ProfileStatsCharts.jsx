@@ -10,13 +10,13 @@ import {
     getTotalVolume,
     getCardioDistance,
     getMuscleGroupDistribution
-} from '../services/statisticsService';
+} from '../../services/statisticsService';
 
 // Import komponentów
-import WorkoutFrequencyChart from './statistics/WorkoutFrequencyChart';
-import TotalVolumeChart from './statistics/TotalVolumeChart';
-import CardioDistanceChart from './statistics/CardioDistanceChart';
-import MuscleDistributionChart from './statistics/MuscleDistributionChart';
+import WorkoutFrequencyChart from '../statistics/WorkoutFrequencyChart';
+import TotalVolumeChart from '../statistics/TotalVolumeChart';
+import CardioDistanceChart from '../statistics/CardioDistanceChart';
+import MuscleDistributionChart from '../statistics/MuscleDistributionChart';
 
 export default function ProfileStatsCharts() {
     // Domyślny stan: ostatnie 30 dni

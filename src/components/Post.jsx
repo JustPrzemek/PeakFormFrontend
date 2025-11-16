@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { addLikeToPost, removeLikeFromPost } from "../services/likesService";
 import { formatTimeAgo } from '../utils/dateFormatter';
 import { useNavigate } from "react-router-dom";
-import { AiFillLike, AiOutlineLike } from "react-icons/ai";
+import { AiOutlineLike } from "react-icons/ai";
 import { FaRegComments } from "react-icons/fa6";
 import { FaHeart, FaRegHeart, FaRegComment, FaRegPaperPlane, FaRegBookmark, FaEllipsisH } from 'react-icons/fa';
+import { LuBicepsFlexed } from "react-icons/lu";
 
 
 const CONTENT_TRUNCATE_LENGTH = 100;
@@ -164,7 +165,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 {renderMedia()}
                 {showLikeAnimation && (
                     <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-                        <AiFillLike className="text-white text-8xl drop-shadow-lg like-animation" />
+                        <LuBicepsFlexed className="text-white text-8xl drop-shadow-lg like-animation" />
                     </div>
                 )}
             </div>
@@ -174,7 +175,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                 <div className="flex justify-between items-center text-2xl text-whitePrimary">
                     <div className="flex gap-4">
                         <button onClick={handleToggleLike} className="hover:text-borderGrayHover transition-colors">
-                            {post.likedByUser ? <AiFillLike className="text-bluePrimary cursor-pointer" /> : <AiOutlineLike className="cursor-pointer"/>}
+                            {post.likedByUser ? <LuBicepsFlexed className="text-bluePrimary cursor-pointer" /> : <LuBicepsFlexed className="cursor-pointer"/>}
                         </button>
                         <button onClick={() => onOpenModal(post.id)} className="hover:text-borderGrayHover transition-colors">
                             <FaRegComment className="cursor-pointer"/>
