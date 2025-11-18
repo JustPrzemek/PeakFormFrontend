@@ -30,10 +30,17 @@ import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
 function App() {
+    const isAuthenticated = () => !!localStorage.getItem("accessToken");
     return (
         <Router>
             <Toaster position="top-center" reverseOrder={false} />
             <Routes>
+                <Route 
+                    path="/" 
+                    element={
+                        isAuthenticated() ? <Navigate to="/home" replace /> : <Navigate to="/peakform" replace />
+                    } 
+                />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/callback" element={<OAuth2RedirectHandler />} />
