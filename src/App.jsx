@@ -38,7 +38,7 @@ function App() {
                 <Route 
                     path="/" 
                     element={
-                        isAuthenticated() ? <Navigate to="/home" replace /> : <Navigate to="/peakform" replace />
+                        isAuthenticated() ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />
                     } 
                 />
                 <Route path="/login" element={<AuthPage />} />
