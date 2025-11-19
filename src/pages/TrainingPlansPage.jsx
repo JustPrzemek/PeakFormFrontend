@@ -194,14 +194,14 @@ export default function TrainingPlansPage() {
                             className="flex items-center bg-bluePrimary text-whitePrimary font-bold py-2 px-4 rounded-lg hover:bg-blueHover transition-colors duration-300"
                         >
                             <FaMagic className="mr-2" />
-                            Generate New Plan
+                            Generate New Basic Plan
                         </button>
                         <button
                             onClick={() => setAiGenerateModalOpen(true)}
                             className="flex items-center bg-bluePrimary text-whitePrimary font-bold py-2 px-4 rounded-lg hover:bg-blueHover transition-colors duration-300"
                         >
                             <FaMagic className="mr-2" />
-                            Generuj z AI
+                            Generuj z Gemini
                         </button>
                     </div>
                 </div>

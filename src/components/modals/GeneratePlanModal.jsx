@@ -89,7 +89,7 @@ export default function GeneratePlanModal({ isOpen, onClose }) {
                 className="bg-surfaceDarkGray rounded-2xl shadow-xl p-8 w-full max-w-md border border-borderGrayHover" 
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 className="text-2xl font-bold mb-6 text-whitePrimary">Generate New Plan</h2>
+                <h2 className="text-2xl font-bold mb-6 text-whitePrimary">Generate New Basic Plan</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-6 text-borderGrayHover mb-6">
                         <p>

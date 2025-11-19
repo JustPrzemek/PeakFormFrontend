@@ -122,8 +122,8 @@ export default function SelectTrainingDay() {
                                 <div className="mb-6 flex justify-center items-center h-10">
                                     {day.icon}
                                 </div>
-                                <h2 className="text-3xl font-bold text-whitePrimary capitalize">{day.name.toLowerCase()}</h2>
-                                <p className="text-borderGrayHover mt-2 capitalize">{day.focus.toLowerCase()}</p>
+                                <h2 className="text-3xl font-bold text-whitePrimary capitalize truncate">{day.name.toLowerCase()}</h2>
+                                <p className="text-borderGrayHover mt-2 capitalize truncate">{day.focus.toLowerCase()}</p>
                             </div>
                         ))}
                     </div>
