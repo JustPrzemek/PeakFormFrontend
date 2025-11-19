@@ -9,7 +9,7 @@ import { loginUser } from '../services/authService';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function LoginForm({ onForgotPassword }) {
+function LoginForm({ onForgotPassword, onSwitchToRegister}) {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [errors, setErrors] = useState({});
     const [apiError, setApiError] = useState('');
@@ -48,10 +48,11 @@ function LoginForm({ onForgotPassword }) {
     };
 
     return (
-        <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center px-12 md:px-24">
-            <h1 className="text-3xl font-bold">Log in to your Account</h1>
+        <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center px-6 md:px-24 py-10 md:py-0">
+            <h1 className="text-3xl font-bold mb-2">Log in to your Account</h1>
+            <p className="text-borderGrayHover mb-6">Welcome back! Please enter your details.</p>
             
-            {apiError && <p className="text-red-400 mt-4 text-center bg-red-500/10 p-2 rounded-md">{apiError}</p>}
+            {apiError && <p className="text-red-400 mb-4 text-center bg-red-500/10 p-2 rounded-md">{apiError}</p>}
 
             <form onSubmit={handleSubmit} noValidate>
                 <IconInput 
@@ -90,11 +91,24 @@ function LoginForm({ onForgotPassword }) {
             </form>
 
             <span className="block text-center text-sm text-borderGrayHover mt-6">or continue with</span>
-            <a href={`${API_URL}/oauth2/authorize/google`} className="w-full flex justify-center">
+            <a href={`${API_URL}/oauth2/authorize/google`} className="w-full flex justify-center mt-2">
                 <IconButton text="Google">
                     <FcGoogle />
                 </IconButton>
             </a>
+
+            {/* --- NOWA SEKCJA TYLKO DLA MOBILE --- */}
+            <div className="mt-8 text-center md:hidden">
+                <p className="text-borderGrayHover">
+                    Don't have an account?{' '}
+                    <button 
+                        onClick={onSwitchToRegister} 
+                        className="text-bluePrimary font-bold hover:underline"
+                    >
+                        Register
+                    </button>
+                </p>
+            </div>
         </div>
     );
 }

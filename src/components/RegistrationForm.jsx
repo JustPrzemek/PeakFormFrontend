@@ -8,7 +8,7 @@ import IconButton from './IconButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function RegistrationForm() {
+function RegistrationForm({ onSwitchToLogin }) {
     const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '', dateOfBirth: '' });
     const [errors, setErrors] = useState({});
     const [message, setMessage] = useState('');
@@ -104,6 +104,10 @@ function RegistrationForm() {
             <div className="w-full h-full bg-surfaceDarkGray text-whitePrimary flex flex-col justify-center items-center px-12 text-center">
                 <h2 className="text-2xl font-semibold text-green-400">✅ Success!</h2>
                 <p className="mt-4 text-lg">{message}</p>
+                 {/* Przycisk powrotu do logowania po sukcesie */}
+                 <button onClick={onSwitchToLogin} className="mt-6 text-bluePrimary font-bold hover:underline">
+                    Go to Login
+                </button>
             </div>
         );
     }
@@ -170,6 +174,17 @@ function RegistrationForm() {
                     <FcGoogle />
                 </IconButton>
             </a>
+            <div className="mt-8 text-center md:hidden">
+                <p className="text-borderGrayHover">
+                    Already have an account?{' '}
+                    <button 
+                        onClick={onSwitchToLogin} 
+                        className="text-bluePrimary font-bold hover:underline"
+                    >
+                        Login
+                    </button>
+                </p>
+            </div>
         </div>
     );
 }

@@ -15,23 +15,52 @@ function AuthPage() {
 
     return (
         <div className="flex justify-center items-center w-full min-h-screen bg-backgoudBlack p-4">
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl w-full max-w-screen-xl h-[700px] flex bg-surfaceDarkGray border border-borderGrayHover/30">
+            {/* Główny kontener */}
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl w-full max-w-screen-xl h-auto md:h-[700px] flex flex-col md:block bg-surfaceDarkGray border border-borderGrayHover/30">
 
                 {/* --- Panel z formularzami --- */}
                 <div 
-                    className="absolute top-0 left-0 w-1/2 h-full transition-transform duration-700 ease-in-out"
-                    style={{ transform: isLoginView ? 'translateX(0%)' : 'translateX(100%)' }}
+                    className={`
+                        /* Mobile: Pełna szerokość, brak pozycjonowania absolutnego, brak przesunięcia */
+                        w-full h-full transition-all duration-700 ease-in-out
+                        py-12 md:py-0
+                        /* Desktop (md): Połowa szerokości, absolutne pozycjonowanie, logika przesuwania */
+                        md:absolute md:top-0 md:w-1/2 
+                        
+                        /* Logika animacji TYLKO dla desktopu: */
+                        ${isLoginView ? 'md:left-0 md:translate-x-0' : 'md:left-0 md:translate-x-full'}
+                    `}
                 >
-                    {/* Logika renderowania formularzy pozostaje bez zmian */}
-                    {viewMode === 'login' && <LoginForm onForgotPassword={() => setViewMode('forgotPassword')} />}
-                    {viewMode === 'register' && <RegistrationForm />}
-                    {viewMode === 'forgotPassword' && <ForgotPasswordForm onBackToLogin={() => setViewMode('login')} />}
+                    {viewMode === 'login' && (
+                        <LoginForm 
+                            onForgotPassword={() => setViewMode('forgotPassword')} 
+                            onSwitchToRegister={toggleRegister}
+                        />
+                    )}
+                    
+                    {viewMode === 'register' && (
+                        <RegistrationForm 
+                            onSwitchToLogin={toggleRegister}
+                        />
+                    )}
+                    
+                    {viewMode === 'forgotPassword' && (
+                        <ForgotPasswordForm 
+                            onBackToLogin={() => setViewMode('login')} 
+                        />
+                    )}
                 </div>
 
-                {/* --- Panel motywacyjny --- */}
+                {/* --- Panel motywacyjny (Widoczny tylko na desktopie) --- */}
                 <div 
-                    className="absolute top-0 right-0 w-1/2 h-full transition-transform duration-700 ease-in-out"
-                    style={{ transform: isLoginView ? 'translateX(0%)' : 'translateX(-100%)' }}
+                    className={`
+                        hidden md:block /* Ukryty na mobile, widoczny na md */
+                        absolute top-0 right-0 w-1/2 h-full 
+                        transition-transform duration-700 ease-in-out
+                        
+                        /* Logika animacji TYLKO dla desktopu */
+                        ${isLoginView ? 'translate-x-0' : '-translate-x-full'}
+                    `}
                 >
                     <MotivationalPanel isLoginView={isLoginView} onToggle={toggleRegister} />
                 </div>
