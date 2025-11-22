@@ -28,7 +28,7 @@ export default function ProfileHeader({ profile, isOwnProfile, onFollowToggle, o
                 <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
                     <h1 className="text-3xl font-bold">{profile.username}</h1>
                     {isOwnProfile ? (
-                        <Link to='/profile/edit'>
+                        <Link to='/settings/edit'>
                             <button className="bg-borderGrayHover/50 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-borderGrayHover transition-colors">
                                 Edit Profile
                             </button>

@@ -79,31 +79,47 @@ export default function Profile() {
     return (
         <div className="bg-backgoudBlack min-h-screen flex flex-col">
             <div className="container pt-8 max-w-6xl flex-grow">
+                {/* Główny kontener Flex */}
                 <main className="flex flex-col md:flex-row gap-8">
                     
+                    {/* --- LEWA KOLUMNA (SIDEBAR) --- */}
+                    {/* Na mobile: order-2 (ma być w środku) */}
+                    {/* Na desktop: order-1 (ma być po lewej) */}
                     <div className="w-full md:w-1/4 h-fit md:sticky md:top-18 order-2 md:order-1 flex flex-col gap-6">
                         <ProfileTabs 
                             activeTab={activeTab} 
                             setActiveTab={setActiveTab} 
-                            isOwnProfile={isOwnProfile} // <-- 3. Przekazujemy isOwnProfile
-                        />
-                        
-                        {/* 4. Warunkowo renderujemy nowy panel statystyk */}
-                        {isOwnProfile && <ProfileStatisticPanel />}
-
-                    </div>
-                    <div className="w-full md:w-3/4 order-1 md:order-2">
-                        <ProfileHeader 
-                            profile={profile} 
                             isOwnProfile={isOwnProfile} 
-                            onFollowToggle={handleFollowToggle} 
-                            onOpenModal={(type) => setModalState({ isOpen: true, type })}
                         />
-                        <ProfilePosts 
-                            profile={profile} 
-                            isOwnProfile={isOwnProfile}
-                            activeTab={activeTab} // <--- Przekazujemy stan w dół
-                        />
+                        {isOwnProfile && <ProfileStatisticPanel />}
+                    </div>
+
+                    {/* --- PRAWA KOLUMNA (HEADER + POSTY) --- */}
+                    {/* MAGICZNA ZMIANA: */}
+                    {/* Używamy klasy 'contents' dla mobile. To sprawia, że ten div znika logicznie na mobile, 
+                        a jego dzieci (Header i Posts) stają się bezpośrednimi dziećmi <main>. 
+                        Dzięki temu możemy im nadać osobny 'order'. 
+                        Na desktopie (md:flex) wraca do bycia normalną kolumną po prawej. */}
+                    <div className="contents md:flex md:flex-col md:gap-4 md:w-3/4 md:order-2">
+                        
+                        {/* Header: Na mobile order-1 (na samej górze) */}
+                        <div className="order-1 md:order-none w-full">
+                            <ProfileHeader 
+                                profile={profile} 
+                                isOwnProfile={isOwnProfile} 
+                                onFollowToggle={handleFollowToggle} 
+                                onOpenModal={(type) => setModalState({ isOpen: true, type })}
+                            />
+                        </div>
+
+                        {/* Posty: Na mobile order-3 (na samym dole, pod sidebarem) */}
+                        <div className="order-3 w-full mt-4 mb-10 md:order-none md:-mt-8 md:mb-0">
+                            <ProfilePosts 
+                                profile={profile} 
+                                isOwnProfile={isOwnProfile}
+                                activeTab={activeTab} 
+                            />
+                        </div>
                     </div>
 
                 </main>

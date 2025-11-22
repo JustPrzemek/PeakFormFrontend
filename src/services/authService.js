@@ -6,7 +6,6 @@ export const loginUser = async (credentials) => {
         //zapis tokena po usanym logowaniu
         if (response.data.accessToken && response.data.refreshToken) {
             localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
         }
         return response.data;
     } catch (error) {
@@ -30,18 +29,16 @@ export const registerUser = async (userData) => {
 };
 
 // Funkcja do wylogowania (na przyszłość)
-export const logoutUser = async (refreshToken) => {
+export const logoutUser = async () => {
     try {
         const response = await api.post('/auth/logout', {
-            refreshToken: refreshToken
-        }, {
+    }, {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
 
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to logout';

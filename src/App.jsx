@@ -28,6 +28,8 @@ import NutritionStatsPage from './pages/NutritionStatsPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import SecuritySettings from './pages/settings/SecuritySettings';
+import NotificationSettings from './pages/settings/NotificationSettings';
 
 function App() {
     const isAuthenticated = () => !!localStorage.getItem("accessToken");
@@ -60,18 +62,6 @@ function App() {
                             </MainLayout>
                         }
                     />
-
-                    <Route path="/profile/edit"
-                        element={
-                            <MainLayout>
-                                <SettingsPage/>
-                            </MainLayout>
-                            
-                        }
-                    >
-                        <Route index element={<Navigate to="edit" replace/>}/>
-                        <Route path='edit' element={<ProfileEdit/>}/>
-                    </Route >
                     
                     <Route path="/profile/:username"
                         element={
@@ -81,6 +71,20 @@ function App() {
                         }
                     />
 
+                    <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>}>
+                        {/* Domyślnie przekieruj na edycję profilu po wejściu w same /settings */}
+                        <Route index element={<Navigate to="edit" replace />} />
+                        
+                        {/* Zakładka 1: Edycja Profilu */}
+                        <Route path="edit" element={<ProfileEdit />} />
+                        
+                        {/* Zakładka 2: Bezpieczeństwo (Hasło, Email) */}
+                        <Route path="security" element={<SecuritySettings />} />
+                        
+                        {/* Zakładka 3: Powiadomienia */}
+                        <Route path="notifications" element={<NotificationSettings />} />
+                    </Route>
+                    
                     <Route 
                         path="/training" 
                         element={

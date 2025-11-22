@@ -1,33 +1,40 @@
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function OAuth2RedirectHandler() {
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        // Odczytujemy tokeny z parametrów URL
-        const accessToken = searchParams.get('accessToken');
-        const refreshToken = searchParams.get('refreshToken');
+        // 1. Pobieramy parametry z URL (to co backend wysłał po znaku ?)
+        const params = new URLSearchParams(location.search);
+        const accessToken = params.get('accessToken');
+        const error = params.get('error');
 
-        if (accessToken && refreshToken) {
-            // Zapisujemy tokeny w localStorage
+        if (error) {
+            toast.error(decodeURIComponent(error));
+            navigate('/login');
+            return;
+        }
+
+        if (accessToken) {
+            // 2. Zapisujemy token do localStorage (Refresh token jest już bezpieczny w ciasteczku)
             localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
-
-            // Przekierowujemy użytkownika na stronę główną
+            
+            toast.success('Pomyślnie zalogowano przez Google!');
+            
+            // 3. Przekierowujemy na stronę główną - teraz isAuthenticated() zwróci true!
             navigate('/home');
         } else {
-            // Jeśli nie ma tokenów, coś poszło nie tak
-            // Przekierowujemy z powrotem do logowania z błędem
-            navigate('/?error=Google-login-failed');
+            toast.error('Błąd logowania. Nie otrzymano tokena.');
+            navigate('/login');
         }
-    }, [navigate, searchParams]);
+    }, [location, navigate]);
 
-    // Wyświetlamy prosty komunikat podczas przetwarzania
     return (
-        <div className="flex justify-center items-center w-full h-screen">
-            <p className="text-xl">Loading, please wait...</p>
+        <div className="flex justify-center items-center h-screen bg-surfaceDarkGray text-white">
+            <p>Trwa logowanie...</p>
         </div>
     );
 }
