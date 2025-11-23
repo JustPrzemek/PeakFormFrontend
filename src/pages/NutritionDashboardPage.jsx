@@ -5,6 +5,7 @@ import { getNutritionGoals, getDailyLog, deleteFoodLog } from '../services/nutri
 import MacroProgressBar from '../components/nutrition/MacroProgressBar';
 import AddFoodModal from '../components/nutrition/AddFoodModal';
 import Footer from '../components/Footer';
+import ConfirmationModal from '../components/modals/ConfirmationModal';
 import { CgSpinner } from 'react-icons/cg';
 import toast from 'react-hot-toast';
 import { FaFire, FaChevronLeft, FaChevronRight, FaChartLine } from 'react-icons/fa';
@@ -55,6 +56,8 @@ export default function NutritionDashboardPage() {
     
     const navigate = useNavigate();
 
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [itemToDeleteId, setItemToDeleteId] = useState(null);
     // ========== FUNKCJE POBIERANIA DANYCH ==========
     /**
      * Pobiera dziennik żywieniowy dla wybranej daty.
@@ -142,21 +145,34 @@ export default function NutritionDashboardPage() {
         });
     }, []);
 
-    /**
-     * Usuwa wpis z dziennika żywieniowego.
-     * 
-     * @param {number} logId - ID wpisu do usunięcia
-     */
-    const handleDeleteFoodLog = useCallback(async (logId) => {
+    const initiateDelete = useCallback((logId) => {
+        setItemToDeleteId(logId);
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    // KROK 2: Funkcja wywoływana, gdy użytkownik kliknie "Confirm" w modalu
+    const handleConfirmDelete = useCallback(async () => {
+        if (!itemToDeleteId) return; // Zabezpieczenie
+
         try {
-            await deleteFoodLog(logId);
+            await deleteFoodLog(itemToDeleteId);
             toast.success("Entry deleted successfully.");
-            // Odśwież dziennik, żeby zaktualizować sumy i listę
+            // Odśwież dziennik
             fetchDailyLog(selectedDate); 
         } catch (error) {
             toast.error(error.message || 'Failed to delete entry.');
+        } finally {
+            // Sprzątanie po operacji
+            setIsDeleteModalOpen(false);
+            setItemToDeleteId(null);
         }
-    }, [selectedDate, fetchDailyLog]);
+    }, [itemToDeleteId, selectedDate, fetchDailyLog]);
+
+    // KROK 3: Anulowanie (gdy kliknie Cancel lub tło)
+    const handleCancelDelete = useCallback(() => {
+        setIsDeleteModalOpen(false);
+        setItemToDeleteId(null);
+    }, []);
 
     // ========== OBLICZENIA (useMemo) ==========
     /**
@@ -228,7 +244,7 @@ export default function NutritionDashboardPage() {
                         {/* Jeśli błąd dotyczy profilu, pokaż przycisk do uzupełnienia profilu */}
                         {error.toLowerCase().includes("profile") && (
                              <button
-                                onClick={() => navigate('/profile/settings/edit')}
+                                onClick={() => navigate('/settings/edit')}
                                 className="bg-bluePrimary text-whitePrimary font-bold py-3 px-6 rounded-lg hover:bg-blueHover transition-colors duration-300"
                             >
                                 Complete Profile
@@ -350,25 +366,25 @@ export default function NutritionDashboardPage() {
                             title="Breakfast" 
                             entries={dailyLog?.meals.BREAKFAST || []}
                             onAddClick={() => handleOpenModal('BREAKFAST')}
-                            onDeleteEntry={handleDeleteFoodLog}
+                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
                         />
                         <MealCard 
                             title="Lunch" 
                             entries={dailyLog?.meals.LUNCH || []}
                             onAddClick={() => handleOpenModal('LUNCH')}
-                            onDeleteEntry={handleDeleteFoodLog}
+                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
                         />
                         <MealCard 
                             title="Dinner" 
                             entries={dailyLog?.meals.DINNER || []}
                             onAddClick={() => handleOpenModal('DINNER')}
-                            onDeleteEntry={handleDeleteFoodLog}
+                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
                         />
                         <MealCard 
                             title="Snacks" 
                             entries={dailyLog?.meals.SNACK || []}
                             onAddClick={() => handleOpenModal('SNACK')}
-                            onDeleteEntry={handleDeleteFoodLog}
+                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
                         />
                     </div>
                 )}
@@ -383,6 +399,14 @@ export default function NutritionDashboardPage() {
                 onFoodLogged={handleFoodLogged}
                 preselectedMealType={modalMealType}
                 selectedDate={selectedDate}
+            />
+
+            <ConfirmationModal 
+                isOpen={isDeleteModalOpen}
+                onClose={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+                title="Delete Entry"
+                message="Are you sure you want to remove this item from your log? This action cannot be undone."
             />
         </div>
     );
