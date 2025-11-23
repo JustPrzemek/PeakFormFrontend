@@ -7,15 +7,32 @@ import ProfileEditSkeleton from "../skeletons/ProfileEditSkeleton";
 import {CgSpinner} from "react-icons/cg";
 //import { useNavigate } from 'react-router-dom';
 
-const FormField = ({ label, children }) => (
-    <div>
-        <label className="block text-sm font-medium text-borderGrayHover mb-2">{label}</label>
+const CharCount = ({ current, max }) => (
+    <span className={`text-xs float-right mt-1 ${current > max ? 'text-red-500' : 'text-gray-400'}`}>
+        {current}/{max}
+    </span>
+);
+
+const FormField = ({ label, children, subLabel }) => (
+    <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+            <label className="block text-sm font-medium text-borderGrayHover">{label}</label>
+            {subLabel}
+        </div>
         {children}
     </div>
 );
 
 export default function ProfileEdit() {
-     const [username, setUsername] = useState('');
+    const LIMITS = {
+        USERNAME: 25,
+        BIO_TITLE: 60,
+        PROFILE_BIO: 500,
+        LOCATION: 100,
+        MAX_WEIGHT: 500,
+        MAX_HEIGHT: 500
+    };
+    const [username, setUsername] = useState('');
     const [bioTitle, setBioTitle] = useState('');
     const [profileBio, setProfileBio] = useState('');
     const [location, setLocation] = useState('');
@@ -30,7 +47,7 @@ export default function ProfileEdit() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const { user, updateProfilePicture } = useUser();
+    const { user, updateProfilePicture, updateUser } = useUser();
 
     //const navigate = useNavigate();
 
@@ -59,6 +76,24 @@ export default function ProfileEdit() {
         fetchProfileData();
     }, []);
     
+    const handleNumberChange = (e, setter, maxLimit) => {
+        let value = e.target.value;
+        
+        // Pozwól na pusty string (żeby można było skasować wszystko)
+        if (value === '') {
+            setter('');
+            return;
+        }
+
+        const numValue = parseFloat(value);
+        // Sprawdź czy liczba, czy nie ujemna i czy nie przekracza limitu
+        if (!isNaN(numValue) && numValue >= 0 && numValue <= maxLimit) {
+            // Ograniczenie do 1 miejsca po przecinku dla wagi (opcjonalne)
+            if (value.includes('.') && value.split('.')[1].length > 1) return;
+            setter(value);
+        }
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault(); // Zapobiegaj domyślnemu przeładowaniu strony
         setIsSubmitting(true);
@@ -82,11 +117,16 @@ export default function ProfileEdit() {
 
         try {
             // 2. Wysyłamy obiekt do backendu
-            await updateUserData(updatedData);
+            const response = await updateUserData(updatedData); 
+            if (response.newAccessToken) {
+                console.log("Username changed, updating token...");
+                localStorage.setItem('accessToken', response.newAccessToken);
+            }           
+            updateUser(updatedData);
             toast.success('Profile updated successfully!');
         } catch (err) {
             const errorMessage = err.message || "An error occurred during update.";
-            setError(errorMessage);
+            //setError(errorMessage);
             toast.error(errorMessage);
         } finally {
             setIsSubmitting(false); // Odblokuj przycisk
@@ -129,14 +169,49 @@ export default function ProfileEdit() {
                     {/* --- SEKCJA 1: INFORMACJE PUBLICZNE --- */}
                     <section className="space-y-6">
                         <h2 className="text-xl font-semibold border-b border-borderGrayHover pb-2">Public Information</h2>
-                        <FormField label="Username">
-                            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                        
+                        {/* USERNAME: Max 30 znaków */}
+                        <FormField 
+                            label="Username" 
+                            subLabel={<CharCount current={username.length} max={LIMITS.USERNAME} />}
+                        >
+                            <input 
+                                type="text" 
+                                value={username} 
+                                maxLength={LIMITS.USERNAME}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white" // Dodałem podstawowe style jeśli ich brakowało w globalu
+                            />
                         </FormField>
-                        <FormField label="Bio Title">
-                            <input type="text" placeholder="e.g. Fitness Enthusiast | Lifter" value={bioTitle} onChange={(e) => setBioTitle(e.target.value)} />
+
+                        {/* BIO TITLE: Max 60 znaków */}
+                        <FormField 
+                            label="Bio Title"
+                            subLabel={<CharCount current={bioTitle.length} max={LIMITS.BIO_TITLE} />}
+                        >
+                            <input 
+                                type="text" 
+                                placeholder="e.g. Fitness Enthusiast | Lifter" 
+                                value={bioTitle} 
+                                maxLength={LIMITS.BIO_TITLE}
+                                onChange={(e) => setBioTitle(e.target.value)} 
+                                className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                            />
                         </FormField>
-                        <FormField label="Profile Bio">
-                            <textarea rows="4" placeholder="Tell everyone a little about yourself" value={profileBio} onChange={(e) => setProfileBio(e.target.value)} />
+
+                        {/* PROFILE BIO: Max 500 znaków */}
+                        <FormField 
+                            label="Profile Bio"
+                            subLabel={<CharCount current={profileBio.length} max={LIMITS.PROFILE_BIO} />}
+                        >
+                            <textarea 
+                                rows="4" 
+                                placeholder="Tell everyone a little about yourself" 
+                                value={profileBio} 
+                                maxLength={LIMITS.PROFILE_BIO}
+                                onChange={(e) => setProfileBio(e.target.value)}
+                                className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                            />
                         </FormField>
                     </section>
 
@@ -144,32 +219,82 @@ export default function ProfileEdit() {
                     <section className="mt-10 space-y-6">
                         <h2 className="text-xl font-semibold border-b border-borderGrayHover pb-2">Fitness & Personal Details</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            {/* WEIGHT: Max 500kg */}
                             <FormField label="Weight (kg)">
-                                <input type="number" step="0.1" placeholder="e.g. 85.5" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                                <input 
+                                    type="number" 
+                                    step="0.1" 
+                                    min="0"
+                                    max={LIMITS.MAX_WEIGHT}
+                                    placeholder="e.g. 85.5" 
+                                    value={weight} 
+                                    onChange={(e) => handleNumberChange(e, setWeight, LIMITS.MAX_WEIGHT)} 
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                />
                             </FormField>
+
+                            {/* HEIGHT: Max 500cm */}
                             <FormField label="Height (cm)">
-                                <input type="number" placeholder="e.g. 180" value={height} onChange={(e) => setHeight(e.target.value)} />
+                                <input 
+                                    type="number" 
+                                    min="0"
+                                    max={LIMITS.MAX_HEIGHT}
+                                    placeholder="e.g. 180" 
+                                    value={height} 
+                                    onChange={(e) => handleNumberChange(e, setHeight, LIMITS.MAX_HEIGHT)} 
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                />
                             </FormField>
+
                             <FormField label="Primary Goal">
-                                <select value={goal} onChange={(e) => setGoal(e.target.value)}>
+                                <select 
+                                    value={goal} 
+                                    onChange={(e) => setGoal(e.target.value)}
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                >
                                     <option value="">Select Goal</option>
                                     <option value="reduction">Reduction</option>
                                     <option value="bulk">Bulk</option>
                                     <option value="maintenance">Maintenance</option>
                                 </select>
                             </FormField>
-                             <FormField label="Location">
-                                <input type="text" placeholder="e.g. New York, USA" value={location} onChange={(e) => setLocation(e.target.value)}/>
+
+                            {/* LOCATION: Max 100 znaków */}
+                            <FormField 
+                                label="Location"
+                                subLabel={<CharCount current={location.length} max={LIMITS.LOCATION} />}
+                            >
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. New York, USA" 
+                                    value={location} 
+                                    maxLength={LIMITS.LOCATION}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                />
                             </FormField>
+
                             <FormField label="Gender">
-                                <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                                <select 
+                                    value={gender} 
+                                    onChange={(e) => setGender(e.target.value)}
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                >
                                     <option value="">Select Gender</option>
                                     <option value="FEMALE">Female</option>
                                     <option value="MALE">Male</option>
                                 </select>
                             </FormField>
+
                             <FormField label="Date of Birth">
-                                <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} max={new Date().toISOString().split('T')[0]} />
+                                <input 
+                                    type="date" 
+                                    value={dateOfBirth} 
+                                    onChange={(e) => setDateOfBirth(e.target.value)} 
+                                    max={new Date().toISOString().split('T')[0]} 
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                />
                             </FormField>
                         </div>
                     </section>

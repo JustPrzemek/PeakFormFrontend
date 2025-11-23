@@ -228,7 +228,7 @@ export default function NutritionDashboardPage() {
                         {/* Jeśli błąd dotyczy profilu, pokaż przycisk do uzupełnienia profilu */}
                         {error.toLowerCase().includes("profile") && (
                              <button
-                                onClick={() => navigate('/profile/edit/edit')}
+                                onClick={() => navigate('/profile/settings/edit')}
                                 className="bg-bluePrimary text-whitePrimary font-bold py-3 px-6 rounded-lg hover:bg-blueHover transition-colors duration-300"
                             >
                                 Complete Profile

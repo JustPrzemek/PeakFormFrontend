@@ -10,7 +10,7 @@ export const loginUser = async (credentials) => {
         return response.data;
     } catch (error) {
         // Rzucamy błąd dalej, żeby komponent mógł go obsłużyć
-        throw error.response.data.message || 'Invalid credentials';
+        throw error.response?.data?.message || 'Invalid credentials';
     }
 }
 

@@ -250,14 +250,19 @@ export default function TrainingPlanDetailPage() {
                             <>
                                 <div className="min-w-0 w-full lg:w-2/3">
                                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                                        <h1 className="text-3xl md:text-4xl font-bold text-whitePrimary flex items-center gap-3 break-words">
+                                        {/* ZMIANA: Dodano 'min-w-0' aby h1 nie wychodził poza kontener flex */}
+                                        <h1 className="text-3xl md:text-4xl font-bold text-whitePrimary flex items-center gap-3 min-w-0">
                                             <GrPlan className="flex-shrink-0 text-bluePrimary" />
-                                            <span>{plan.name}</span>
+                                            
+                                            {/* ZMIANA: break-words przeniesione/dodane tutaj, aby łamać długi tekst */}
+                                            <span className="break-words min-w-0">{plan.name}</span>
                                         </h1>
-                                        <span className="bg-borderGrayHover/20 text-borderGrayHover px-3 py-1 rounded-full text-xs uppercase tracking-wider font-bold">
+                                        
+                                        <span className="bg-borderGrayHover/20 text-borderGrayHover px-3 py-1 rounded-full text-xs uppercase tracking-wider font-bold flex-shrink-0">
                                             {plan.goal || 'General'}
                                         </span>
                                     </div>
+                                    
                                     <p className="text-borderGrayHover text-sm md:text-base leading-relaxed break-words">
                                         {plan.description || "No description provided."}
                                     </p>

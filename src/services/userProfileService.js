@@ -43,7 +43,8 @@ export const updateUserData = async (userData) => {
         const response = await api.patch("/userProfile/updateProfileData", userData);
         return response.data;
     } catch (error) {
-        throw error.response?.data?.message || "Failed to update user data";
+        const message = error.response?.data?.message || "Failed to update user data";    
+        throw new Error(message);
     }
 };
 

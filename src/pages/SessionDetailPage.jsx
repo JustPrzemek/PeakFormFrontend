@@ -1,5 +1,3 @@
-// src/pages/SessionDetailPage.jsx
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -7,11 +5,19 @@ import { getSpecificSessionForUser, updateTrainingSession } from '../services/tr
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 
-// Importy nowych komponentów
+// Importy Twoich komponentów (ścieżki zostawiam bez zmian)
 import SessionDetailHeader from '../components/session/SessionDetailHeader';
 import SessionNotesEditor from '../components/session/SessionNotesEditor';
 import ExerciseLogGroup from '../components/session/ExerciseLogGroup';
-import SessionDetailPageSkeleton from '../components/skeletons/SessionDetailPageSkeleton'; // <-- Dostosuj ścieżkę!
+import SessionDetailPageSkeleton from '../components/skeletons/SessionDetailPageSkeleton';
+
+// --- LIMITY ZABEZPIECZAJĄCE ---
+const LIMITS = {
+    MAX_WEIGHT: 500,
+    MAX_REPS: 1000,
+    MAX_DURATION: 1440,
+    MAX_DISTANCE: 1000
+};
 
 export default function SessionDetailPage() {
     const { sessionId } = useParams();
@@ -27,7 +33,6 @@ export default function SessionDetailPage() {
         setIsDirty(false);
         getSpecificSessionForUser(sessionId)
             .then(data => {
-                // Grupujemy logi po nazwie ćwiczenia, zachowując kolejność
                 const groupedLogs = data.excerciseLogsList.reduce((acc, log) => {
                     if (!acc[log.exerciseName]) {
                         acc[log.exerciseName] = {
@@ -54,6 +59,36 @@ export default function SessionDetailPage() {
     }, [sessionId, navigate]);
 
     const handleLogChange = (logId, field, value) => {
+        // --- WALIDACJA ---
+        if (value !== '' && value !== null) {
+            const numValue = parseFloat(value);
+            
+            // Blokada liczb ujemnych
+            if (numValue < 0) return;
+
+            // Blokada limitów z UNIKALNYM ID dla toasta
+            if (field === 'weight' && numValue > LIMITS.MAX_WEIGHT) {
+                // ID sprawia, że toast się nie duplikuje
+                toast.error(`Maksymalny ciężar to ${LIMITS.MAX_WEIGHT}kg`, { id: 'weight-limit-error' });
+                return;
+            }
+            if (field === 'reps' && numValue > LIMITS.MAX_REPS) {
+                toast.error(`Maksymalna liczba powtórzeń to ${LIMITS.MAX_REPS}`, { id: 'reps-limit-error' });
+                return;
+            }
+            if (field === 'durationMinutes' && numValue > LIMITS.MAX_DURATION) {
+                toast.error(`Maksymalny czas to ${LIMITS.MAX_DURATION}min`, { id: 'duration-limit-error' });
+                return;
+            }
+            if (field === 'distanceKm' && numValue > LIMITS.MAX_DISTANCE) {
+                toast.error(`Maksymalny dystans to ${LIMITS.MAX_DISTANCE}km`, { id: 'distance-limit-error' });
+                return;
+            }
+
+            // Opcjonalnie: ograniczenie miejsc po przecinku (np. max 2 dla wagi)
+            if ((field === 'weight' || field === 'distanceKm') && value.toString().includes('.') && value.toString().split('.')[1].length > 2) return;
+        }
+
         setIsDirty(true);
         setSession(prev => {
             const updatedLogsList = prev.excerciseLogsList.map(log =>
@@ -76,6 +111,12 @@ export default function SessionDetailPage() {
     };
 
     const handleNotesChange = (e) => {
+        // Ograniczenie długości notatki sesji
+        if (e.target.value.length > 500) {
+            toast.error("Notatka nie może być dłuższa niż 500 znaków", { id: 'notes-limit-error' });
+            return;
+        }
+        
         setIsDirty(true);
         setSession(prev => ({ ...prev, notes: e.target.value }));
     };
@@ -97,10 +138,10 @@ export default function SessionDetailPage() {
 
         try {
             await updateTrainingSession(sessionId, updateDto);
-            toast.success("Sesja została zaktualizowana!");
+            toast.success("Sesja została zaktualizowana!", { id: 'save-success' });
             setIsDirty(false);
         } catch (error) {
-            toast.error(error.toString());
+            toast.error(error.toString(), { id: 'save-error' });
         } finally {
             setSaving(false);
         }
@@ -137,7 +178,6 @@ export default function SessionDetailPage() {
                     onChange={handleNotesChange}
                 />
 
-                {/* Lista logów (edytowalna) */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Zapisane ćwiczenia</h2>
                     <div className="space-y-6">

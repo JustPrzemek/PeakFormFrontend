@@ -1,4 +1,3 @@
-// src/pages/NutritionStatsPage.jsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { addWeightLog, getWeightHistory } from '../services/nutritionService';
@@ -10,27 +9,38 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 /**
  * Komponent formularza do logowania wagi.
- * 
- * Pozwala użytkownikowi wprowadzić swoją wagę i zapisać ją w systemie.
- * Po zapisaniu wywołuje callback, który odświeża wykres historii wagi.
- * 
- * @param {object} props
- * @param {function} props.onWeightSaved - Callback wywoływany po pomyślnym zapisaniu wagi
  */
 const WeightInputForm = ({ onWeightSaved }) => {
-    // ========== STAN KOMPONENTU ==========
-    const [weight, setWeight] = useState(''); // Wartość wprowadzona przez użytkownika
-    const [isSubmitting, setIsSubmitting] = useState(false); // Czy trwa zapisywanie
+    const [weight, setWeight] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // ========== FUNKCJE OBSŁUGUJĄCE EVENTY ==========
-    /**
-     * Obsługuje wysłanie formularza.
-     * Waliduje dane i zapisuje wagę do API.
-     */
+    // --- NOWA FUNKCJA OBSŁUGUJĄCA ZMIANĘ INPUTA ---
+    const handleWeightChange = (e) => {
+        const value = e.target.value;
+
+        // 1. Walidacja znaków (Regex)
+        // Pozwala tylko na cyfry i opcjonalnie jedną kropkę. Blokuje 'e', '-', '+' itp.
+        if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
+            return;
+        }
+
+        // 2. Walidacja limitu (Max 500)
+        if (value !== '') {
+            const numValue = parseFloat(value);
+            if (numValue > 500) {
+                toast.error("Maksymalna waga to 500kg", { id: 'weight-limit' });
+                return;
+            }
+            // Opcjonalnie: blokada zbyt wielu miejsc po przecinku (np. max 1)
+            if (value.includes('.') && value.split('.')[1].length > 1) return;
+        }
+
+        setWeight(value);
+    };
+
     const handleSubmit = useCallback(async (e) => {
-        e.preventDefault(); // Zapobiega domyślnemu zachowaniu formularza
+        e.preventDefault();
         
-        // Walidacja - sprawdź, czy wartość jest prawidłową liczbą większą od 0
         const weightValue = parseFloat(weight);
         if (!weightValue || weightValue <= 0 || isNaN(weightValue)) {
             toast.error("Please enter a valid weight (greater than 0).");
@@ -39,11 +49,10 @@ const WeightInputForm = ({ onWeightSaved }) => {
 
         setIsSubmitting(true);
         try {
-            // Wyślij wagę do API
             await addWeightLog(weightValue);
             toast.success("Weight saved successfully!");
-            setWeight(''); // Wyczyść pole po zapisaniu
-            onWeightSaved(); // Wywołaj callback, żeby odświeżyć wykres
+            setWeight('');
+            onWeightSaved();
         } catch (error) {
             toast.error(error.message || 'Failed to save weight.');
         } finally {
@@ -51,7 +60,6 @@ const WeightInputForm = ({ onWeightSaved }) => {
         }
     }, [weight, onWeightSaved]);
 
-    // ========== RENDEROWANIE ==========
     return (
         <form 
             onSubmit={handleSubmit} 
@@ -59,23 +67,22 @@ const WeightInputForm = ({ onWeightSaved }) => {
         >
             <h2 className="text-2xl font-bold text-whitePrimary mb-4">Log Today's Weight</h2>
             <div className="flex flex-col sm:flex-row gap-4">
-                {/* Pole input z ikoną */}
                 <div className="relative flex-grow">
                     <FaWeight className="absolute left-4 top-4 text-borderGrayHover" size={18} />
                     <label htmlFor="weight-input" className="sr-only">Enter your weight in kg</label>
                     <input
                         id="weight-input"
-                        type="number"
+                        type="number" // Nadal number dla klawiatury numerycznej na mobilkach
                         placeholder="Enter your weight in kg"
                         value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
+                        onChange={handleWeightChange} // Tutaj podpięta nowa funkcja
                         className="p-3 bg-backgoudBlack text-whitePrimary rounded-lg w-full pl-12 focus:outline-none focus:ring-2 focus:ring-bluePrimary"
                         step="0.1"
                         min="0"
+                        max="500" // HTML walidacja
                         required
                     />
                 </div>
-                {/* Przycisk submit */}
                 <button
                     type="submit"
                     disabled={isSubmitting}
@@ -93,41 +100,21 @@ const WeightInputForm = ({ onWeightSaved }) => {
     );
 };
 
-/**
- * Komponent wykresu historii wagi.
- * 
- * Wyświetla liniowy wykres pokazujący zmiany wagi w czasie.
- * Używa biblioteki Recharts do renderowania wykresu.
- * 
- * @param {object} props
- * @param {Array} props.data - Tablica obiektów z historią wagi (z API)
- */
 const WeightHistoryChart = ({ data }) => {
-    // ========== OBLICZENIA (useMemo) ==========
-    /**
-     * Formatuje dane dla biblioteki Recharts.
-     * 
-     * Recharts wymaga danych w formacie:
-     * - Tablica obiektów z kluczami odpowiadającymi dataKey
-     * - Dane od najstarszej do najnowszej (stąd reverse())
-     */
     const formattedData = useMemo(() => {
         if (!data || data.length === 0) return [];
         
         return data
             .map(item => ({
-                // Formatujemy datę na krótką formę (np. "Jan 15")
                 date: new Date(item.date).toLocaleDateString('en-US', { 
                     month: 'short', 
                     day: 'numeric' 
                 }),
                 weight: item.weight
             }))
-            .reverse(); // API zwraca DESC, więc odwracamy dla Recharts
+            .reverse();
     }, [data]);
 
-    // ========== WARUNKOWE RENDEROWANIE ==========
-    // Jeśli brak danych, pokaż placeholder
     if (data.length === 0) {
         return (
             <div className="text-center py-20 px-6 bg-surfaceDarkGray rounded-2xl border border-dashed border-borderGrayHover">
@@ -140,34 +127,23 @@ const WeightHistoryChart = ({ data }) => {
         );
     }
 
-    // ========== RENDEROWANIE WYKRESU ==========
     return (
         <div className="bg-surfaceDarkGray rounded-2xl p-6 h-[400px]">
             <h2 className="text-2xl font-bold text-whitePrimary mb-6">Progress Chart</h2>
-            {/* ResponsiveContainer - automatycznie dostosowuje rozmiar do kontenera */}
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                     data={formattedData} 
                     margin={{ top: 5, right: 20, left: -20, bottom: 5 }}
                 >
-                    {/* Siatka pomocnicza */}
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    
-                    {/* Oś X - daty */}
                     <XAxis 
                         dataKey="date" 
-                        stroke="#9CA3AF" // Kolor osi (odpowiednik text-borderGrayHover)
+                        stroke="#9CA3AF"
                     />
-                    
-                    {/* Oś Y - waga */}
                     <YAxis 
                         stroke="#9CA3AF"
-                        // domain - zakres wartości na osi Y
-                        // 'dataMin - 2' i 'dataMax + 2' dają trochę przestrzeni na górze i dole
                         domain={['dataMin - 2', 'dataMax + 2']}
                     />
-                    
-                    {/* Tooltip - wyświetla się przy najechaniu na punkt */}
                     <Tooltip 
                         contentStyle={{ 
                             backgroundColor: 'var(--color-backgoudBlack)', 
@@ -176,15 +152,13 @@ const WeightHistoryChart = ({ data }) => {
                         itemStyle={{ color: 'var(--color-whitePrimary)' }}
                         labelStyle={{ color: 'var(--color-bluePrimary)' }}
                     />
-                    
-                    {/* Linia wykresu */}
                     <Line 
-                        type="monotone" // Typ linii - płynna krzywa
-                        dataKey="weight" // Klucz danych do wyświetlenia
-                        stroke="var(--color-bluePrimary)" // Kolor linii
-                        strokeWidth={2} // Grubość linii
-                        dot={{ r: 4 }} // Rozmiar punktów na linii
-                        activeDot={{ r: 8 }} // Rozmiar punktu przy najechaniu
+                        type="monotone" 
+                        dataKey="weight" 
+                        stroke="var(--color-bluePrimary)" 
+                        strokeWidth={2} 
+                        dot={{ r: 4 }} 
+                        activeDot={{ r: 8 }} 
                     />
                 </LineChart>
             </ResponsiveContainer>
@@ -192,23 +166,10 @@ const WeightHistoryChart = ({ data }) => {
     );
 };
 
-/**
- * Główna strona statystyk wagi.
- * 
- * Wyświetla:
- * - Formularz do logowania wagi
- * - Wykres historii wagi w czasie
- */
 export default function NutritionStatsPage() {
-    // ========== STAN KOMPONENTU ==========
-    const [history, setHistory] = useState([]); // Historia pomiarów wagi
-    const [loading, setLoading] = useState(true); // Czy trwa ładowanie danych
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // ========== FUNKCJE ==========
-    /**
-     * Pobiera historię wagi z API.
-     * useCallback - memoizuje funkcję, żeby nie była tworzona na nowo przy każdym renderze
-     */
     const fetchHistory = useCallback(async () => {
         try {
             setLoading(true);
@@ -221,28 +182,17 @@ export default function NutritionStatsPage() {
         }
     }, []);
 
-    // ========== EFEKTY UBOCZNE ==========
-    /**
-     * Pobiera historię wagi przy pierwszym załadowaniu strony.
-     * Pusta tablica dependencies [] oznacza, że uruchomi się tylko raz.
-     */
     useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
 
-    /**
-     * Callback wywoływany po zapisaniu wagi.
-     * Odświeża wykres, żeby pokazać nowy pomiar.
-     */
     const handleWeightSaved = useCallback(() => {
         fetchHistory();
     }, [fetchHistory]);
 
-    // ========== RENDEROWANIE ==========
     return (
         <div className="bg-backgoudBlack min-h-screen flex flex-col">
             <main className="container mx-auto p-4 sm:p-8 flex-grow">
-                {/* Przycisk powrotu */}
                 <Link 
                     to="/nutrition" 
                     className="inline-block mb-8 text-bluePrimary"
@@ -253,10 +203,8 @@ export default function NutritionStatsPage() {
 
                 <h1 className="text-4xl font-bold text-whitePrimary mb-10">Weight Statistics</h1>
 
-                {/* Formularz logowania wagi */}
                 <WeightInputForm onWeightSaved={handleWeightSaved} />
 
-                {/* Warunkowe renderowanie - pokaż spinner podczas ładowania, w przeciwnym razie wykres */}
                 {loading ? (
                     <div className="flex justify-center items-center h-[400px]">
                         <CgSpinner className="animate-spin text-bluePrimary" size={60} />

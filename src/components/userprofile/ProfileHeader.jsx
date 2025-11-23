@@ -23,10 +23,10 @@ export default function ProfileHeader({ profile, isOwnProfile, onFollowToggle, o
             </div>
 
             {/* Informacje */}
-            <div className="w-full text-center md:text-left">
+            <div className="w-full min-w-0 text-center md:text-left">
                 {/* Nazwa i przyciski */}
                 <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-                    <h1 className="text-3xl font-bold">{profile.username}</h1>
+                    <h1 className="text-3xl font-bold break-words">{profile.username}</h1>
                     {isOwnProfile ? (
                         <Link to='/settings/edit'>
                             <button className="bg-borderGrayHover/50 font-semibold py-2 px-4 rounded-lg text-sm hover:bg-borderGrayHover transition-colors">
@@ -65,7 +65,7 @@ export default function ProfileHeader({ profile, isOwnProfile, onFollowToggle, o
                 </div>
 
                 {/* Bio */}
-                <div className="max-w-prose">
+                <div className="max-w-prose w-full break-words">
                     <h3 className="font-bold">{profile.bioTitle}</h3>
                     <p className="text-sm text-borderGrayHover whitespace-pre-line">{profile.profileBio}</p>
                 </div>

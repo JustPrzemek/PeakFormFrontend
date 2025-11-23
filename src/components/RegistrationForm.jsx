@@ -22,7 +22,11 @@ function RegistrationForm({ onSwitchToLogin }) {
         if (!formData.email) newErrors.email = "Email is required.";
         else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email address is invalid.";
 
-        if (!formData.username) newErrors.username = "Username is required.";
+        if (!formData.username) {
+            newErrors.username = "Username is required.";
+        } else if (formData.username.length > 25) {
+            newErrors.username = "Username cannot exceed 25 characters.";
+        }
 
         if (!formData.password) newErrors.password = "Password is required.";
         else if (formData.password.length < 12) newErrors.password = "Password must be at least 12 characters long.";

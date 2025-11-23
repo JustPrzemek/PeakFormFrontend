@@ -5,6 +5,15 @@ import toast from 'react-hot-toast';
 import { CgSpinner } from "react-icons/cg";
 import { FaChevronDown } from 'react-icons/fa';
 
+const LIMITS = {
+    MAX_SETS: 100,
+    MAX_REPS: 1000,
+    MAX_REST_TIME: 3600, // 1 godzina w sekundach
+    MAX_DURATION: 1440,  // 24 godziny w minutach
+    MAX_DISTANCE: 1000,  // km
+    MAX_DAY_NAME: 20     // długość nazwy dnia
+};
+
 /**
  * Tworzy początkowy stan formularza w zależności od typu ćwiczenia.
  * 
@@ -154,7 +163,24 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
      * Obsługuje zmianę wartości w głównym formularzu (dodawanie ćwiczenia).
      */
     const handleFormChange = useCallback((e) => {
-        const { name, value } = e.target;
+        const { name, value, type, max } = e.target;
+        
+        if (type === 'number') {
+            const numValue = parseFloat(value);
+            // Pozwól na pusty string (kasowanie)
+            if (value === '') {
+                 setFormData(prev => ({ ...prev, [name]: value }));
+                 return;
+            }
+            // Sprawdź limity jeśli zdefiniowano max w html
+            if (max && numValue > parseFloat(max)) {
+                return; // Nie aktualizuj stanu jeśli przekracza max
+            }
+            if (numValue < 0) {
+                return; // Nie aktualizuj jeśli ujemne
+            }
+        }
+        
         setFormData(prev => ({ ...prev, [name]: value }));
     }, []);
 
@@ -212,32 +238,44 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         
-        // Walidacja
+        // --- WALIDACJA FORMULARZA ---
         if (!formData.planId) {
             toast.error("Please choose a training plan.");
             return;
         }
         if (!formData.dayIdentifier.trim()) {
-            toast.error("Please specify a training day (e.g. 'Push', 'Legs', 'A').");
+            toast.error("Please specify a training day.");
             return;
+        }
+        if (formData.dayIdentifier.length > LIMITS.MAX_DAY_NAME) {
+            toast.error(`Day name too long (max ${LIMITS.MAX_DAY_NAME} chars).`);
+            return;
+        }
+
+        // Walidacja szczegółowa parametrów
+        if (exercise.type === 'STRENGTH') {
+            if (formData.sets > LIMITS.MAX_SETS) return toast.error(`Max sets: ${LIMITS.MAX_SETS}`);
+            if (formData.reps > LIMITS.MAX_REPS) return toast.error(`Max reps: ${LIMITS.MAX_REPS}`);
+            if (formData.restTime > LIMITS.MAX_REST_TIME) return toast.error(`Max rest time: ${LIMITS.MAX_REST_TIME}s`);
+        } else if (exercise.type === 'CARDIO') {
+            if (formData.durationMinutes > LIMITS.MAX_DURATION) return toast.error(`Max duration: ${LIMITS.MAX_DURATION} min`);
+            if (formData.distanceKm > LIMITS.MAX_DISTANCE) return toast.error(`Max distance: ${LIMITS.MAX_DISTANCE} km`);
         }
 
         setIsSubmitting(true);
         
-        // Przygotuj DTO do wysłania
         const requestDto = {
             exerciseId: exercise.id,
             dayIdentifier: formData.dayIdentifier.trim(),
         };
         
-        // Dodaj parametry specyficzne dla typu ćwiczenia
         if (exercise.type === 'STRENGTH') {
             requestDto.sets = parseInt(formData.sets, 10);
             requestDto.reps = parseInt(formData.reps, 10);
             requestDto.restTime = parseInt(formData.restTime, 10);
         } else if (exercise.type === 'CARDIO') {
             requestDto.durationMinutes = parseInt(formData.durationMinutes, 10);
-            if (formData.distanceKm) { // Dystans może być opcjonalny
+            if (formData.distanceKm) {
                 requestDto.distanceKm = parseFloat(formData.distanceKm);
             }
         }
@@ -245,7 +283,7 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
         try {
             await addExerciseToPlan(formData.planId, requestDto);
             const selectedPlan = userPlans.find(p => p.id === formData.planId);
-            toast.success(`"${exercise.name}" has been added to plan "${selectedPlan?.name || 'plan'}"!`);
+            toast.success(`"${exercise.name}" added to plan "${selectedPlan?.name || 'plan'}"!`);
             onClose();
         } catch (error) {
             toast.error(error.message || error.toString());
@@ -276,13 +314,12 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                 <h2 className="text-2xl font-bold mb-4 text-whitePrimary">
                     Add "<span className="text-bluePrimary">{exercise?.name || 'exercise'}</span>" to plan
                 </h2>
-                {/* Spinner podczas ładowania planów */}
                 {isLoading ? (
                     <div className="flex justify-center items-center h-40">
+                        {/* ZMIANA: Loader2 -> CgSpinner */}
                         <CgSpinner className="animate-spin text-bluePrimary" size={40} />
                     </div>
                 ) : showCreatePlan ? (
-                    /* Widok tworzenia nowego planu */
                     <div>
                         <p className="text-borderGrayHover mb-4">
                             You don't have a plan yet. Create one first to continue.
@@ -300,21 +337,15 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                                     onChange={handleNewPlanChange} 
                                     className={inputStyles} 
                                     required 
+                                    maxLength={50}
                                 />
                             </div>
                             <div className="mt-6 flex justify-end gap-3">
-                                <button 
-                                    type="button" 
-                                    onClick={onClose} 
-                                    className={secondaryButtonStyles}
-                                >
+                                <button type="button" onClick={onClose} className={secondaryButtonStyles}>
                                     Cancel
                                 </button>
-                                <button 
-                                    type="submit" 
-                                    disabled={isSubmitting} 
-                                    className={primaryButtonStyles}
-                                >
+                                <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>
+                                    {/* ZMIANA: Loader2 -> CgSpinner */}
                                     {isSubmitting && <CgSpinner className="animate-spin" size={18} />}
                                     {isSubmitting ? 'Creating...' : 'Create and continue'}
                                 </button>
@@ -322,9 +353,7 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                         </form>
                     </div>
                 ) : (
-                    /* Widok dodawania ćwiczenia do planu */
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Wybór planu */}
                         <div>
                             <label htmlFor="planId" className="block text-sm font-medium text-borderGrayHover mb-2">
                                 Choose a plan
@@ -338,17 +367,13 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                                     className={inputStyles}
                                 >
                                     {userPlans.map(plan => (
-                                        <option 
-                                            className="bg-surfaceDarkGray text-whitePrimary" 
-                                            key={plan.id} 
-                                            value={plan.id}
-                                        >
+                                        <option className="bg-surfaceDarkGray text-whitePrimary" key={plan.id} value={plan.id}>
                                             {plan.name}
                                         </option>
                                     ))}
                                 </select>
-                                {/* Ikona strzałki w dół */}
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    {/* ZMIANA: ChevronDown -> FaChevronDown */}
                                     <FaChevronDown className="text-borderGrayHover" size={14} />
                                 </div>
                             </div>
@@ -361,7 +386,6 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                             </button>
                         </div>
                         
-                        {/* Pole identyfikatora dnia treningowego */}
                         <div>
                             <label htmlFor="dayIdentifier" className="block text-sm font-medium text-borderGrayHover mb-2">
                                 Training Day (e.g. Push, Legs, A)
@@ -374,10 +398,13 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                                 onChange={handleFormChange} 
                                 className={inputStyles} 
                                 required 
+                                maxLength={LIMITS.MAX_DAY_NAME}
                                 list="day-suggestions"
                                 autoComplete="off"
                             />
-                            {/* Autouzupełnianie z istniejących dni */}
+                            <div className="text-xs text-borderGrayHover mt-1 text-right">
+                                {formData.dayIdentifier.length}/{LIMITS.MAX_DAY_NAME}
+                            </div>
                             <datalist id="day-suggestions">
                                 {allDayIdentifiers.map(day => (
                                     <option key={day} value={day} />
@@ -385,104 +412,55 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                             </datalist>
                         </div>
                         
-                        {/* Pola dla ćwiczeń siłowych */}
                         {exercise?.type === 'STRENGTH' && (
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label htmlFor="sets" className="block text-sm font-medium text-borderGrayHover mb-2">
-                                        Sets
-                                    </label>
+                                    <label htmlFor="sets" className="block text-sm font-medium text-borderGrayHover mb-2">Sets</label>
                                     <input 
-                                        type="number" 
-                                        id="sets" 
-                                        name="sets" 
-                                        min="1" 
-                                        value={formData.sets} 
-                                        onChange={handleFormChange} 
-                                        className={inputStyles} 
+                                        type="number" id="sets" name="sets" min="1" max={LIMITS.MAX_SETS}
+                                        value={formData.sets} onChange={handleFormChange} className={inputStyles} 
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="reps" className="block text-sm font-medium text-borderGrayHover mb-2">
-                                        Reps
-                                    </label>
+                                    <label htmlFor="reps" className="block text-sm font-medium text-borderGrayHover mb-2">Reps</label>
                                     <input 
-                                        type="number" 
-                                        id="reps" 
-                                        name="reps" 
-                                        min="1" 
-                                        value={formData.reps} 
-                                        onChange={handleFormChange} 
-                                        className={inputStyles} 
+                                        type="number" id="reps" name="reps" min="1" max={LIMITS.MAX_REPS}
+                                        value={formData.reps} onChange={handleFormChange} className={inputStyles} 
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="restTime" className="block text-sm font-medium text-borderGrayHover mb-2">
-                                        Rest (s)
-                                    </label>
+                                    <label htmlFor="restTime" className="block text-sm font-medium text-borderGrayHover mb-2">Rest (s)</label>
                                     <input 
-                                        type="number" 
-                                        id="restTime" 
-                                        name="restTime" 
-                                        min="0" 
-                                        step="5" 
-                                        value={formData.restTime} 
-                                        onChange={handleFormChange} 
-                                        className={inputStyles} 
+                                        type="number" id="restTime" name="restTime" min="0" max={LIMITS.MAX_REST_TIME} step="1"
+                                        value={formData.restTime} onChange={handleFormChange} className={inputStyles} 
                                     />
                                 </div>
                             </div>
                         )}
 
-                        {/* Pola dla ćwiczeń cardio */}
                         {exercise?.type === 'CARDIO' && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="durationMinutes" className="block text-sm font-medium text-borderGrayHover mb-2">
-                                        Duration (min)
-                                    </label>
+                                    <label htmlFor="durationMinutes" className="block text-sm font-medium text-borderGrayHover mb-2">Duration (min)</label>
                                     <input 
-                                        type="number" 
-                                        id="durationMinutes" 
-                                        name="durationMinutes" 
-                                        min="1" 
-                                        value={formData.durationMinutes} 
-                                        onChange={handleFormChange} 
-                                        className={inputStyles} 
+                                        type="number" id="durationMinutes" name="durationMinutes" min="1" max={LIMITS.MAX_DURATION}
+                                        value={formData.durationMinutes} onChange={handleFormChange} className={inputStyles} 
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="distanceKm" className="block text-sm font-medium text-borderGrayHover mb-2">
-                                        Distance (km)
-                                    </label>
+                                    <label htmlFor="distanceKm" className="block text-sm font-medium text-borderGrayHover mb-2">Distance (km)</label>
                                     <input 
-                                        type="number" 
-                                        id="distanceKm" 
-                                        name="distanceKm" 
-                                        min="0" 
-                                        step="0.1" 
-                                        value={formData.distanceKm} 
-                                        onChange={handleFormChange} 
-                                        className={inputStyles} 
+                                        type="number" id="distanceKm" name="distanceKm" min="0" max={LIMITS.MAX_DISTANCE} step="0.1"
+                                        value={formData.distanceKm} onChange={handleFormChange} className={inputStyles} 
                                     />
                                 </div>
                             </div>
                         )}
                         
-                        {/* Przyciski akcji */}
                         <div className="pt-4 flex justify-end gap-3">
-                            <button 
-                                type="button" 
-                                onClick={onClose} 
-                                className={secondaryButtonStyles}
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                type="submit" 
-                                disabled={isSubmitting} 
-                                className={primaryButtonStyles}
-                            >
+                            <button type="button" onClick={onClose} className={secondaryButtonStyles}>Cancel</button>
+                            <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>
+                                {/* ZMIANA: Loader2 -> CgSpinner */}
                                 {isSubmitting && <CgSpinner className="animate-spin" size={18} />}
                                 {isSubmitting ? 'Adding...' : 'Add exercise'}
                             </button>

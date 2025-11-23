@@ -1,54 +1,86 @@
-import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL;
+import axios from 'axios';
+
+const API_URL = 'http://localhost:8080/api'; // lub Twoje URL
 
 const api = axios.create({
-    baseURL: `${API_URL}/api`,
-    withCredentials: true,
+    baseURL: API_URL,
+    withCredentials: true, // Ważne dla ciasteczek refresh token
 });
 
-// Dodanie access tokena do nagłówków
+// 1. Request Interceptor - Dodawanie tokena do każdego zapytania
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
+        const token = localStorage.getItem('accessToken');
+        if (token && !config.url.includes('/auth/refresh')) {
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-// Obsługa błędu 401 i refresh tokena
+// Zmienne do obsługi kolejkowania refreshu (Race Condition Fix)
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
+// 2. Response Interceptor - Obsługa 401 i Refresh Token
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Jeśli dostaliśmy 401 i nie jest to zapytanie o logowanie ani sam refresh
+        if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/login')) {
+            
+            if (isRefreshing) {
+                // Jeśli odświeżanie już trwa, dodaj zapytanie do kolejki
+                return new Promise(function(resolve, reject) {
+                    failedQueue.push({resolve, reject});
+                }).then(token => {
+                    originalRequest.headers['Authorization'] = 'Bearer ' + token;
+                    return api(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
-                const res = await axios.post(
-                    `${API_URL}/api/auth/refresh`, 
-                    {}, // Puste body (lub cokolwiek wymaga Twój backend, ale tokena tu nie dajemy)
-                    { withCredentials: true } 
-                );
+                // Wywołanie endpointu refresh (ciasteczko idzie automatycznie dzięki withCredentials: true)
+                const response = await api.post('/auth/refresh');
+                const { accessToken } = response.data;
 
-                if (res.data.accessToken) {
-                    localStorage.setItem("accessToken", res.data.accessToken);
-                    
-                    // 3. ZMIANA: Nie zapisujemy refreshToken w localStorage!
-                    // Backend sam zaktualizował ciasteczko w tle (Set-Cookie).
-                    
-                    originalRequest.headers["Authorization"] = `Bearer ${res.data.accessToken}`;
-                    return api(originalRequest);
-                }
-            } catch (refreshError) {
-                // W razie błędu czyścimy tylko access token
-                localStorage.removeItem("accessToken");
-                // localStorage.removeItem("refreshToken"); // To już nie istnieje
-                window.location.href = "/login";
-                return Promise.reject(refreshError);
+                localStorage.setItem('accessToken', accessToken);
+                
+                // Ustawienie nowego tokena w nagłówkach axios
+                api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+                originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+
+                // Przetworzenie kolejki oczekujących zapytań
+                processQueue(null, accessToken);
+                
+                return api(originalRequest);
+            } catch (err) {
+                processQueue(err, null);
+                // Jeśli refresh się nie udał, wyloguj użytkownika
+                localStorage.removeItem('accessToken');
+                window.location.href = '/login'; 
+                return Promise.reject(err);
+            } finally {
+                isRefreshing = false;
             }
         }
 

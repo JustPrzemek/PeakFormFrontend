@@ -286,6 +286,7 @@ export default function PostModal({ postId, onClose }) {
                                         value={newCommentText}
                                         disabled={isSubmitting}
                                         onKeyDown={handleKeyDown}
+                                        maxLength="500"
                                     />
                                     <button 
                                         className="text-bluePrimary font-bold text-sm disabled:text-blue-900"
