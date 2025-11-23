@@ -6,6 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import IconInput from './IconInput';
 import IconButton from './IconButton';
 import { loginUser } from '../services/authService';
+import { CgSpinner } from "react-icons/cg";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +15,7 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
     const [errors, setErrors] = useState({});
     const [apiError, setApiError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const validate = () => {
@@ -33,12 +35,14 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLoading) return;
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
         setApiError('');
+        setIsLoading(true);
         try {
             await loginUser(credentials);
             navigate('/home'); // Redirect on success
@@ -62,6 +66,7 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
                     value={credentials.username} 
                     onChange={handleChange}
                     error={errors.username}
+                    disabled={isLoading}
                 >
                     <FaUser />
                 </IconInput>
@@ -75,6 +80,7 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
                     error={errors.password}
                     isPassword={true}
                     onToggleVisibility={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
                 >
                     <RiLockPasswordLine />
                 </IconInput>
@@ -85,8 +91,23 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
                     </button>
                 </div>
 
-                <button type="submit" className="bg-bluePrimary w-full py-3 rounded-lg mt-5 text-white text-lg font-bold cursor-pointer hover:bg-blueHover active:scale-95 transition-all">
-                    Login
+                <button 
+                    type="submit" 
+                    disabled={isLoading} // To blokuje klikanie
+                    className={`w-full py-3 rounded-lg mt-5 text-white text-lg font-bold transition-all flex justify-center items-center
+                        ${isLoading 
+                            ? 'bg-bluePrimary/70 cursor-not-allowed' // Styl dla ładowania
+                            : 'bg-bluePrimary cursor-pointer hover:bg-blueHover active:scale-95' // Styl normalny
+                        }`}
+                >
+                    {isLoading ? (
+                        <>
+                            <CgSpinner className="animate-spin mr-2 text-2xl" />
+                            Logging in...
+                        </>
+                    ) : (
+                        "Login"
+                    )}
                 </button>
             </form>
 
