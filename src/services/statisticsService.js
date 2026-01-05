@@ -20,7 +20,7 @@ export const getKpiSummary = async (startDate, endDate) => {
         const response = await api.get('/statistics/kpi', getAuthoredParams(startDate, endDate));
         return response.data; // KpiSummaryDTO
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać podsumowania KPI.";
+        throw error.response?.data?.message || "Failed to fetch KPI summary.";
     }
 };
 
@@ -32,7 +32,7 @@ export const getWorkoutFrequency = async (startDate, endDate) => {
         const response = await api.get('/statistics/frequency', getAuthoredParams(startDate, endDate));
         return response.data; // List<TimeSeriesDataPoint<Long>>
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać częstotliwości treningów.";
+        throw error.response?.data?.message || "Failed to fetch workout frequency.";
     }
 };
 
@@ -44,7 +44,7 @@ export const getTotalVolume = async (startDate, endDate) => {
         const response = await api.get('/statistics/volume', getAuthoredParams(startDate, endDate));
         return response.data; // List<TimeSeriesDataPoint<Double>>
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać danych objętości.";
+        throw error.response?.data?.message || "Failed to fetch volume data.";
     }
 };
 
@@ -56,7 +56,7 @@ export const getCardioDistance = async (startDate, endDate) => {
         const response = await api.get('/statistics/cardio-distance', getAuthoredParams(startDate, endDate));
         return response.data; // List<TimeSeriesDataPoint<Double>>
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać danych cardio.";
+        throw error.response?.data?.message || "Failed to fetch cardio data.";
     }
 };
 
@@ -68,7 +68,7 @@ export const getMuscleGroupDistribution = async (startDate, endDate) => {
         const response = await api.get('/statistics/muscle-distribution', getAuthoredParams(startDate, endDate));
         return response.data; // List<LabelDataPoint<Long>>
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać rozkładu grup mięśniowych.";
+        throw error.response?.data?.message || "Failed to fetch muscle group distribution.";
     }
 };
 
@@ -80,6 +80,6 @@ export const getExerciseProgression = async (exerciseId, startDate, endDate) => 
         const response = await api.get(`/statistics/progression/${exerciseId}`, getAuthoredParams(startDate, endDate));
         return response.data; // List<TimeSeriesDataPoint<Double>>
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się pobrać progresji ćwiczenia.";
+        throw error.response?.data?.message || "Failed to fetch exercise progression.";
     }
 };

@@ -42,7 +42,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
             setNewCommentText('');
         } catch (error) {
             console.error("Błąd podczas dodawania komentarza:", error);
-            alert("Nie udało się dodać komentarza. Spróbuj ponownie.");
+            alert("Failed to add comment. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -60,7 +60,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
             }
         } catch (error) {
             console.error("Błąd podczas zmiany polubienia:", error);
-            alert("Nie udało się zaktualizować polubienia.");
+            alert("Failed to update like.");
         }
     };
 
@@ -107,7 +107,7 @@ export default function Post({post, onCommentAdded, onLikeUpdated, onOpenModal})
                         className="w-full h-auto max-h-[80vh] mx-auto"
                     >
                         <source src={post.mediaUrl} type="video/mp4" />
-                        Twoja przeglądarka nie obsługuje tagu video.
+                        Your browser does not support the video tag.
                     </video>
                 );
             default:

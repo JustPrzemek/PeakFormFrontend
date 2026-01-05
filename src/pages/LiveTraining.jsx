@@ -42,7 +42,7 @@ const RestTimer = ({ duration, onFinish, exerciseName }) => {
         <div className="text-center my-8 p-8 bg-backgoudBlack rounded-2xl animate-fade-in">
             <p className="text-borderGrayHover text-lg">
                 {/* Zmienia tekst, gdy przerwa się skończy */}
-                {isRestFinished ? "Koniec przerwy!" : "Przerwa przed kolejną serią:"}
+                {isRestFinished ? "Rest finished!" : "Rest before next set:"}
             </p>
             <h3 className="text-3xl font-bold text-whitePrimary mb-6">{exerciseName}</h3>
 
@@ -61,7 +61,7 @@ const RestTimer = ({ duration, onFinish, exerciseName }) => {
                 </button>
             ) : (
                 <button onClick={onFinish} className="w-full bg-surfaceDarkGray text-borderGrayHover px-6 py-3 rounded-lg hover:bg-borderGrayHover hover:text-white transition">
-                    Pomiń przerwę
+                    Skip Rest
                 </button>
             )}
         </div>
@@ -98,10 +98,10 @@ export default function LiveTraining() {
                 if (sessionData.completedLogs && sessionData.completedLogs.length > 0) {
                     // Jeśli tak, odpalamy logikę, która odtworzy stan
                     restoreTrainingState(sessionData.exercises, sessionData.completedLogs);
-                    toast.success("Wznowiono przerwany trening!");
+                    toast.success("Resumed interrupted workout!");
                 }
             } catch (error) {
-                toast.error("Błąd podczas wznawiania sesji: " + error);
+                toast.error("Error resuming session: " + error);
                 navigate('/training/start');
             } finally {
                 // Niezależnie od wyniku, kończymy ładowanie
@@ -214,7 +214,7 @@ export default function LiveTraining() {
             const repsInt = parseInt(strengthInputs.reps);
 
             if (isNaN(weightFloat) || isNaN(repsInt) || weightFloat < 0 || repsInt <= 0) {
-                return toast.error("Wprowadź poprawne dane dla wagi i powtórzeń.");
+                return toast.error("Please enter valid weight and reps.");
             }
             logData = {
                 exerciseId: currentExercise.exerciseId,
@@ -227,7 +227,7 @@ export default function LiveTraining() {
             const distanceFloat = parseFloat(cardioInputs.distanceKm);
 
             if (isNaN(durationInt) || durationInt <= 0) {
-                return toast.error("Wprowadź poprawny czas trwania.");
+                return toast.error("Please enter valid duration.");
             }
             logData = {
                 exerciseId: currentExercise.exerciseId,
@@ -259,7 +259,7 @@ export default function LiveTraining() {
                 setIsResting(true);
             }
         } catch (error) {
-            toast.error("Nie udało się zapisać serii.");
+            toast.error("Failed to save set.");
             console.error(error);
         }
     };
@@ -307,7 +307,7 @@ export default function LiveTraining() {
             loadStateForExercise(nextIndex);
         } else {
             // Nie ma więcej dostępnych ćwiczeń
-            toast("Wszystkie ćwiczenia ukończone!", { icon: "🎉" });
+            toast("All exercises completed!", { icon: "🎉" });
             handleFinishTraining();
         }
     };
@@ -315,10 +315,10 @@ export default function LiveTraining() {
     const handleFinishTraining = async () => {
         try {
             await finishTrainingSession(session.sessionId);
-            toast.success("Trening zakończony! Dobra robota!", { duration: 4000 });
+            toast.success("Workout finished! Good job!", { duration: 4000 });
             navigate('/training/history');
         } catch (error) {
-            toast.error("Błąd podczas kończenia treningu.");
+            toast.error("Error finishing workout.");
             console.log(error);
         }
     };
@@ -351,10 +351,10 @@ export default function LiveTraining() {
         if (session) {
             try {
                 await deleteTrainingSession(session.sessionId);
-                toast.success("Trening został porzucony.");
+                toast.success("Workout abandoned.");
                 navigate('/training/start'); 
             } catch (error) {
-                toast.error("Nie udało się porzucić treningu: " + error.toString());
+                toast.error("Failed to abandon workout: " + error.toString());
             } finally {
                 setAbandonModalOpen(false); // Zamknij modal po wszystkim
             }
@@ -365,7 +365,7 @@ export default function LiveTraining() {
         return (
             <div className="min-h-screen bg-backgoudBlack flex flex-col items-center justify-center text-whitePrimary">
                 <CgSpinner className="animate-spin text-bluePrimary text-5xl mb-4" />
-                <p>Przygotowywanie sesji treningowej...</p>
+                <p>Preparing workout session...</p>
             </div>
         );
     }
@@ -523,8 +523,8 @@ export default function LiveTraining() {
                 isOpen={isAbandonModalOpen}
                 onClose={() => setAbandonModalOpen(false)}
                 onConfirm={handleConfirmAbandon}
-                title="Porzucić trening?"
-                message="Wszystkie zapisane postępy w tej sesji zostaną trwale usunięte. Czy na pewno chcesz kontynuować?"
+                title="Abandon workout?"
+                message="All progress in this session will be permanently deleted. Are you sure you want to continue?"
             />
             <ExerciseListModal
                 isOpen={isExerciseListModalOpen}
@@ -568,7 +568,7 @@ const ExerciseListModal = ({
             >
                 {/* Nagłówek Modala */}
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-whitePrimary">Wybierz ćwiczenie</h2>
+                    <h2 className="text-2xl font-bold text-whitePrimary">Select Exercise</h2>
                     <button onClick={onClose} className="text-borderGrayHover hover:text-whitePrimary">
                         <FaTimes size={20} />
                     </button>
@@ -606,7 +606,7 @@ const ExerciseListModal = ({
                                     </p>
                                 </div>
                                 {isCurrent && !isCompleted && (
-                                    <span className="text-xs font-bold text-bluePrimary">BIEŻĄCE</span>
+                                    <span className="text-xs font-bold text-bluePrimary">CURRENT</span>
                                 )}
                             </button>
                         );

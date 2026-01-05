@@ -14,7 +14,7 @@ function EmailConfirmedPage() {
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) {
-      setApiError('Brak tokenu w linku. Sprawdź, czy link jest poprawny.');
+      setApiError('Missing token in link. Please check if the link is correct.');
       setLoading(false);
       return;
     }
@@ -30,7 +30,7 @@ function EmailConfirmedPage() {
       })
       .catch((err) => {
         // Zakładam, że err to obiekt błędu. Jeśli to string, użyj po prostu `err`.
-        const errorMessage = err.message || 'Wystąpił błąd. Token może być nieprawidłowy lub wygasł.';
+        const errorMessage = err.message || 'An error occurred. The token may be invalid or expired.';
         setApiError(errorMessage);
       })
       .finally(() => {
@@ -42,43 +42,43 @@ function EmailConfirmedPage() {
     <div className="flex justify-center items-center w-full min-h-screen bg-backgoudBlack p-4">
       <div className="w-full max-w-md bg-surfaceDarkGray p-8 rounded-2xl shadow-lg text-center border border-borderGrayHover">
         <h1 className="text-3xl font-bold text-whitePrimary mb-8">
-          Weryfikacja adresu e-mail
+          Email Verification
         </h1>
 
-        {/* --- Stan Ładowania --- */}
+        {/* --- Loading State --- */}
         {loading && (
           <div className="flex flex-col items-center justify-center text-borderGrayHover">
             <CgSpinner className="animate-spin text-5xl text-bluePrimary mb-4" />
-            <p className="text-lg">Trwa weryfikacja...</p>
+            <p className="text-lg">Verifying...</p>
           </div>
         )}
 
-        {/* --- Stan Błędu --- */}
+        {/* --- Error State --- */}
         {apiError && !loading && (
           <div className="text-red-400">
             <FaTimesCircle className="mx-auto text-6xl mb-6" />
-            <h2 className="text-2xl font-bold text-whitePrimary mb-4">Błąd weryfikacji</h2>
+            <h2 className="text-2xl font-bold text-whitePrimary mb-4">Verification Error</h2>
             <p className="text-borderGrayHover mb-6">{apiError}</p>
             <button
               onClick={() => navigate('/login')}
               className="bg-bluePrimary text-whitePrimary font-bold py-3 px-6 rounded-lg hover:bg-blueHover transition-colors duration-300"
             >
-              Wróć do logowania
+              Back to Login
             </button>
           </div>
         )}
 
-        {/* --- Stan Sukcesu --- */}
+        {/* --- Success State --- */}
         {confirmed && !loading && (
           <div className="text-green-400">
             <FaCheckCircle className="mx-auto text-6xl mb-6" />
-            <h2 className="text-2xl font-bold text-whitePrimary mb-4">Potwierdzono! 🎉</h2>
-            <p className="text-borderGrayHover mb-6">Twój adres e-mail został pomyślnie zweryfikowany.</p>
+            <h2 className="text-2xl font-bold text-whitePrimary mb-4">Confirmed! 🎉</h2>
+            <p className="text-borderGrayHover mb-6">Your email address has been successfully verified.</p>
             <button
               onClick={() => navigate('/login')}
               className="bg-bluePrimary text-whitePrimary font-bold py-3 px-6 rounded-lg hover:bg-blueHover transition-colors duration-300"
             >
-              Przejdź do PeakForm
+              Go to PeakForm
             </button>
           </div>
         )}

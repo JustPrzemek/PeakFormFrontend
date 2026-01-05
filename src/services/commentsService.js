@@ -6,6 +6,6 @@ export const addComment = async (commentData) => {
         const response = await api.post("/comments/addCommentForPost", commentData); 
         return response.data;
     } catch (error) {
-        throw error.response?.data?.message || "Nie udało się dodać komentarza";
+        throw error.response?.data?.message || "Failed to add comment";
     }
 };

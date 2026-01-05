@@ -81,15 +81,15 @@ function ResetPasswordPage() {
     const newErrors = {};
     const { newPassword, confirmPassword } = passwords;
 
-    if (!newPassword) newErrors.newPassword = "Nowe hasło jest wymagane.";
-    else if (newPassword.length < 12) newErrors.newPassword = "Hasło musi mieć co najmniej 12 znaków.";
-    else if (!/(?=.*[a-z])/.test(newPassword)) newErrors.newPassword = "Hasło musi zawierać małą literę.";
-    else if (!/(?=.*[A-Z])/.test(newPassword)) newErrors.newPassword = "Hasło musi zawierać wielką literę.";
-    else if (!/(?=.*\d)/.test(newPassword)) newErrors.newPassword = "Hasło musi zawierać cyfrę.";
-    else if (!/(?=.*[@$!%*?&])/.test(newPassword)) newErrors.newPassword = "Hasło musi zawierać znak specjalny (@$!%*?&).";
+    if (!newPassword) newErrors.newPassword = "New password is required.";
+    else if (newPassword.length < 12) newErrors.newPassword = "Password must be at least 12 characters long.";
+    else if (!/(?=.*[a-z])/.test(newPassword)) newErrors.newPassword = "Password must contain a lowercase letter.";
+    else if (!/(?=.*[A-Z])/.test(newPassword)) newErrors.newPassword = "Password must contain an uppercase letter.";
+    else if (!/(?=.*\d)/.test(newPassword)) newErrors.newPassword = "Password must contain a digit.";
+    else if (!/(?=.*[@$!%*?&])/.test(newPassword)) newErrors.newPassword = "Password must contain a special character (@$!%*?&).";
 
-    if (!confirmPassword) newErrors.confirmPassword = "Proszę potwierdzić nowe hasło.";
-    else if (newPassword !== confirmPassword) newErrors.confirmPassword = "Hasła nie są zgodne.";
+    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your new password.";
+    else if (newPassword !== confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
 
     return newErrors;
   };
@@ -110,7 +110,7 @@ function ResetPasswordPage() {
       return;
     }
     if (!token) {
-      setApiError("Nieprawidłowy lub brakujący token.");
+      setApiError("Invalid or missing token.");
       return;
     }
 
@@ -121,9 +121,9 @@ function ResetPasswordPage() {
 
     try {
       await resetPassword(token, passwords.newPassword);
-      setMessage('Twoje hasło zostało zresetowane! Teraz możesz się zalogować.');
+      setMessage('Your password has been reset! You can now log in.');
     } catch (err) {
-      setApiError(err.message || 'Nie udało się zresetować hasła. Link mógł wygasnąć.');
+      setApiError(err.message || 'Failed to reset password. The link may have expired.');
     } finally {
       setIsSubmitting(false);
     }
@@ -133,13 +133,13 @@ function ResetPasswordPage() {
     <div className="flex justify-center items-center w-full min-h-screen bg-backgoudBlack p-4">
       <div className="w-full max-w-md bg-surfaceDarkGray p-8 rounded-2xl shadow-lg border border-borderGrayHover">
         <h1 className="text-3xl font-bold text-center text-whitePrimary mb-8">
-          Ustaw nowe hasło
+          Set New Password
         </h1>
 
         {message && (
           <div className="text-green-400 mt-4 text-center">
             <p>{message}</p>
-            <p className="text-borderGrayHover mt-2">Przekierowanie za {countdown}...</p>
+            <p className="text-borderGrayHover mt-2">Redirecting in {countdown}...</p>
           </div>
         )}
         {apiError && <p className="text-red-400 mt-4 text-center">{apiError}</p>}
@@ -150,7 +150,7 @@ function ResetPasswordPage() {
             {/* Teraz ten komponent jest stabilny i nie będzie się "resetował" */}
             <PasswordInput
               name="newPassword"
-              placeholder="Nowe hasło"
+              placeholder="New password"
               value={passwords.newPassword}
               onChange={handleChange}
               error={errors.newPassword}
@@ -160,7 +160,7 @@ function ResetPasswordPage() {
 
             <PasswordInput
               name="confirmPassword"
-              placeholder="Potwierdź nowe hasło"
+              placeholder="Confirm new password"
               value={passwords.confirmPassword}
               onChange={handleChange}
               error={errors.confirmPassword}
@@ -176,7 +176,7 @@ function ResetPasswordPage() {
               {isSubmitting ? (
                 <CgSpinner className="animate-spin inline-block w-6 h-6" />
               ) : (
-                'Zresetuj hasło'
+                'Reset Password'
               )}
             </button>
           </form>

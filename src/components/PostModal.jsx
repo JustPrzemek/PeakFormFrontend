@@ -83,7 +83,7 @@ export default function PostModal({ postId, onClose }) {
             setNewCommentText('');
         } catch (error) {
             console.error("Błąd podczas dodawania komentarza:", error);
-            alert("Nie udało się dodać komentarza. Spróbuj ponownie.");
+            alert("Failed to add comment. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -114,7 +114,7 @@ export default function PostModal({ postId, onClose }) {
                 likedByUser: isCurrentlyLiked,
                 likesCount: prevPost.likesCount
             }));
-            alert("Nie udało się zaktualizować polubienia.");
+            alert("Failed to update like.");
         }
     };
 
@@ -146,7 +146,7 @@ export default function PostModal({ postId, onClose }) {
                 likedByUser: false,
                 likesCount: prevPost.likesCount - 1
             }));
-            alert("Nie udało się dodać polubienia.");
+            alert("Failed to add like.");
         }
     };
 
