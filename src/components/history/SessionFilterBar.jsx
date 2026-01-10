@@ -14,7 +14,7 @@ export default function SessionFilterBar({ search, onSearchChange, sort, onSortC
             <div className="relative flex-grow">
                 <input
                     type="text"
-                    placeholder="Filtruj po nazwie planu lub dniu..."
+                    placeholder="Filter by plan name or date..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="w-full p-3 pl-10 bg-surfaceDarkGray border border-borderGrayHover rounded-lg focus:ring-2 focus:ring-bluePrimary"
@@ -23,13 +23,13 @@ export default function SessionFilterBar({ search, onSearchChange, sort, onSortC
             </div>
             <div className="flex gap-2">
                 <button onClick={() => onSortChange('endTime')} className={`p-3 rounded-lg ${sort.field === 'endTime' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover'}`}>
-                    Data <SortIcon fieldName="endTime" />
+                    Date <SortIcon fieldName="endTime" />
                 </button>
                 <button onClick={() => onSortChange('workoutPlans.name')} className={`p-3 rounded-lg ${sort.field === 'workoutPlans.name' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover'}`}>
                     Plan <SortIcon fieldName="workoutPlans.name" />
                 </button>
                 <button onClick={() => onSortChange('duration')} className={`p-3 rounded-lg ${sort.field === 'duration' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover'}`}>
-                    Czas <SortIcon fieldName="duration" />
+                    Duration <SortIcon fieldName="duration" />
                 </button>
             </div>
         </div>

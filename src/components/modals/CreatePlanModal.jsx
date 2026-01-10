@@ -38,9 +38,9 @@ const ToggleSwitch = ({ checked, onChange }) => (
  * Opcje celów treningowych.
  */
 const goalOptions = [
-    { value: 'maintenance', label: 'Utrzymanie wagi' },
-    { value: 'bulk', label: 'Budowanie masy (Masa)' },
-    { value: 'reduction', label: 'Redukcja tkanki (Redukcja)' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'bulk', label: 'Bulk' },
+    { value: 'reduction', label: 'Reduction' },
 ];
 
 /**

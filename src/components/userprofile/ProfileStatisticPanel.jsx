@@ -67,28 +67,28 @@ export default function ProfileStatisticPanel() {
             tabIndex={0}
             onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && handleNavigate()}
         >
-            <h3 className="text-lg font-semibold text-whitePrimary mb-2">Moja Aktywność (30 dni)</h3>
+            <h3 className="text-lg font-semibold text-whitePrimary mb-2">My Activity (30 days)</h3>
             
             {/* Używamy mniejszej siatki (2 kolumny) dla kompaktowego wyglądu.
               Karta "Serie" jest mniej ważna, więc ją pomijamy dla oszczędności miejsca.
             */}
             <div className="flex flex-col gap-3">
                 <KpiCard 
-                    title="Treningi" 
+                    title="Workouts" 
                     value={kpiData?.totalWorkouts || '0'} 
                     icon={<FaDumbbell size={18} />} 
                     loading={loadingKpi} 
                     isCompact // Możesz dodać prop 'isCompact' do KpiCard, aby zmniejszyć padding/font
                 />
                 <KpiCard 
-                    title="Czas" 
+                    title="Duration" 
                     value={formatDuration(kpiData?.totalDurationSeconds)} 
                     icon={<FaClock size={18} />} 
                     loading={loadingKpi}
                     isCompact
                 />
                 <KpiCard 
-                    title="Objętość" 
+                    title="Volume" 
                     value={formatVolume(kpiData?.totalVolume)} 
                     unit="t"
                     icon={<FaWeightHanging size={18} />} 
@@ -96,7 +96,7 @@ export default function ProfileStatisticPanel() {
                     isCompact
                 />
                 <KpiCard 
-                    title="Dystans" 
+                    title="Distance" 
                     value={formatDistance(kpiData?.totalDistanceKm)} 
                     unit="km"
                     icon={<FaRunning size={18} />} 
@@ -105,7 +105,7 @@ export default function ProfileStatisticPanel() {
                 />
             </div>
             <p className="text-center text-sm text-borderGrayHover mt-2">
-                Kliknij, aby zobaczyć pełne statystyki
+                Click to see full statistics
             </p>
         </div>
     );

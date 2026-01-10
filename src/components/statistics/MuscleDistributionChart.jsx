@@ -10,7 +10,7 @@ export default function MuscleDistributionChart({ data, loading }) {
     const chartData = data.map(item => ({ name: item.label, value: item.value }));
 
     return (
-        <ChartContainer title="Rozkład Grup Mięśniowych (serie)" loading={loading}>
+        <ChartContainer title="Muscle Distribution (series)" loading={loading}>
             <PieChart>
                 <Tooltip 
                     contentStyle={{ backgroundColor: '#333', border: 'none', borderRadius: '5px' }} 

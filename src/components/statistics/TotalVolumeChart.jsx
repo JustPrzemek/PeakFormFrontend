@@ -4,7 +4,7 @@ import ChartContainer from './ChartContainer';
 
 export default function TotalVolumeChart({ data, loading }) {
     return (
-        <ChartContainer title="Całkowita Objętość" loading={loading}>
+        <ChartContainer title="Total Volume" loading={loading}>
             <LineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis dataKey="date" stroke="#aaa" />
@@ -12,10 +12,10 @@ export default function TotalVolumeChart({ data, loading }) {
                 <Tooltip 
                     contentStyle={{ backgroundColor: '#333', border: 'none', borderRadius: '5px' }} 
                     labelStyle={{ color: '#fff' }} 
-                    formatter={(value) => [`${value.toFixed(0)} kg`, "Objętość"]}
+                    formatter={(value) => [`${value.toFixed(0)} kg`, "Volume"]}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="value" name="Objętość (kg)" stroke="#10b981" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="value" name="Volume (kg)" stroke="#10b981" strokeWidth={2} dot={false} />
             </LineChart>
         </ChartContainer>
     );

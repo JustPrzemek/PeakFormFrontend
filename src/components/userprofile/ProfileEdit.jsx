@@ -41,7 +41,7 @@ export default function ProfileEdit() {
     const [weight, setWeight] = useState('');
     const [height, setHeight] = useState('');
     const [goal, setGoal] = useState('');
-
+    const [activityLevel, setActivityLevel] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -65,6 +65,7 @@ export default function ProfileEdit() {
                 setWeight(profileData.weight || '');
                 setHeight(profileData.height || '');
                 setGoal(profileData.goal || '');
+                setActivityLevel(profileData.activityLevel || '');
 
             } catch (err) {
                 setError(err.message || "Wystąpił błąd podczas ładowania danych.");
@@ -112,7 +113,8 @@ export default function ProfileEdit() {
             weight: weight ? parseFloat(weight) : null,
             height: height ? parseFloat(height) : null,
             
-            goal: goal || null // Jeśli goal jest pustym stringiem, wyślij null
+            goal: goal || null, // Jeśli goal jest pustym stringiem, wyślij null
+            activityLevel: activityLevel || null // Jeśli activityLevel jest pustym stringiem, wyślij null
         };
 
         try {
@@ -295,6 +297,20 @@ export default function ProfileEdit() {
                                     max={new Date().toISOString().split('T')[0]} 
                                     className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
                                 />
+                            </FormField>
+                            <FormField label="Activity Level">
+                                <select 
+                                    value={activityLevel} 
+                                    onChange={(e) => setActivityLevel(e.target.value)}
+                                    className="w-full bg-surfaceDarkGray border border-borderGray rounded p-2 text-white"
+                                >
+                                    <option value="">Select Activity Level</option>
+                                    <option value="SEDENTARY">SEDENTARY</option>
+                                    <option value="LIGHT">LIGHT</option>
+                                    <option value="MODERATE">MODERATE</option>
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="VERY_ACTIVE">VERY_ACTIVE</option>
+                                </select>
                             </FormField>
                         </div>
                     </section>

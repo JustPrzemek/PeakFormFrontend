@@ -118,7 +118,7 @@ export default function StatisticsPage() {
 
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
                     <h1 className="text-4xl font-bold text-center sm:text-left mb-4 sm:mb-0">
-                        Statystyki
+                        Statistics
                     </h1>
                     {/* Selektor daty */}
                     <div className="z-10">
@@ -140,9 +140,9 @@ export default function StatisticsPage() {
                     </div>
                 </div>
 
-                {/* Sekcja KPI */}
+                {/* Section KPI */}
                 <section className="mb-10">
-                    <h2 className="text-2xl font-semibold mb-4 text-whitePrimary">Podsumowanie okresu</h2>
+                    <h2 className="text-2xl font-semibold mb-4 text-whitePrimary">Summary of the period</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
                         <KpiCard 
                             title="Treningi" 
@@ -151,26 +151,26 @@ export default function StatisticsPage() {
                             loading={loadingKpi} 
                         />
                         <KpiCard 
-                            title="Czas trwania" 
+                            title="Duration" 
                             value={formatDuration(kpiData?.totalDurationSeconds)} 
                             icon={<FaClock size={20} />} 
                             loading={loadingKpi}
                         />
                         <KpiCard 
-                            title="Objętość" 
+                            title="Volume" 
                             value={formatVolume(kpiData?.totalVolume)} 
                             unit="t"
                             icon={<FaWeightHanging size={20} />} 
                             loading={loadingKpi} 
                         />
                         <KpiCard 
-                            title="Serie" 
+                            title="Sets" 
                             value={kpiData?.totalSets || '0'} 
                             icon={<FaListOl size={20} />} 
                             loading={loadingKpi} 
                         />
                         <KpiCard 
-                            title="Dystans Cardio" 
+                            title="Cardio Distance" 
                             value={formatDistance(kpiData?.totalDistanceKm)} 
                             unit="km"
                             icon={<FaRunning size={20} />} 
@@ -179,7 +179,7 @@ export default function StatisticsPage() {
                     </div>
                 </section>
 
-                {/* Sekcja Wykresów */}
+                {/* Section Charts */}
                 <section>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <WorkoutFrequencyChart data={frequencyData} loading={loadingCharts} />

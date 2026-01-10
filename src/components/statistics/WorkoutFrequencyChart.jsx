@@ -4,7 +4,7 @@ import ChartContainer from './ChartContainer';
 
 export default function WorkoutFrequencyChart({ data, loading }) {
     return (
-        <ChartContainer title="Częstotliwość Treningów" loading={loading}>
+        <ChartContainer title="Workout Frequency" loading={loading}>
             <BarChart data={data} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis dataKey="date" stroke="#aaa" />
@@ -14,7 +14,7 @@ export default function WorkoutFrequencyChart({ data, loading }) {
                     labelStyle={{ color: '#fff' }} 
                 />
                 <Legend />
-                <Bar dataKey="value" name="Liczba sesji" fill="#3b82f6" />
+                <Bar dataKey="value" name="Number of sessions" fill="#3b82f6" />
             </BarChart>
         </ChartContainer>
     );

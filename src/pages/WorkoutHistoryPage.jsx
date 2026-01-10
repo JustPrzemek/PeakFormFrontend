@@ -98,11 +98,11 @@ export default function WorkoutHistoryPage() {
                     <FaArrowLeft className="text-4xl cursor-pointer transition-transform duration-300 hover:scale-110" />
                 </button>
 
-                <h1 className="text-4xl font-bold text-center mb-10">Historia Treningów</h1>
+                <h1 className="text-4xl font-bold text-center mb-10">Workout History</h1>
 
-                {/* Sekcja Ostatniej Sesji */}
+                {/* Section Last Session */}
                 <section className="mb-12">
-                    <h2 className="text-2xl font-semibold mb-4 text-whitePrimary">Ostatnia Sesja</h2>
+                    <h2 className="text-2xl font-semibold mb-4 text-whitePrimary">Last Session</h2>
                     {loadingLast ? (
                         <LastSessionCardSkeleton />
                     ) : (
@@ -110,9 +110,9 @@ export default function WorkoutHistoryPage() {
                     )}
                 </section>
 
-                {/* Sekcja Wszystkich Sesji */}
+                {/* Section All Sessions */}
                 <section>
-                    <h2 className="text-2xl font-semibold mb-6 text-whitePrimary">Wszystkie Sesje</h2>
+                    <h2 className="text-2xl font-semibold mb-6 text-whitePrimary">All Sessions</h2>
                     
                     <SessionFilterBar
                         search={search}
@@ -136,7 +136,7 @@ export default function WorkoutHistoryPage() {
                             loader={<CgSpinner className="mx-auto my-4 animate-spin text-3xl text-bluePrimary" />}
                             endMessage={
                                 <p className="text-center text-borderGrayHover mt-6">
-                                    To już wszystkie sesje.
+                                    These are all the sessions.
                                 </p>
                             }
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -149,7 +149,7 @@ export default function WorkoutHistoryPage() {
                          /* 3. Pokaż "Nie znaleziono", jeśli nie ładujemy I lista jest pusta */
                          !loadingAll && sessions.length === 0 && (
                              <div className="text-center py-10 text-borderGrayHover">
-                                 Nie znaleziono żadnych sesji pasujących do filtrów.
+                                 No sessions found matching the filters.
                              </div>
                          )
                     )}

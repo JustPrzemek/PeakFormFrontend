@@ -49,7 +49,7 @@ export default function PlanFilterBar({ filters, onFilterChange, sort, onSortCha
                 <input
                     type="text"
                     name="name"
-                    placeholder="Filtruj po nazwie planu..."
+                    placeholder="Filter by plan name..."
                     value={filters.name}
                     onChange={handleNameChange} // Używamy nowej funkcji z debouncingiem
                     className="w-full p-3 pl-10 bg-surfaceDarkGray border border-borderGrayHover rounded-lg text-whitePrimary focus:ring-2 focus:ring-bluePrimary focus:border-bluePrimary transition"
@@ -65,10 +65,10 @@ export default function PlanFilterBar({ filters, onFilterChange, sort, onSortCha
                     onChange={handleSelectChange}
                     className="p-3 bg-surfaceDarkGray border border-borderGrayHover rounded-lg text-whitePrimary focus:ring-2 focus:ring-bluePrimary focus:border-bluePrimary transition"
                 >
-                    <option value="null">Wszystkie cele</option>
-                    <option value="reduction">Redukcja</option>
-                    <option value="bulk">Masa</option>
-                    <option value="maintenance">Utrzymanie</option>
+                    <option value="null">All goals</option>
+                    <option value="reduction">Reduction</option>
+                    <option value="bulk">Bulk</option>
+                    <option value="maintenance">Maintenance</option>
                 </select>
 
                 <select 
@@ -77,9 +77,9 @@ export default function PlanFilterBar({ filters, onFilterChange, sort, onSortCha
                     onChange={handleSelectChange}
                     className="p-3 bg-surfaceDarkGray border border-borderGrayHover rounded-lg text-whitePrimary focus:ring-2 focus:ring-bluePrimary focus:border-bluePrimary transition"
                 >
-                    <option value="null">Wszystkie plany</option>
-                    <option value="true">Tylko aktywne</option>
-                    <option value="false">Tylko nieaktywne</option>
+                    <option value="null">All plans</option>
+                    <option value="true">Only active</option>
+                    <option value="false">Only inactive</option>
                 </select>
             </div>
 
@@ -89,19 +89,19 @@ export default function PlanFilterBar({ filters, onFilterChange, sort, onSortCha
                     onClick={() => onSortChange('createdAt')} 
                     className={`p-3 min-w-[100px] text-sm font-semibold rounded-lg transition ${sort.field === 'createdAt' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover hover:bg-borderGrayHover/30'}`}
                 >
-                    Data <SortIcon fieldName="createdAt" sort={sort} />
+                    Date <SortIcon fieldName="createdAt" sort={sort} />
                 </button>
                 <button 
                     onClick={() => onSortChange('name')} 
                     className={`p-3 min-w-[100px] text-sm font-semibold rounded-lg transition ${sort.field === 'name' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover hover:bg-borderGrayHover/30'}`}
                 >
-                    Nazwa <SortIcon fieldName="name" sort={sort} />
+                    Name <SortIcon fieldName="name" sort={sort} />
                 </button>
                 <button 
                     onClick={() => onSortChange('goal')} 
                     className={`p-3 min-w-[100px] text-sm font-semibold rounded-lg transition ${sort.field === 'goal' ? 'bg-bluePrimary text-white' : 'bg-surfaceDarkGray text-borderGrayHover hover:bg-borderGrayHover/30'}`}
                 >
-                    Cel <SortIcon fieldName="goal" sort={sort} />
+                    Goal <SortIcon fieldName="goal" sort={sort} />
                 </button>
             </div>
             {loading && <CgSpinner className="animate-spin text-bluePrimary text-2xl" />}

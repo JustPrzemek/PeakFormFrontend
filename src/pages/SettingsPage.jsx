@@ -1,21 +1,11 @@
 import { Link, useLocation, Outlet} from "react-router-dom";
-import { FaUserEdit, FaShieldAlt, FaBell } from "react-icons/fa";
+import { FaUserEdit } from "react-icons/fa";
 
 const settingsLinks = [
     { 
         path: "/settings/edit", 
         label: "Edit Profile", 
         icon: <FaUserEdit /> 
-    },
-    { 
-        path: "/settings/security", 
-        label: "Login & Security", 
-        icon: <FaShieldAlt /> 
-    },
-    { 
-        path: "/settings/notifications", 
-        label: "Notifications", 
-        icon: <FaBell /> 
     },
 ];
 
