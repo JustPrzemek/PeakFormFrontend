@@ -30,9 +30,8 @@ export default function MealCard({ title, entries, onAddClick, onDeleteEntry }) 
     // ========== FUNKCJE OBSŁUGUJĄCE EVENTY (useCallback) ==========
     
     /**
-     * ZMIANA: Usunięto window.confirm.
-     * Teraz funkcja tylko przekazuje sygnał do rodzica (onDeleteEntry),
-     * który otworzy Twój customowy ConfirmationModal.
+     * Przekazuje sygnał do rodzica (onDeleteEntry),
+     * który otworzy customowy ConfirmationModal.
      */
     const handleDeleteClick = useCallback((e, logId) => {
         e.stopPropagation(); // Zapobiega kliknięciu w rodzica

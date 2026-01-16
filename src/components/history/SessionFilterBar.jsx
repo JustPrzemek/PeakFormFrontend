@@ -1,4 +1,3 @@
-// src/components/history/SessionFilterBar.jsx
 
 import { FaSearch, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 

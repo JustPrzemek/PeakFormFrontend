@@ -208,7 +208,7 @@ export default function LiveTraining() {
         const currentExercise = session.exercises[currentExerciseIndex];
         let logData;
 
-        // ZMIANA: Budowanie obiektu logData w zależności od typu
+        // Budowanie obiektu logData w zależności od typu
         if (currentExercise.exerciseType === 'STRENGTH') {
             const weightFloat = parseFloat(strengthInputs.weight);
             const repsInt = parseInt(strengthInputs.reps);
@@ -280,13 +280,13 @@ export default function LiveTraining() {
         if (saveSummary) {
             const currentExercise = session.exercises[currentExerciseIndex];
             
-            // --- POPRAWKA TUTAJ: Brakowało tej definicji ---
+            // Brakowało tej definicji
             const newSummary = {
                 name: currentExercise.name,
                 logs: completedLogs,
                 exerciseType: currentExercise.exerciseType,
             };
-            // --- KONIEC POPRAWKI ---
+
 
             // Dodaj do podsumowania tylko jeśli logi nie są puste (czyli nie pominięto)
             if (completedLogs.length > 0) {
@@ -299,7 +299,7 @@ export default function LiveTraining() {
             }
         }
 
-        // --- ZMODYFIKOWANA LOGIKA "NEXT" ---
+        // --- LOGIKA "NEXT" ---
         const nextIndex = findNextIncompleteExercise(currentExerciseIndex);
 
         if (nextIndex !== -1) {
@@ -384,14 +384,14 @@ export default function LiveTraining() {
                                     Exercise {currentExerciseIndex + 1} / {session.exercises.length}
                                 </p>
                                 <div className="flex items-center gap-4">
-                                    {/* --- NOWY PRZYCISK --- */}
+
                                     <button 
                                         onClick={() => setExerciseListModalOpen(true)} 
                                         className="text-xs text-borderGrayHover hover:text-bluePrimary flex items-center gap-1"
                                     >
                                         <FaTasks/> List
                                     </button>
-                                    {/* --- KONIEC NOWEGO PRZYCISKU --- */}
+
                                     <button onClick={handleOpenAbandonModal} className="text-xs text-borderGrayHover hover:text-red-500 flex items-center gap-1">
                                         <FaTimes/> Quit
                                     </button>
@@ -405,22 +405,19 @@ export default function LiveTraining() {
                 <main className="flex-grow">
                     {isResting ? (
                         // ====================================================================
-                        // ZMIANA #2: Poprawiony 'exerciseName'
                         // Teraz pokazuje nazwę aktualnego ćwiczenia
                         // ====================================================================
                         <RestTimer 
                             duration={currentExercise.restTime} 
                             onFinish={() => setIsResting(false)} 
-                            exerciseName={currentExercise.name} // POPRAWKA BŁĘDU
+                            exerciseName={currentExercise.name}
                         />
                     ) : isExerciseFinished ? (
                         <div className="text-center my-8 p-8 bg-surfaceDarkGray rounded-2xl animate-fade-in flex flex-col items-center">
                             <FaCheckCircle className="text-6xl text-green-500 mb-4" />
                             <h3 className="text-3xl font-bold">Exercise complete!</h3>
                             <p className="text-borderGrayHover mt-1">Good job!</p>
-                            {/* ====================================================================
-                            // ZMIANA #3: Przycisk "Next" wywołuje handleNextExercise(true)
-                            // ==================================================================== */}
+                            {/* Przycisk "Next" wywołuje handleNextExercise(true) */}
                             <button onClick={() => handleNextExercise(true)} className="w-full mt-6 bg-bluePrimary text-white font-bold py-3 rounded-lg flex items-center justify-center text-lg hover:bg-blueHover transition-colors">
                                 {currentExerciseIndex + 1 < session.exercises.length ? "Next Exercise" : "Finish Workout"}
                                 <FaArrowRight className="ml-2" />
@@ -436,9 +433,7 @@ export default function LiveTraining() {
                                         : `${currentExercise.durationMinutes} min` + (currentExercise.distanceKm ? ` / ${currentExercise.distanceKm} km` : '')
                                     }
                                 </p>
-                                {/* ====================================================================
-                                // ZMIANA #3: Dodany przycisk "Pomiń ćwiczenie"
-                                // ==================================================================== */}
+                                {/* Przycisk "Pomiń ćwiczenie" */}
                                 <div className="flex justify-center items-center gap-4 mt-2">
                                     <Link to={`/training/exercises/${currentExercise.exerciseId}`} className="inline-flex items-center text-sm text-borderGrayHover hover:text-white">
                                         <FaInfoCircle className="mr-2" /> View Instructions

@@ -366,25 +366,25 @@ export default function NutritionDashboardPage() {
                             title="Breakfast" 
                             entries={dailyLog?.meals.BREAKFAST || []}
                             onAddClick={() => handleOpenModal('BREAKFAST')}
-                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
+                            onDeleteEntry={initiateDelete}
                         />
                         <MealCard 
                             title="Lunch" 
                             entries={dailyLog?.meals.LUNCH || []}
                             onAddClick={() => handleOpenModal('LUNCH')}
-                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
+                            onDeleteEntry={initiateDelete}
                         />
                         <MealCard 
                             title="Dinner" 
                             entries={dailyLog?.meals.DINNER || []}
                             onAddClick={() => handleOpenModal('DINNER')}
-                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
+                            onDeleteEntry={initiateDelete}
                         />
                         <MealCard 
                             title="Snacks" 
                             entries={dailyLog?.meals.SNACK || []}
                             onAddClick={() => handleOpenModal('SNACK')}
-                            onDeleteEntry={initiateDelete} // <--- ZMIANA TUTAJ
+                            onDeleteEntry={initiateDelete}
                         />
                     </div>
                 )}

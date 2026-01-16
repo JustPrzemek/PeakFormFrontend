@@ -58,10 +58,10 @@ export default function ExerciseDetailPage() {
     if (!exercise) return <p className="text-center mt-10 text-whitePrimary">Exercise not found.</p>;
 
     return (
-        // --- ZMIANA 1: Główny kontener staje się elastyczną kolumną ---
+        // Główny kontener staje się elastyczną kolumną
         <div className="bg-backgoudBlack text-whitePrimary min-h-screen flex flex-col">
             
-            {/* --- ZMIANA 2: Kontener z treścią dostaje flex-grow --- */}
+            {/* Kontener z treścią dostaje flex-grow */}
             <main className="container mx-auto p-4 sm:p-8 flex-grow">
                 <button
                 onClick={handleGoBack}
@@ -117,7 +117,7 @@ export default function ExerciseDetailPage() {
                                 </div>
                             </div>
                             
-                            {/* --- ZMIANA 3: Przycisk wypchnięty na dół prawej kolumny --- */}
+                            {/* Przycisk wypchnięty na dół prawej kolumny */}
                             <button 
                                 className="mt-auto w-full bg-bluePrimary hover:bg-blueHover text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-300"
                                 onClick={handleOpenAddModal}

@@ -1,4 +1,4 @@
-// src/components/modals/AddExerciseToPlanModal.jsx
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getUserPlans, addExerciseToPlan, createCustomPlan } from '../../services/workoutPlanService';
 import toast from 'react-hot-toast';
@@ -94,10 +94,9 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
 
             const fetchUserPlans = async () => {
                 try {
-                    // Pobierz wszystkie plany użytkownika (duży rozmiar strony)
                     const params = {
                         page: 0,
-                        size: 200, // Wystarczająco dużo dla modala
+                        size: 200,
                         sort: { field: 'createdAt', direction: 'desc' },
                     };
                     
@@ -316,7 +315,6 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                 </h2>
                 {isLoading ? (
                     <div className="flex justify-center items-center h-40">
-                        {/* ZMIANA: Loader2 -> CgSpinner */}
                         <CgSpinner className="animate-spin text-bluePrimary" size={40} />
                     </div>
                 ) : showCreatePlan ? (
@@ -345,7 +343,6 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                                     Cancel
                                 </button>
                                 <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>
-                                    {/* ZMIANA: Loader2 -> CgSpinner */}
                                     {isSubmitting && <CgSpinner className="animate-spin" size={18} />}
                                     {isSubmitting ? 'Creating...' : 'Create and continue'}
                                 </button>
@@ -373,7 +370,6 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                                     ))}
                                 </select>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    {/* ZMIANA: ChevronDown -> FaChevronDown */}
                                     <FaChevronDown className="text-borderGrayHover" size={14} />
                                 </div>
                             </div>
@@ -460,7 +456,6 @@ export default function AddExerciseToPlanModal({ isOpen, onClose, exercise }) {
                         <div className="pt-4 flex justify-end gap-3">
                             <button type="button" onClick={onClose} className={secondaryButtonStyles}>Cancel</button>
                             <button type="submit" disabled={isSubmitting} className={primaryButtonStyles}>
-                                {/* ZMIANA: Loader2 -> CgSpinner */}
                                 {isSubmitting && <CgSpinner className="animate-spin" size={18} />}
                                 {isSubmitting ? 'Adding...' : 'Add exercise'}
                             </button>

@@ -250,11 +250,9 @@ export default function TrainingPlanDetailPage() {
                             <>
                                 <div className="min-w-0 w-full lg:w-2/3">
                                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                                        {/* ZMIANA: Dodano 'min-w-0' aby h1 nie wychodził poza kontener flex */}
                                         <h1 className="text-3xl md:text-4xl font-bold text-whitePrimary flex items-center gap-3 min-w-0">
                                             <GrPlan className="flex-shrink-0 text-bluePrimary" />
                                             
-                                            {/* ZMIANA: break-words przeniesione/dodane tutaj, aby łamać długi tekst */}
                                             <span className="break-words min-w-0">{plan.name}</span>
                                         </h1>
                                         

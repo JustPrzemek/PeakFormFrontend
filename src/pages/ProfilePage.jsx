@@ -95,7 +95,6 @@ export default function Profile() {
                     </div>
 
                     {/* --- PRAWA KOLUMNA (HEADER + POSTY) --- */}
-                    {/* MAGICZNA ZMIANA: */}
                     {/* Używamy klasy 'contents' dla mobile. To sprawia, że ten div znika logicznie na mobile, 
                         a jego dzieci (Header i Posts) stają się bezpośrednimi dziećmi <main>. 
                         Dzięki temu możemy im nadać osobny 'order'. 

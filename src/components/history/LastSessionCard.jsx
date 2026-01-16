@@ -1,5 +1,5 @@
 import { FaClock, FaDumbbell } from 'react-icons/fa';
-import { formatDuration, formatDate } from '../../utils/formatters'; // Twoje importy
+import { formatDuration, formatDate } from '../../utils/formatters';
 
 export default function LastSessionCard({ session, onSessionClick }) {
     if (!session) {

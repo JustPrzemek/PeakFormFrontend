@@ -109,7 +109,7 @@ export default function ProfileEdit() {
             gender: gender || null, // Jeśli gender jest pustym stringiem, wyślij null
             dateOfBirth: dateOfBirth || null, // Jeśli data jest pusta, wyślij null
             
-            // KLUCZOWA ZMIANA: Konwertuj na liczbę lub wyślij null
+            // Konwertuj na liczbę lub wyślij null
             weight: weight ? parseFloat(weight) : null,
             height: height ? parseFloat(height) : null,
             
@@ -316,7 +316,7 @@ export default function ProfileEdit() {
                     </section>
                 </div>
                 
-                {/* --- NOWA, PŁYWAJĄCA BELKA ZAPISU --- */}
+                {/* --- PŁYWAJĄCA BELKA ZAPISU --- */}
                 <footer className="fixed bottom-0 left-0 right-0 bg-surfaceDarkGray border-t border-borderGrayHover z-10">
                     <div className="container max-w-3xl mx-auto p-4 flex justify-end items-center">
                         {error && <p className="text-red-400 text-sm mr-4">{error}</p>}
