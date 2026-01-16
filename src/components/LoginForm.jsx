@@ -48,6 +48,8 @@ function LoginForm({ onForgotPassword, onSwitchToRegister}) {
             navigate('/home'); // Redirect on success
         } catch (err) {
             setApiError(err.message || "Invalid username or password.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
